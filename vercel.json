@@ -1,12 +1,6 @@
 {
-  "functions": {
-    "criar-pix.js": { "runtime": "@vercel/node@3" },
-    "verificar-pix.js": { "runtime": "@vercel/node@3" }
-  },
   "rewrites": [
     { "source": "/api/criar-pix", "destination": "/criar-pix.js" },
-    { "source": "/api/verificar-pix", "destination": "/verificar-pix.js" },
-    { "source": "/p/:slug*", "destination": "/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/verificar-pix", "destination": "/verificar-pix.js" }
   ]
 }
