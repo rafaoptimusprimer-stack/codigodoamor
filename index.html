@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Código do Amor — Crie sua Homenagem Digital com QR Code</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Bebas+Neue&family=Press+Start+2P&family=Special+Elite&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #090714; color: #f8fafc; }
+    .font-serif-display { font-family: 'Playfair Display', serif; }
+    .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+    .font-pixel { font-family: 'Press Start 2P', monospace; }
+    .font-cordel { font-family: 'Special Elite', monospace; }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #120e24; }
+    ::-webkit-scrollbar-thumb { background: #6d28d9; border-radius: 9999px; }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow { animation: spinSlow 8s linear infinite; }
+
+    @keyframes floatUp {
+      0% { transform: translateY(100%) scale(0.8); opacity: 0; }
+      20% { opacity: 0.8; }
+      80% { opacity: 0.8; }
+      100% { transform: translateY(-120%) scale(1.1); opacity: 0; }
+    }
+    .particle {
+      position: absolute;
+      bottom: -20px;
+      pointer-events: none;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes pulseRadar {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.5; }
+    }
+    .radar-dot { animation: pulseRadar 1.5s ease-in-out infinite; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 bg-[#090714]/90 backdrop-blur-md border-b border-purple-900/40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-600/30">
+          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">Código do Amor</span>
+          <span class="hidden sm:inline-block ml-2 text-[11px] px-2 py-0.5 rounded-full bg-purple-900/60 text-purple-300 border border-purple-700/40">codigodoamor.vercel.app</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openFullscreen()" class="px-3 py-1.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-200 text-xs font-semibold border border-purple-700/50 transition flex items-center gap-1.5">
+          <span>📱</span> <span class="hidden sm:inline">Tela Cheia</span>
+        </button>
+        <a href="#checkout-section" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold shadow-lg shadow-purple-600/25 transition">
+          Criar Agora
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <!-- LEFT COLUMN: EDITOR & PLANS (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+
+      <!-- STEP 1: MODEL SELECTION -->
+      <section class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 1 de 3</span>
+            <h2 class="text-xl font-extrabold text-white">Escolha o Tema da Homenagem</h2>
+          </div>
+          <span class="text-xs text-slate-400 bg-[#1a1433] px-2.5 py-1 rounded-full border border-purple-800/40">16 Modelos</span>
+        </div>
+
+        <!-- Category Tabs -->
+        <div id="category-tabs" class="flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
+          <button onclick="filterThemes('all')" data-cat="all" class="cat-btn active px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-600 text-white whitespace-nowrap transition">Todos (16)</button>
+          <button onclick="filterThemes('streaming')" data-cat="streaming" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Streaming & Filmes</button>
+          <button onclick="filterThemes('geek')" data-cat="geek" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Animes & Games</button>
+          <button onclick="filterThemes('music')" data-cat="music" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Música & Social</button>
+          <button onclick="filterThemes('brasil')" data-cat="brasil" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Brasil & Clássicos</button>
+        </div>
+
+        <!-- Theme Cards Grid -->
+        <div id="themes-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[320px] overflow-y-auto pr-1">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- STEP 2: PERSONALIZATION FORM -->
+      <section class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 2 de 3</span>
+          <h2 class="text-xl font-extrabold text-white">Personalize os Detalhes</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Casal (Título)</label>
+            <input id="input-couple" type="text" value="Rafael & Juliana" oninput="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" placeholder="Ex: João & Maria" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Início do Relacionamento</label>
+            <input id="input-date" type="datetime-local" value="2023-10-30T20:00" oninput="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Mensagem / Declaração Romântica</label>
+          <textarea id="input-message" rows="3" oninput="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" placeholder="Escreva sua mensagem especial...">Cada segundo ao seu lado transforma dias comuns na nossa melhor história. Obrigado por ser meu porto seguro, minha melhor escolha e o amor da minha vida.</textarea>
+        </div>
+
+        <!-- Photos Upload -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold text-slate-300">Fotos do Casal (até 6 fotos)</label>
+            <button type="button" onclick="resetPhotos()" class="text-[11px] text-purple-400 hover:underline">Restaurar fotos exemplo</button>
+          </div>
+          <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-purple-700/60 rounded-xl cursor-pointer bg-[#1a1433]/60 hover:bg-[#1a1433] transition">
+            <div class="flex flex-col items-center justify-center pt-2 pb-2">
+              <p class="text-xs text-purple-200 font-semibold">📸 Clique para enviar fotos da galeria</p>
+              <p class="text-[11px] text-slate-400">PNG, JPG ou WEBP</p>
+            </div>
+            <input id="input-photos" type="file" accept="image/*" multiple onchange="handlePhotoUpload(event)" class="hidden" />
+          </label>
+          <div id="photo-thumbs" class="flex gap-2 mt-2 overflow-x-auto"></div>
+        </div>
+
+        <!-- Music Selection -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Trilha Sonora</label>
+            <select id="input-music-preset" onchange="handleMusicPreset()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500">
+              <option value="https://open.spotify.com/embed/track/0tgVpDi06FyKpA1z0VMD4v">Perfect — Ed Sheeran (Spotify)</option>
+              <option value="https://open.spotify.com/embed/track/3U4isOIWM3VvDubwSI3y7a">All of Me — John Legend (Spotify)</option>
+              <option value="https://open.spotify.com/embed/track/1dGr1c8CrMLDpV6mPbImSI">Lover — Taylor Swift (Spotify)</option>
+              <option value="https://open.spotify.com/embed/track/5uCax9HTNlzGybIStD3vDh">Say You Won't Let Go — James Arthur</option>
+              <option value="custom">🔗 Colar meu link do Spotify ou YouTube</option>
+            </select>
+          </div>
+          <div id="custom-music-box" class="hidden">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Link Spotify ou YouTube</label>
+            <input id="input-music-custom" type="url" oninput="updatePreview()" placeholder="https://open.spotify.com/track/..." class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Chuva de Emojis na Tela</label>
+            <select id="input-particles" onchange="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500">
+              <option value="❤️">Corações Vermelhos (❤️)</option>
+              <option value="✨">Brilhos & Estrelas (✨)</option>
+              <option value="🌹">Pétalas de Rosa (🌹)</option>
+              <option value="🦋">Borboletas (🦋)</option>
+              <option value="none">Sem partículas</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3: PLANS & CHECKOUT -->
+      <section id="checkout-section" class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 3 de 3</span>
+          <h2 class="text-xl font-extrabold text-white">Escolha a Validade do Acesso</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Pagamento único via Pix • Liberação imediata com QR Code</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Plan 15 days -->
+          <div onclick="selectPlan('15_dias', 9.90, '15 Dias')" id="plan-15_dias" class="plan-card cursor-pointer rounded-xl p-4 bg-[#1a1433] border-2 border-purple-800/40 hover:border-purple-500 transition flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Teste Rápido</span>
+              <h3 class="text-base font-bold text-white mt-2">15 Dias</h3>
+              <p class="text-2xl font-black text-white mt-1">R$ 9,90</p>
+              <ul class="text-[11px] text-slate-300 space-y-1 mt-3">
+                <li>✓ Link ativo por 15 dias</li>
+                <li>✓ QR Code em alta resolução</li>
+                <li>✓ Até 6 fotos + música</li>
+              </ul>
+            </div>
+            <div class="mt-3 text-center text-xs font-semibold text-purple-300">Selecionar</div>
+          </div>
+
+          <!-- Plan 1 year -->
+          <div onclick="selectPlan('1_ano', 29.90, '1 Ano')" id="plan-1_ano" class="plan-card cursor-pointer rounded-xl p-4 bg-[#1a1433] border-2 border-purple-800/40 hover:border-purple-500 transition flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-900/80 text-purple-200">Mais Escolhido</span>
+              <h3 class="text-base font-bold text-white mt-2">1 Ano</h3>
+              <p class="text-2xl font-black text-white mt-1">R$ 29,90</p>
+              <ul class="text-[11px] text-slate-300 space-y-1 mt-3">
+                <li>✓ Link ativo por 365 dias</li>
+                <li>✓ QR Code personalizado</li>
+                <li>✓ Todos os 16 temas</li>
+              </ul>
+            </div>
+            <div class="mt-3 text-center text-xs font-semibold text-purple-300">Selecionar</div>
+          </div>
+
+          <!-- Plan Forever -->
+          <div onclick="selectPlan('vitalicio', 49.90, 'Para Sempre')" id="plan-vitalicio" class="plan-card cursor-pointer rounded-xl p-4 bg-gradient-to-b from-purple-900/40 to-[#1a1433] border-2 border-pink-500 shadow-lg shadow-pink-500/10 transition flex flex-col justify-between relative">
+            <span class="absolute -top-2.5 right-3 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white">⭐ Vitalício</span>
+            <div>
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-pink-950 text-pink-300">Sem Expiração</span>
+              <h3 class="text-base font-bold text-white mt-2">Para Sempre</h3>
+              <p class="text-2xl font-black text-white mt-1">R$ 49,90</p>
+              <ul class="text-[11px] text-slate-300 space-y-1 mt-3">
+                <li>✓ Nunca sai do ar</li>
+                <li>✓ QR Code permanente</li>
+                <li>✓ Ideal para quadros e presentes</li>
+              </ul>
+            </div>
+            <div class="mt-3 text-center text-xs font-bold text-pink-300">✓ Selecionado</div>
+          </div>
+        </div>
+
+        <button onclick="openCheckoutModal()" class="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:opacity-95 text-white font-extrabold text-base shadow-xl shadow-pink-600/25 transition flex items-center justify-center gap-2">
+          <span>🚀 Gerar Página e QR Code Agora</span>
+          <span id="btn-price-tag" class="bg-black/25 px-2.5 py-0.5 rounded-lg text-sm">R$ 49,90</span>
+        </button>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN: LIVE MOBILE PREVIEW (5 cols) -->
+    <div class="lg:col-span-5 flex flex-col items-center">
+      <div class="sticky top-20 w-full flex flex-col items-center">
+        <div class="flex items-center justify-between w-full max-w-[360px] mb-2 px-1">
+          <span class="text-xs font-semibold text-purple-300 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Prévia ao Vivo no Celular
+          </span>
+          <button onclick="openFullscreen()" class="text-xs text-slate-300 hover:text-white underline">Expandir ↗</button>
+        </div>
+
+        <!-- PHONE FRAME -->
+        <div class="w-[350px] sm:w-[370px] h-[690px] rounded-[44px] p-3 bg-gradient-to-b from-slate-700 via-slate-900 to-black shadow-2xl border border-slate-700/80 relative">
+          <!-- Notch -->
+          <div class="w-32 h-5 bg-black rounded-b-2xl mx-auto absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center">
+            <div class="w-10 h-1 rounded-full bg-slate-800"></div>
+          </div>
+
+          <!-- Screen -->
+          <div id="phone-screen" class="w-full h-full rounded-[34px] overflow-y-auto overflow-x-hidden relative bg-black text-white">
+            <!-- Rendered dynamically by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FULLSCREEN MODAL -->
+  <div id="fullscreen-modal" class="fixed inset-0 z-50 bg-black hidden flex-col">
+    <div class="flex items-center justify-between px-4 py-2.5 bg-zinc-950 border-b border-zinc-800">
+      <span class="text-xs text-zinc-400">Modo Visualização do Presenteado • <strong class="text-white">Código do Amor</strong></span>
+      <button onclick="closeFullscreen()" class="px-3 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold">✕ Fechar Tela Cheia</button>
+    </div>
+    <div id="fullscreen-content" class="flex-1 overflow-y-auto max-w-md w-full mx-auto relative"></div>
+  </div>
+
+  <!-- CHECKOUT & QR CODE MODAL -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-[#141029] border border-purple-700/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-5">
+      <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">✕</button>
+
+      <!-- Step A: Pix Payment Simulation -->
+      <div id="pix-step" class="space-y-4">
+        <div class="text-center">
+          <span class="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold border border-emerald-500/30">Pagamento Instantâneo via Pix</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Finalizar Homenagem</h3>
+          <p class="text-xs text-slate-400 mt-1">Plano selecionado: <strong id="modal-plan-name" class="text-purple-300">Para Sempre</strong> — <strong id="modal-plan-price" class="text-white">R$ 49,90</strong></p>
+        </div>
+
+        <div class="bg-[#1d173b] p-4 rounded-xl border border-purple-800/40 text-center space-y-2">
+          <p class="text-xs text-slate-300">Escaneie ou copie o código Pix abaixo para ativar:</p>
+          <div class="w-40 h-40 mx-auto bg-white p-2 rounded-xl flex items-center justify-center">
+            <div id="pix-demo-qr"></div>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <input type="text" readonly value="00020126580014br.gov.bcb.pix0136codigodoamor-pix-pagamento520400005303986" class="w-full text-[11px] bg-black/40 border border-purple-800/40 rounded-lg px-2.5 py-2 text-slate-300" />
+            <button onclick="copyPixCode()" class="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-bold whitespace-nowrap">Copiar</button>
+          </div>
+        </div>
+
+        <button onclick="confirmPayment()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-600/20 transition">
+          ✓ Já fiz o Pix (Liberar Página e QR Code)
+        </button>
+      </div>
+
+      <!-- Step B: Activated Link & Downloadable QR Code -->
+      <div id="success-step" class="hidden space-y-4 text-center">
+        <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-2xl">🎉</div>
+        <div>
+          <h3 class="text-xl font-extrabold text-white">Página Ativada com Sucesso!</h3>
+          <p id="validity-badge" class="text-xs text-emerald-400 font-semibold mt-1">Validade: Acesso Vitalício (Para Sempre)</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl inline-block shadow-xl mx-auto">
+          <canvas id="final-qr-canvas" width="240" height="240"></canvas>
+        </div>
+
+        <div class="bg-[#1d173b] p-3 rounded-xl border border-purple-800/40">
+          <p class="text-[11px] text-slate-400 mb-1">Link exclusivo do casal:</p>
+          <div class="flex items-center gap-2">
+            <input id="generated-url-input" type="text" readonly class="w-full text-xs bg-black/40 border border-purple-800/40 rounded-lg px-2.5 py-2 text-purple-200 font-mono" />
+            <button onclick="copyFinalUrl()" class="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-bold">Copiar</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <button onclick="downloadQRCodePNG()" class="py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs shadow-lg">
+            ⬇ Baixar QR Code (PNG)
+          </button>
+          <button onclick="closeCheckoutModal(); openFullscreen();" class="py-3 rounded-xl bg-[#1d173b] hover:bg-purple-900/50 text-purple-200 border border-purple-700/50 font-bold text-xs">
+            📱 Abrir Homenagem
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // 16 THEMES CONFIGURATION
+    const THEMES = [
+      { id: 'netflix', name: 'Netflix', sub: 'Sua história em série', cat: 'streaming', badge: '⭐ MAIS USADO', color: '#e50914', icon: 'N', bg: 'from-red-950 to-black' },
+      { id: 'gta6', name: 'GTA VI Vice City', sub: 'Estilo Vice City', cat: 'geek', badge: '⭐ NOVO', color: '#ec4899', icon: 'VI', bg: 'from-fuchsia-950 to-indigo-950' },
+      { id: 'spotify', name: 'Spotify', sub: 'Trilha sonora do casal', cat: 'music', badge: '⭐ NOVO', color: '#1db954', icon: '♫', bg: 'from-emerald-950 to-black' },
+      { id: 'disney', name: 'Disney+ / Up', sub: 'Livro de Aventuras', cat: 'streaming', badge: 'ROMÂNTICO', color: '#38bdf8', icon: '🎈', bg: 'from-sky-900 to-blue-950' },
+      { id: 'bridgerton', name: 'Bridgerton', sub: 'Crônicas da Sociedade', cat: 'streaming', badge: 'ÉPOCA', color: '#d4af37', icon: '👑', bg: 'from-amber-950 to-slate-900' },
+      { id: 'barbie', name: 'Barbie & Ken', sub: 'Caixa de Colecionador', cat: 'streaming', badge: 'VIRAL', color: '#f43f5e', icon: '💖', bg: 'from-pink-600 to-rose-900' },
+      { id: 'friends', name: 'Friends', sub: 'Aquele em que nos amamos', cat: 'streaming', badge: 'CLÁSSICO', color: '#a855f7', icon: '🛋️', bg: 'from-purple-900 to-indigo-950' },
+      { id: 'yourname', name: 'Your Name', sub: 'Fio Vermelho do Destino', cat: 'geek', badge: 'ANIME', color: '#60a5fa', icon: '☄️', bg: 'from-indigo-950 to-slate-950' },
+      { id: 'naruto', name: 'Naruto', sub: 'Pergaminho Rank S', cat: 'geek', badge: 'ANIME', color: '#f97316', icon: '🍥', bg: 'from-amber-900 to-stone-950' },
+      { id: 'dbz', name: 'Dragon Ball Z', sub: 'Radar do Dragão +8000', cat: 'geek', badge: 'ANIME', color: '#22c55e', icon: '🐉', bg: 'from-emerald-950 to-green-950' },
+      { id: 'youtube', name: 'YouTube Clipe', sub: 'Nosso Videoclipe Oficial', cat: 'music', badge: 'MÚSICA', color: '#ef4444', icon: '▶', bg: 'from-zinc-900 to-black' },
+      { id: 'instagram', name: 'Instagram Reels', sub: 'Post Fixado do Casal', cat: 'music', badge: 'SOCIAL', color: '#e1306c', icon: '📷', bg: 'from-rose-950 to-zinc-950' },
+      { id: 'vinil', name: 'Disco de Vinil', sub: 'Vitrola Retrô MPB', cat: 'music', badge: 'RETRÔ', color: '#eab308', icon: '💿', bg: 'from-stone-900 to-black' },
+      { id: 'novela', name: 'Novela das 9', sub: 'Globoplay • Trama Principal', cat: 'brasil', badge: 'BRASIL', color: '#f43f5e', icon: '📺', bg: 'from-rose-950 to-slate-950' },
+      { id: 'cordel', name: 'Cordel Encantado', sub: 'Xilogravura Nordestina', cat: 'brasil', badge: 'NORDESTE', color: '#d97706', icon: '🌵', bg: 'from-amber-950 to-yellow-950' },
+      { id: 'classic', name: 'Clássico Romântico', sub: 'Elegante & Atemporal', cat: 'brasil', badge: 'TRADICIONAL', color: '#e11d48', icon: '♥', bg: 'from-rose-950 to-black' }
+    ];
+
+    const DEFAULT_PHOTOS = [
+      'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&q=80'
+    ];
+
+    let state = {
+      theme: 'netflix',
+      category: 'all',
+      couple: 'Rafael & Juliana',
+      date: '2023-10-30T20:00',
+      message: 'Cada segundo ao seu lado transforma dias comuns na nossa melhor história. Obrigado por ser meu porto seguro, minha melhor escolha e o amor da minha vida.',
+      photos: [...DEFAULT_PHOTOS],
+      photoIndex: 0,
+      musicUrl: 'https://open.spotify.com/embed/track/0tgVpDi06FyKpA1z0VMD4v',
+      particles: '❤️',
+      planId: 'vitalicio',
+      planPrice: 49.90,
+      planLabel: 'Para Sempre'
+    };
+
+    // Render Theme Cards
+    function renderThemes() {
+      const grid = document.getElementById('themes-grid');
+      const filtered = state.category === 'all' ? THEMES : THEMES.filter(t => t.cat === state.category);
+      grid.innerHTML = filtered.map(t => {
+        const active = state.theme === t.id;
+        return `
+          <div onclick="selectTheme('${t.id}')" class="cursor-pointer rounded-xl p-3 border transition relative ${active ? 'bg-purple-900/50 border-purple-400 shadow-lg shadow-purple-600/20' : 'bg-[#1a1433] border-purple-900/40 hover:border-purple-600/60'}">
+            ${t.badge ? `<span class="inline-block text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-purple-600/40 text-purple-200 mb-1.5">${t.badge}</span>` : ''}
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm shrink-0 text-white shadow" style="background:${t.color}">${t.icon}</div>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-white truncate">${t.name}</p>
+                <p class="text-[10px] text-slate-400 truncate">${t.sub}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterThemes(cat) {
+      state.category = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.className = 'cat-btn active px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-600 text-white whitespace-nowrap transition';
+        } else {
+          btn.className = 'cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition';
+        }
+      });
+      renderThemes();
+    }
+
+    function selectTheme(id) {
+      state.theme = id;
+      renderThemes();
+      updatePreview();
+    }
+
+    function selectPlan(id, price, label) {
+      state.planId = id;
+      state.planPrice = price;
+      state.planLabel = label;
+      document.getElementById('btn-price-tag').textContent = `R$ ${price.toFixed(2).replace('.', ',')}`;
+
+      document.querySelectorAll('.plan-card').forEach(card => {
+        card.classList.remove('border-pink-500', 'bg-gradient-to-b', 'from-purple-900/40', 'to-[#1a1433]');
+        card.classList.add('border-purple-800/40');
+      });
+      const selected = document.getElementById(`plan-${id}`);
+      selected.classList.remove('border-purple-800/40');
+      selected.classList.add('border-pink-500', 'bg-gradient-to-b', 'from-purple-900/40', 'to-[#1a1433]');
+    }
+
+    // Handle Photos
+    function handlePhotoUpload(e) {
+      const files = Array.from(e.target.files).slice(0, 6);
+      if (!files.length) return;
+      state.photos = [];
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          state.photos.push(ev.target.result);
+          renderThumbs();
+          updatePreview();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function resetPhotos() {
+      state.photos = [...DEFAULT_PHOTOS];
+      renderThumbs();
+      updatePreview();
+    }
+
+    function renderThumbs() {
+      const box = document.getElementById('photo-thumbs');
+      box.innerHTML = state.photos.map((src, i) => `
+        <img src="${src}" class="w-12 h-12 rounded-lg object-cover border border-purple-500/40 shrink-0" />
+      `).join('');
+    }
+
+    // Music Handling
+    function handleMusicPreset() {
+      const val = document.getElementById('input-music-preset').value;
+      const customBox = document.getElementById('custom-music-box');
+      if (val === 'custom') {
+        customBox.classList.remove('hidden');
+      } else {
+        customBox.classList.add('hidden');
+        state.musicUrl = val;
+        updatePreview();
+      }
+    }
+
+    function parseEmbedUrl(url) {
+      if (!url) return '';
+      if (url.includes('open.spotify.com/track/')) {
+        const id = url.split('track/')[1].split('?')[0];
+        return `https://open.spotify.com/embed/track/${id}`;
+      }
+      if (url.includes('youtube.com/watch?v=')) {
+        const id = url.split('v=')[1].split('&')[0];
+        return `https://www.youtube.com/embed/${id}`;
+      }
+      if (url.includes('youtu.be/')) {
+        const id = url.split('youtu.be/')[1].split('?')[0];
+        return `https://www.youtube.com/embed/${id}`;
+      }
+      return url;
+    }
+
+    // Time Counter Calculation
+    function getTimeDiff() {
+      const start = new Date(state.date || '2023-10-30T20:00');
+      const now = new Date();
+      let diff = Math.max(0, Math.floor((now - start) / 1000));
+
+      const years = Math.floor(diff / (365.25 * 24 * 3600));
+      diff -= Math.floor(years * 365.25 * 24 * 3600);
+      const months = Math.floor(diff / (30.44 * 24 * 3600));
+      diff -= Math.floor(months * 30.44 * 24 * 3600);
+      const days = Math.floor(diff / (24 * 3600));
+      diff -= days * 24 * 3600;
+      const hours = Math.floor(diff / 3600);
+      diff -= hours * 3600;
+      const minutes = Math.floor(diff / 60);
+      const seconds = diff % 60;
+
+      return { years, months, days, hours, minutes, seconds };
+    }
+
+    function renderCounterBoxes(accentClass = 'bg-white/10 border-white/15') {
+      const t = getTimeDiff();
+      const items = [
+        { v: t.years, l: 'Anos' },
+        { v: t.months, l: 'Meses' },
+        { v: t.days, l: 'Dias' },
+        { v: String(t.hours).padStart(2, '0'), l: 'Horas' },
+        { v: String(t.minutes).padStart(2, '0'), l: 'Min' },
+        { v: String(t.seconds).padStart(2, '0'), l: 'Seg' }
+      ];
+      return `
+        <div class="grid grid-cols-3 gap-1.5 text-center">
+          ${items.map(i => `
+            <div class="rounded-xl py-2 px-1 border ${accentClass}">
+              <div class="text-base font-black leading-none">${i.v}</div>
+              <div class="text-[9px] uppercase tracking-wider opacity-75 mt-1">${i.l}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function generateParticlesHTML() {
+      if (state.particles === 'none') return '';
+      let html = '';
+      for (let i = 0; i < 10; i++) {
+        const left = (i * 10 + 5) % 95;
+        const delay = (i * 0.7).toFixed(1);
+        const dur = (5 + (i % 4)).toFixed(1);
+        html += `<span class="particle text-base" style="left:${left}%; animation-delay:${delay}s; animation-duration:${dur}s;">${state.particles}</span>`;
+      }
+      return html;
+    }
+
+    function buildThemeHTML() {
+      const photo = state.photos[state.photoIndex % state.photos.length] || DEFAULT_PHOTOS[0];
+      const couple = state.couple || 'Rafael & Juliana';
+      const msg = state.message || '';
+      const musicIframe = state.musicUrl ? `<iframe src="${state.musicUrl}" width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" class="rounded-xl"></iframe>` : '';
+      const particles = generateParticlesHTML();
+
+      switch (state.theme) {
+        case 'netflix':
+          return `
+            <div class="min-h-full bg-[#141414] text-white pb-8 relative overflow-hidden">
+              ${particles}
+              <div class="relative h-72">
+                <img src="${photo}" class="w-full h-full object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/40 to-black/60"></div>
+                <div class="absolute top-6 left-4 flex items-center gap-1.5">
+                  <span class="text-red-600 font-black text-2xl tracking-tighter">N</span>
+                  <span class="text-[10px] tracking-[0.25em] font-bold text-zinc-300">SÉRIE ORIGINAL</span>
+                </div>
+                <div class="absolute bottom-3 left-4 right-4">
+                  <h1 class="font-bebas text-4xl tracking-wide leading-none">${couple}</h1>
+                  <div class="flex items-center gap-2 text-[11px] mt-1.5">
+                    <span class="text-emerald-400 font-bold">99% relevante</span>
+                    <span class="px-1 bg-zinc-800 border border-zinc-600 text-[9px]">L</span>
+                    <span class="text-zinc-300">Temporadas Infinitas</span>
+                  </div>
+                </div>
+              </div>
+              <div class="px-4 space-y-4">
+                <div class="flex gap-2">
+                  <button class="flex-1 py-2 rounded bg-white text-black font-bold text-xs flex items-center justify-center gap-1">▶ Assistir Agora</button>
+                  <button class="flex-1 py-2 rounded bg-zinc-800 text-white font-semibold text-xs">+ Minha Lista</button>
+                </div>
+                <p class="text-xs text-zinc-200 leading-relaxed">${msg}</p>
+                <div class="text-[11px] text-zinc-400 space-y-0.5">
+                  <p><strong class="text-zinc-200">Elenco:</strong> ${couple}</p>
+                  <p><strong class="text-zinc-200">Gêneros:</strong> Romance, Comédia Romântica, Vida Real</p>
+                  <p><strong class="text-zinc-200">Esta série é:</strong> Emocionante, Inesquecível, Apaixonante</p>
+                </div>
+                <div>
+                  <p class="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2">Tempo de Maratona Juntos</p>
+                  ${renderCounterBoxes('bg-zinc-900 border-zinc-800')}
+                </div>
+                ${musicIframe}
+                <p class="text-center text-[10px] text-zinc-500 pt-2">Criado com Código do Amor</p>
+              </div>
+            </div>
+          `;
+
+        case 'gta6':
+          return `
+            <div class="min-h-full bg-gradient-to-b from-[#1b0826] via-[#2d0b38] to-[#0d0617] text-white pb-8 relative overflow-hidden">
+              ${particles}
+              <div class="pt-7 px-4 flex justify-between items-center text-xs font-black">
+                <span class="text-pink-400 tracking-widest">VICE CITY LOVE</span>
+                <span class="text-amber-400">★★★★★</span>
+              </div>
+              <div class="p-4 space-y-4">
+                <div class="relative rounded-2xl overflow-hidden border-2 border-pink-500/70 shadow-lg shadow-pink-500/20">
+                  <img src="${photo}" class="w-full h-60 object-cover" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-pink-500/20"></div>
+                  <div class="absolute bottom-3 left-3 right-3">
+                    <span class="px-2 py-0.5 bg-pink-600 text-[9px] font-black uppercase rounded">Missão Passada! +Amor Eterno</span>
+                    <h1 class="font-bebas text-3xl tracking-wider text-white mt-1 drop-shadow">${couple}</h1>
+                  </div>
+                </div>
+                <div class="bg-black/50 border border-pink-500/30 rounded-xl p-3">
+                  <p class="text-xs text-pink-100 leading-relaxed">${msg}</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-extrabold uppercase tracking-widest text-cyan-300 mb-2">Tempo de Campanha Coop</p>
+                  ${renderCounterBoxes('bg-pink-950/60 border-pink-500/40')}
+                </div>
+                ${musicIframe}
+                <p class="text-center text-[10px] text-pink-300/60">Código do Amor • Vice City Edition</p>
+              </div>
+            </div>
+          `;
+
+        case 'spotify':
+          return `
+            <div class="min-h-full bg-gradient-to-b from-[#1db954]/40 via-[#121212] to-black text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="text-center text-[10px] uppercase tracking-widest text-zinc-300 font-bold">Tocando Nossa História</div>
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                <img src="${photo}" class="w-full h-64 object-cover" />
+              </div>
+              <div>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h1 class="text-xl font-black">${couple}</h1>
+                    <p class="text-xs text-zinc-400">Playlist Oficial • Feita para nós</p>
+                  </div>
+                  <span class="text-2xl text-[#1db954]">♥</span>
+                </div>
+                <div class="mt-3">
+                  <div class="w-full h-1 bg-zinc-700 rounded-full overflow-hidden">
+                    <div class="w-3/4 h-full bg-[#1db954]"></div>
+                  </div>
+                  <div class="flex justify-between text-[10px] text-zinc-400 mt-1">
+                    <span>∞:∞</span>
+                    <span>Para Sempre</span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-[#1db954] mb-2">Spotify Wrapped • Nós Dois</p>
+                ${renderCounterBoxes('bg-zinc-900/90 border-emerald-500/30')}
+              </div>
+              <div class="bg-[#1db954] text-black rounded-2xl p-4 font-bold text-xs leading-relaxed shadow-lg">
+                "${msg}"
+              </div>
+              ${musicIframe}
+              <p class="text-center text-[10px] text-zinc-500">Código do Amor</p>
+            </div>
+          `;
+
+        case 'disney':
+          return `
+            <div class="min-h-full bg-gradient-to-b from-sky-500 via-blue-700 to-indigo-950 text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="text-center">
+                <span class="text-xs font-extrabold tracking-widest uppercase bg-white/20 px-3 py-1 rounded-full">🎈 Disney+ • Nosso Livro de Aventuras</span>
+                <h1 class="font-serif-display text-2xl font-bold mt-3">${couple}</h1>
+              </div>
+              <div class="bg-white p-2.5 pb-6 rounded-xl shadow-xl text-slate-800 rotate-[-1deg]">
+                <img src="${photo}" class="w-full h-56 object-cover rounded-lg" />
+                <p class="font-serif-display italic text-center text-xs mt-2 text-slate-600">"A maior aventura é viver ao seu lado"</p>
+              </div>
+              <p class="text-xs bg-white/15 backdrop-blur p-3.5 rounded-xl leading-relaxed">${msg}</p>
+              ${renderCounterBoxes('bg-white/15 border-white/25')}
+              ${musicIframe}
+              <p class="text-center text-[10px] text-sky-200/70">Código do Amor</p>
+            </div>
+          `;
+
+        case 'bridgerton':
+          return `
+            <div class="min-h-full bg-[#f6efe2] text-[#2c221e] pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="border-2 border-[#b08d57] p-4 rounded-xl space-y-3 bg-[#fbf7f0]">
+                <div class="text-center border-b border-[#b08d57]/40 pb-2">
+                  <p class="text-[9px] uppercase tracking-[0.25em] text-[#8c6b32] font-bold">Crônicas da Sociedade • Lady Whistledown</p>
+                  <h1 class="font-serif-display text-2xl font-bold text-[#1f1815] mt-1">${couple}</h1>
+                </div>
+                <img src="${photo}" class="w-full h-52 object-cover rounded-lg border border-[#b08d57]" />
+                <p class="font-serif-display italic text-xs leading-relaxed text-[#3d302a]">"Caro Leitor, o romance mais admirado da temporada..." — ${msg}</p>
+                ${renderCounterBoxes('bg-[#efe5d1] border-[#b08d57]/50 text-[#2c221e]')}
+              </div>
+              ${musicIframe}
+              <p class="text-center text-[10px] text-[#8c6b32]">Código do Amor</p>
+            </div>
+          `;
+
+        case 'barbie':
+          return `
+            <div class="min-h-full bg-gradient-to-b from-pink-500 via-rose-500 to-pink-700 text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="border-4 border-white rounded-3xl p-3 bg-pink-400/30 shadow-2xl space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="bg-white text-pink-600 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase">Edição Limitada</span>
+                  <span class="text-xs font-extrabold">💖 Casal Perfeito</span>
+                </div>
+                <div class="rounded-2xl overflow-hidden border-2 border-white">
+                  <img src="${photo}" class="w-full h-56 object-cover" />
+                </div>
+                <h1 class="text-center font-black text-2xl tracking-tight drop-shadow">${couple}</h1>
+                <p class="text-xs bg-white/20 p-3 rounded-xl leading-relaxed">${msg}</p>
+                ${renderCounterBoxes('bg-white/20 border-white/40')}
+              </div>
+              ${musicIframe}
+              <p class="text-center text-[10px] text-pink-100">Código do Amor</p>
+            </div>
+          `;
+
+        case 'friends':
+          return `
+            <div class="min-h-full bg-[#4c2a85] text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="text-center">
+                <p class="text-[10px] tracking-[0.25em] uppercase text-amber-300 font-bold">F • R • I • E • N • D • S</p>
+                <h1 class="text-lg font-extrabold mt-1">Aquele em que ${couple} se apaixonam</h1>
+              </div>
+              <div class="p-2 bg-amber-400 rounded-2xl shadow-xl">
+                <img src="${photo}" class="w-full h-56 object-cover rounded-xl border-4 border-[#361d61]" />
+              </div>
+              <p class="text-xs bg-[#361d61] p-3.5 rounded-xl border border-purple-400/30 leading-relaxed">${msg}</p>
+              ${renderCounterBoxes('bg-[#361d61] border-amber-400/50')}
+              ${musicIframe}
+              <p class="text-center text-[10px] text-purple-200">Código do Amor</p>
+            </div>
+          `;
+
+        case 'yourname':
+          return `
+            <div class="min-h-full bg-gradient-to-b from-[#090d24] via-[#1d2b64] to-[#f8cdda]/30 text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="text-center">
+                <span class="text-[10px] tracking-widest uppercase text-sky-300">☄️ Kimi no Na wa • Fio Vermelho do Destino</span>
+                <h1 class="font-serif-display text-2xl font-bold mt-1">${couple}</h1>
+              </div>
+              <div class="relative rounded-2xl overflow-hidden border border-sky-400/40 shadow-lg">
+                <img src="${photo}" class="w-full h-56 object-cover" />
+                <div class="absolute bottom-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+              </div>
+              <p class="text-xs bg-slate-950/60 border border-sky-400/20 p-3.5 rounded-xl leading-relaxed">${msg}</p>
+              ${renderCounterBoxes('bg-slate-950/60 border-sky-400/30')}
+              ${musicIframe}
+              <p class="text-center text-[10px] text-sky-200/70">Código do Amor</p>
+            </div>
+          `;
+
+        case 'naruto':
+          return `
+            <div class="min-h-full bg-[#e8d5b5] text-[#2b1d0e] pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="border-y-4 border-amber-800 py-2 text-center bg-amber-900/10">
+                <span class="text-[10px] font-black uppercase tracking-widest text-amber-900">🍥 Vila da Folha • Missão Rank S</span>
+                <h1 class="text-xl font-black mt-0.5">${couple}</h1>
+              </div>
+              <img src="${photo}" class="w-full h-56 object-cover rounded-xl border-2 border-amber-900 shadow" />
+              <div class="bg-[#f5e8cf] border border-amber-800/40 p-3.5 rounded-xl text-xs leading-relaxed">
+                <strong>Pergaminho do Nosso Laço:</strong> ${msg}
+              </div>
+              ${renderCounterBoxes('bg-[#f5e8cf] border-amber-800/40')}
+              ${musicIframe}
+              <p class="text-center text-[10px] text-amber-900">Código do Amor</p>
+            </div>
+          `;
+
+        case 'dbz':
+          return `
+            <div class="min-h-full bg-[#062414] text-emerald-300 pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="border border-emerald-500/50 rounded-2xl p-3 bg-emerald-950/70 space-y-3">
+                <div class="flex justify-between items-center text-[10px] font-bold">
+                  <span>🐉 RADAR DO DRAGÃO</span>
+                  <span class="text-amber-400">PODER: +8.000</span>
+                </div>
+                <div class="relative rounded-xl overflow-hidden border border-emerald-400/50">
+                  <img src="${photo}" class="w-full h-52 object-cover" />
+                  <span class="radar-dot absolute top-3 right-3 w-3.5 h-3.5 rounded-full bg-amber-400 shadow-lg shadow-amber-400"></span>
+                </div>
+                <h1 class="text-center text-xl font-black text-white">${couple}</h1>
+                <p class="text-xs text-emerald-100 bg-black/40 p-3 rounded-xl leading-relaxed">${msg}</p>
+                ${renderCounterBoxes('bg-black/50 border-emerald-500/40 text-emerald-300')}
+              </div>
+              ${musicIframe}
+              <p class="text-center text-[10px] text-emerald-500">Código do Amor</p>
+            </div>
+          `;
+
+        case 'youtube':
+          return `
+            <div class="min-h-full bg-[#0f0f0f] text-white pb-8 pt-7 space-y-3 relative overflow-hidden">
+              ${particles}
+              <div class="relative">
+                <img src="${photo}" class="w-full h-56 object-cover" />
+                <span class="absolute bottom-2 right-2 bg-black/80 text-[10px] px-1.5 py-0.5 rounded font-mono">∞:∞</span>
+              </div>
+              <div class="px-4 space-y-3">
+                <div>
+                  <h1 class="text-base font-bold leading-snug">${couple} — Nosso Clipe Oficial (4K)</h1>
+                  <p class="text-[11px] text-zinc-400 mt-0.5">1.000.000 de visualizações • Estreia eterna</p>
+                </div>
+                <div class="flex items-center justify-between bg-zinc-900 p-2.5 rounded-xl">
+                  <span class="text-xs font-bold">Canal do Amor</span>
+                  <span class="px-3 py-1 rounded-full bg-white text-black text-[11px] font-bold">Inscrito ♥</span>
+                </div>
+                <p class="text-xs text-zinc-200 bg-zinc-900/80 p-3 rounded-xl leading-relaxed">${msg}</p>
+                ${renderCounterBoxes('bg-zinc-900 border-zinc-800')}
+                ${musicIframe}
+                <p class="text-center text-[10px] text-zinc-500">Código do Amor</p>
+              </div>
+            </div>
+          `;
+
+        case 'instagram':
+          return `
+            <div class="min-h-full bg-black text-white pb-8 pt-7 space-y-3 relative overflow-hidden">
+              ${particles}
+              <div class="px-4 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-0.5">
+                  <img src="${photo}" class="w-full h-full rounded-full object-cover" />
+                </div>
+                <div>
+                  <p class="text-xs font-bold leading-none">${couple.toLowerCase().replace(/\s+/g, '')}</p>
+                  <p class="text-[10px] text-zinc-400">Onde tudo começou 📍</p>
+                </div>
+              </div>
+              <img src="${photo}" class="w-full h-64 object-cover" />
+              <div class="px-4 space-y-2.5">
+                <div class="flex items-center gap-3 text-lg">
+                  <span class="text-rose-500">❤️</span> <span>💬</span> <span>✈️</span>
+                </div>
+                <p class="text-xs font-bold">Curtido por você e infinitos momentos</p>
+                <p class="text-xs text-zinc-200 leading-relaxed"><strong>${couple}</strong> ${msg}</p>
+                ${renderCounterBoxes('bg-zinc-900 border-zinc-800')}
+                ${musicIframe}
+                <p class="text-center text-[10px] text-zinc-500">Código do Amor</p>
+              </div>
+            </div>
+          `;
+
+        case 'vinil':
+          return `
+            <div class="min-h-full bg-gradient-to-b from-stone-900 via-amber-950/30 to-black text-amber-50 pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="text-center">
+                <span class="text-[10px] uppercase tracking-widest text-amber-400">💿 Lado A • Edição de Colecionador</span>
+                <h1 class="font-serif-display text-2xl font-bold mt-1">${couple}</h1>
+              </div>
+              <div class="w-52 h-52 mx-auto rounded-full bg-zinc-950 border-4 border-zinc-800 shadow-2xl flex items-center justify-center animate-spin-slow relative">
+                <img src="${photo}" class="w-28 h-28 rounded-full object-cover border-4 border-amber-500" />
+                <div class="w-4 h-4 rounded-full bg-black border border-amber-400 absolute"></div>
+              </div>
+              <p class="font-serif-display italic text-xs text-center text-amber-100/90 bg-white/5 p-3.5 rounded-xl leading-relaxed">"${msg}"</p>
+              ${renderCounterBoxes('bg-stone-900/90 border-amber-500/30')}
+              ${musicIframe}
+              <p class="text-center text-[10px] text-amber-500/60">Código do Amor</p>
+            </div>
+          `;
+
+        case 'novela':
+          return `
+            <div class="min-h-full bg-gradient-to-b from-rose-950 via-slate-950 to-black text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded bg-rose-600 text-[10px] font-black uppercase">📺 Novela das 21h</span>
+                <span class="text-[10px] text-rose-300 font-bold">Globoplay Original</span>
+              </div>
+              <div class="relative rounded-2xl overflow-hidden border border-rose-500/30">
+                <img src="${photo}" class="w-full h-56 object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <div class="absolute bottom-3 left-3">
+                  <p class="text-[10px] uppercase tracking-wider text-rose-300">Protagonistas</p>
+                  <h1 class="text-2xl font-black">${couple}</h1>
+                </div>
+              </div>
+              <p class="text-xs text-slate-200 bg-white/5 p-3.5 rounded-xl leading-relaxed"><strong>Resumo da Trama:</strong> ${msg}</p>
+              ${renderCounterBoxes('bg-rose-950/40 border-rose-500/30')}
+              ${musicIframe}
+              <p class="text-center text-[10px] text-slate-500">Código do Amor</p>
+            </div>
+          `;
+
+        case 'cordel':
+          return `
+            <div class="min-h-full bg-[#f4e4bc] text-[#1c140d] pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="border-4 border-dashed border-[#1c140d] p-4 rounded-xl bg-[#f9eed2] space-y-3">
+                <div class="text-center">
+                  <span class="text-[10px] font-cordel uppercase font-bold">🌵 Literatura de Cordel • Sertão do Amor</span>
+                  <h1 class="font-cordel text-xl font-bold mt-1">${couple}</h1>
+                </div>
+                <img src="${photo}" class="w-full h-52 object-cover grayscale contrast-125 border-2 border-[#1c140d]" />
+                <p class="font-cordel text-xs leading-relaxed">"Nesta xilogravura eu canto / O amor que nos uniu..." — ${msg}</p>
+                ${renderCounterBoxes('bg-[#ebd7a4] border-[#1c140d] text-[#1c140d]')}
+              </div>
+              ${musicIframe}
+              <p class="text-center text-[10px] font-cordel">Código do Amor</p>
+            </div>
+          `;
+
+        default: // classic
+          return `
+            <div class="min-h-full bg-gradient-to-b from-rose-950 via-[#140710] to-black text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
+              ${particles}
+              <div class="text-center">
+                <span class="text-xs text-rose-300 font-semibold">♥ Nossa História de Amor ♥</span>
+                <h1 class="font-serif-display text-3xl font-bold mt-1">${couple}</h1>
+              </div>
+              <div class="rounded-2xl overflow-hidden border-2 border-rose-500/40 shadow-xl">
+                <img src="${photo}" class="w-full h-60 object-cover" />
+              </div>
+              <p class="text-xs text-rose-100/90 bg-white/5 p-4 rounded-2xl border border-rose-500/20 leading-relaxed text-center italic">"${msg}"</p>
+              <div>
+                <p class="text-[10px] text-center uppercase tracking-widest text-rose-300 mb-2">Juntos há</p>
+                ${renderCounterBoxes('bg-rose-950/50 border-rose-500/30')}
+              </div>
+              ${musicIframe}
+              <p class="text-center text-[10px] text-rose-300/50">Criado com Código do Amor</p>
+            </div>
+          `;
+      }
+    }
+
+    function updatePreview() {
+      state.couple = document.getElementById('input-couple').value;
+      state.date = document.getElementById('input-date').value;
+      state.message = document.getElementById('input-message').value;
+      state.particles = document.getElementById('input-particles').value;
+
+      const preset = document.getElementById('input-music-preset').value;
+      if (preset === 'custom') {
+        state.musicUrl = parseEmbedUrl(document.getElementById('input-music-custom').value);
+      }
+
+      const html = buildThemeHTML();
+      document.getElementById('phone-screen').innerHTML = html;
+      const fs = document.getElementById('fullscreen-content');
+      if (!document.getElementById('fullscreen-modal').classList.contains('hidden')) {
+        fs.innerHTML = html;
+      }
+    }
+
+    // Rotate photos every 4 seconds
+    setInterval(() => {
+      if (state.photos.length > 1) {
+        state.photoIndex = (state.photoIndex + 1) % state.photos.length;
+      }
+      updatePreview();
+    }, 1000);
+
+    // Fullscreen controls
+    function openFullscreen() {
+      document.getElementById('fullscreen-content').innerHTML = buildThemeHTML();
+      document.getElementById('fullscreen-modal').classList.remove('hidden');
+      document.getElementById('fullscreen-modal').classList.add('flex');
+    }
+
+    function closeFullscreen() {
+      document.getElementById('fullscreen-modal').classList.add('hidden');
+      document.getElementById('fullscreen-modal').classList.remove('flex');
+    }
+
+    // Checkout & QR Code
+    function openCheckoutModal() {
+      document.getElementById('modal-plan-name').textContent = state.planLabel;
+      document.getElementById('modal-plan-price').textContent = `R$ ${state.planPrice.toFixed(2).replace('.', ',')}`;
+      document.getElementById('pix-step').classList.remove('hidden');
+      document.getElementById('success-step').classList.add('hidden');
+
+      const demoQr = document.getElementById('pix-demo-qr');
+      demoQr.innerHTML = '';
+      new QRCode(demoQr, {
+        text: '00020126580014br.gov.bcb.pix0136codigodoamor-pix',
+        width: 140,
+        height: 140
+      });
+
+      document.getElementById('checkout-modal').classList.remove('hidden');
+      document.getElementById('checkout-modal').classList.add('flex');
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('checkout-modal').classList.add('hidden');
+      document.getElementById('checkout-modal').classList.remove('flex');
+    }
+
+    function copyPixCode() {
+      navigator.clipboard.writeText('00020126580014br.gov.bcb.pix0136codigodoamor-pix-pagamento520400005303986');
+      alert('Código Pix copiado!');
+    }
+
+    function confirmPayment() {
+      document.getElementById('pix-step').classList.add('hidden');
+      document.getElementById('success-step').classList.remove('hidden');
+
+      const slug = state.couple
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') || 'nosso-amor';
+
+      const finalUrl = `https://codigodoamor.vercel.app/p/${slug}`;
+      document.getElementById('generated-url-input').value = finalUrl;
+
+      const validityMap = {
+        '15_dias': 'Validade: Ativo por 15 dias a partir de hoje',
+        '1_ano': 'Validade: Ativo por 1 ano (365 dias)',
+        'vitalicio': 'Validade: Acesso Vitalício (Para Sempre)'
+      };
+      document.getElementById('validity-badge').textContent = validityMap[state.planId];
+
+      generateStyledQR(finalUrl);
+    }
+
+    function generateStyledQR(url) {
+      const themeObj = THEMES.find(t => t.id === state.theme) || THEMES[0];
+      const tempDiv = document.createElement('div');
+      new QRCode(tempDiv, {
+        text: url,
+        width: 210,
+        height: 210,
+        colorDark: themeObj.color,
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const srcCanvas = tempDiv.querySelector('canvas');
+        const canvas = document.getElementById('final-qr-canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 240, 240);
+        if (srcCanvas) {
+          ctx.drawImage(srcCanvas, 15, 15, 210, 210);
+        }
+        // Center badge
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(120, 120, 22, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = themeObj.color;
+        ctx.beginPath();
+        ctx.arc(120, 120, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 14px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(themeObj.icon, 120, 121);
+      }, 80);
+    }
+
+    function copyFinalUrl() {
+      const input = document.getElementById('generated-url-input');
+      navigator.clipboard.writeText(input.value);
+      alert('Link exclusivo copiado: ' + input.value);
+    }
+
+    function downloadQRCodePNG() {
+      const canvas = document.getElementById('final-qr-canvas');
+      const link = document.createElement('a');
+      link.download = `codigodoamor-${state.theme}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Init
+    renderThemes();
+    renderThumbs();
+    updatePreview();
+  </script>
+</body>
+</html>
