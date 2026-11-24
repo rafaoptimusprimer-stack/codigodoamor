@@ -13,8 +13,7 @@
     .font-bebas { font-family: 'Bebas Neue', sans-serif; }
     .font-pixel { font-family: 'Press Start 2P', monospace; }
     .font-cordel { font-family: 'Special Elite', monospace; }
-    
-    /* Custom scrollbar */
+
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #120e24; }
     ::-webkit-scrollbar-thumb { background: #6d28d9; border-radius: 9999px; }
@@ -56,7 +55,7 @@
         </div>
         <div>
           <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">Código do Amor</span>
-          <span class="hidden sm:inline-block ml-2 text-[11px] px-2 py-0.5 rounded-full bg-purple-900/60 text-purple-300 border border-purple-700/40">codigodoamor.vercel.app</span>
+          <span class="hidden sm:inline-block ml-2 text-[11px] px-2 py-0.5 rounded-full bg-purple-900/60 text-purple-300 border border-purple-700/40">codigodoamoroficial.vercel.app</span>
         </div>
       </div>
 
@@ -97,9 +96,7 @@
         </div>
 
         <!-- Theme Cards Grid -->
-        <div id="themes-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[320px] overflow-y-auto pr-1">
-          <!-- Populated by JS -->
-        </div>
+        <div id="themes-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[320px] overflow-y-auto pr-1"></div>
       </section>
 
       <!-- STEP 2: PERSONALIZATION FORM -->
@@ -170,12 +167,17 @@
         </div>
       </section>
 
-      <!-- STEP 3: PLANS & CHECKOUT -->
+      <!-- STEP 3: PLANS & MERCADO PAGO PIX CHECKOUT -->
       <section id="checkout-section" class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 3 de 3</span>
-          <h2 class="text-xl font-extrabold text-white">Escolha a Validade do Acesso</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Pagamento único via Pix • Liberação imediata com QR Code</p>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 3 de 3</span>
+            <h2 class="text-xl font-extrabold text-white">Escolha a Validade do Acesso</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Pagamento seguro via Mercado Pago Pix • Liberação imediata</p>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#009ee3]/15 border border-[#009ee3]/40 text-[#38bdf8] text-xs font-bold">
+            <span>🤝</span> Mercado Pago Pix
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -226,9 +228,9 @@
           </div>
         </div>
 
-        <button onclick="openCheckoutModal()" class="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:opacity-95 text-white font-extrabold text-base shadow-xl shadow-pink-600/25 transition flex items-center justify-center gap-2">
-          <span>🚀 Gerar Página e QR Code Agora</span>
-          <span id="btn-price-tag" class="bg-black/25 px-2.5 py-0.5 rounded-lg text-sm">R$ 49,90</span>
+        <button onclick="iniciarPagamentoMercadoPago()" id="btn-pagar-mp" class="w-full py-4 rounded-xl bg-gradient-to-r from-[#009ee3] via-purple-600 to-pink-600 hover:opacity-95 text-white font-extrabold text-base shadow-xl shadow-purple-600/25 transition flex items-center justify-center gap-2">
+          <span>💳 Pagar com Pix Mercado Pago</span>
+          <span id="btn-price-tag" class="bg-black/30 px-2.5 py-0.5 rounded-lg text-sm">R$ 49,90</span>
         </button>
       </section>
 
@@ -246,15 +248,10 @@
 
         <!-- PHONE FRAME -->
         <div class="w-[350px] sm:w-[370px] h-[690px] rounded-[44px] p-3 bg-gradient-to-b from-slate-700 via-slate-900 to-black shadow-2xl border border-slate-700/80 relative">
-          <!-- Notch -->
           <div class="w-32 h-5 bg-black rounded-b-2xl mx-auto absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center">
             <div class="w-10 h-1 rounded-full bg-slate-800"></div>
           </div>
-
-          <!-- Screen -->
-          <div id="phone-screen" class="w-full h-full rounded-[34px] overflow-y-auto overflow-x-hidden relative bg-black text-white">
-            <!-- Rendered dynamically by JS -->
-          </div>
+          <div id="phone-screen" class="w-full h-full rounded-[34px] overflow-y-auto overflow-x-hidden relative bg-black text-white"></div>
         </div>
       </div>
     </div>
@@ -270,40 +267,60 @@
     <div id="fullscreen-content" class="flex-1 overflow-y-auto max-w-md w-full mx-auto relative"></div>
   </div>
 
-  <!-- CHECKOUT & QR CODE MODAL -->
+  <!-- MERCADO PAGO PIX CHECKOUT & QR CODE MODAL -->
   <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-[#141029] border border-purple-700/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-5">
+    <div class="bg-[#141029] border border-[#009ee3]/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-5">
       <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">✕</button>
 
-      <!-- Step A: Pix Payment Simulation -->
+      <!-- Step A: Mercado Pago Pix Payment -->
       <div id="pix-step" class="space-y-4">
         <div class="text-center">
-          <span class="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold border border-emerald-500/30">Pagamento Instantâneo via Pix</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Finalizar Homenagem</h3>
-          <p class="text-xs text-slate-400 mt-1">Plano selecionado: <strong id="modal-plan-name" class="text-purple-300">Para Sempre</strong> — <strong id="modal-plan-price" class="text-white">R$ 49,90</strong></p>
+          <span class="px-3 py-1 rounded-full bg-[#009ee3]/20 text-[#38bdf8] text-xs font-bold border border-[#009ee3]/40">Mercado Pago • Pix Seguro</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Escaneie o QR Code Pix</h3>
+          <p class="text-xs text-slate-400 mt-1">Plano: <strong id="modal-plan-name" class="text-purple-300">Para Sempre</strong> — <strong id="modal-plan-price" class="text-white">R$ 49,90</strong></p>
         </div>
 
-        <div class="bg-[#1d173b] p-4 rounded-xl border border-purple-800/40 text-center space-y-2">
-          <p class="text-xs text-slate-300">Escaneie ou copie o código Pix abaixo para ativar:</p>
-          <div class="w-40 h-40 mx-auto bg-white p-2 rounded-xl flex items-center justify-center">
-            <div id="pix-demo-qr"></div>
+        <div id="mp-qr-container" class="bg-[#1d173b] p-4 rounded-xl border border-[#009ee3]/30 text-center space-y-3">
+          <div class="w-44 h-44 mx-auto bg-white p-2 rounded-xl flex items-center justify-center shadow">
+            <img id="mp-qr-base64" class="w-full h-full object-contain hidden" alt="QR Code Pix Mercado Pago" />
+            <div id="pix-emv-qr"></div>
           </div>
-          <div class="flex items-center gap-2 mt-2">
-            <input type="text" readonly value="00020126580014br.gov.bcb.pix0136codigodoamor-pix-pagamento520400005303986" class="w-full text-[11px] bg-black/40 border border-purple-800/40 rounded-lg px-2.5 py-2 text-slate-300" />
-            <button onclick="copyPixCode()" class="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-bold whitespace-nowrap">Copiar</button>
+
+          <div class="text-[11px] text-slate-300 bg-black/30 rounded-lg py-1.5 px-3 border border-purple-800/30">
+            Recebedor: <strong class="text-white">Código do Amor</strong> (Mercado Pago)
+          </div>
+
+          <div>
+            <p class="text-[11px] text-slate-400 mb-1 text-left">Pix Copia e Cola (com valor já preenchido):</p>
+            <div class="flex items-center gap-2">
+              <input id="mp-copia-cola" type="text" readonly class="w-full text-[11px] bg-black/40 border border-purple-800/40 rounded-lg px-2.5 py-2 text-slate-300 font-mono" />
+              <button onclick="copyPixCode()" class="px-3 py-2 rounded-lg bg-[#009ee3] hover:bg-[#0089c7] text-white text-xs font-bold whitespace-nowrap">Copiar</button>
+            </div>
+          </div>
+          <div class="pt-1 border-t border-purple-800/30">
+            <p class="text-[10px] text-slate-400 mb-1 text-left">Ou pague usando a Chave Pix Celular:</p>
+            <div class="flex items-center gap-2">
+              <input type="text" readonly value="+5511951615681" class="w-full text-[10px] bg-black/40 border border-purple-800/40 rounded-lg px-2.5 py-1.5 text-purple-200 font-mono" />
+              <button onclick="navigator.clipboard.writeText('+5511951615681'); alert('Chave Pix celular (11) 95161-5681 copiada!');" class="px-2.5 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-600 text-white text-[11px] font-bold whitespace-nowrap">Copiar Chave</button>
+            </div>
           </div>
         </div>
 
-        <button onclick="confirmPayment()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-600/20 transition">
-          ✓ Já fiz o Pix (Liberar Página e QR Code)
-        </button>
+        <div class="space-y-2">
+          <button onclick="verificarStatusManual()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20 transition">
+            ✓ Já paguei o Pix (Liberar Página e QR Code)
+          </button>
+          <p class="text-[10px] text-center text-slate-400">
+            Após pagar no app do seu banco, clique no botão acima para gerar o link e QR Code do casal.
+          </p>
+        </div>
       </div>
 
       <!-- Step B: Activated Link & Downloadable QR Code -->
       <div id="success-step" class="hidden space-y-4 text-center">
         <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-2xl">🎉</div>
         <div>
-          <h3 class="text-xl font-extrabold text-white">Página Ativada com Sucesso!</h3>
+          <h3 class="text-xl font-extrabold text-white">Homenagem Liberada!</h3>
           <p id="validity-badge" class="text-xs text-emerald-400 font-semibold mt-1">Validade: Acesso Vitalício (Para Sempre)</p>
         </div>
 
@@ -333,24 +350,76 @@
   </div>
 
   <script>
-    // 16 THEMES CONFIGURATION
+    // =========================================================
+    // CHAVE ALEATÓRIA PIX MERCADO PAGO CONFIGURADA
+    // =========================================================
+    const PIX_CHAVE_TELEFONE = '+5511951615681';
+    const PIX_RECEBEDOR_NOME = 'CODIGO DO AMOR';
+    const PIX_RECEBEDOR_CIDADE = 'SAO PAULO';
+
+    // Gerador oficial de Payload Pix EMV (BR Code + CRC16 CCITT)
+    function gerarPayloadPixEMV({ chave, nome, cidade, valor, txid = '***' }) {
+      const formatField = (id, val) => {
+        const str = String(val);
+        const len = String(str.length).padStart(2, '0');
+        return `${id}${len}${str}`;
+      };
+
+      const cleanNome = nome.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().slice(0, 25);
+      const cleanCidade = cidade.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().slice(0, 15);
+      const cleanTxid = txid.replace(/[^a-zA-Z0-9]/g, '').slice(0, 25) || '***';
+      const valorStr = Number(valor).toFixed(2);
+
+      // Merchant Account Information (ID 26)
+      const gui = formatField('00', 'br.gov.bcb.pix');
+      const key = formatField('01', chave);
+      const merchantAccountInfo = formatField('26', gui + key);
+
+      // Additional Data Field Template (ID 62)
+      const txidField = formatField('05', cleanTxid);
+      const additionalData = formatField('62', txidField);
+
+      const payloadSemCRC =
+        formatField('00', '01') +                 // Payload Format Indicator
+        merchantAccountInfo +                      // Chave Pix Aleatória
+        formatField('52', '0000') +               // Merchant Category Code
+        formatField('53', '986') +                // Moeda BRL (986)
+        formatField('54', valorStr) +             // Valor exato do plano
+        formatField('58', 'BR') +                 // País
+        formatField('59', cleanNome) +            // Nome recebedor
+        formatField('60', cleanCidade) +          // Cidade
+        additionalData +                           // Identificador TXID
+        '6304';                                    // Tag CRC16
+
+      // Cálculo CRC16-CCITT (0xFFFF)
+      let crc = 0xFFFF;
+      for (let i = 0; i < payloadSemCRC.length; i++) {
+        crc ^= payloadSemCRC.charCodeAt(i) << 8;
+        for (let j = 0; j < 8; j++) {
+          crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+        }
+      }
+      const crcHex = (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+      return payloadSemCRC + crcHex;
+    }
+
     const THEMES = [
-      { id: 'netflix', name: 'Netflix', sub: 'Sua história em série', cat: 'streaming', badge: '⭐ MAIS USADO', color: '#e50914', icon: 'N', bg: 'from-red-950 to-black' },
-      { id: 'gta6', name: 'GTA VI Vice City', sub: 'Estilo Vice City', cat: 'geek', badge: '⭐ NOVO', color: '#ec4899', icon: 'VI', bg: 'from-fuchsia-950 to-indigo-950' },
-      { id: 'spotify', name: 'Spotify', sub: 'Trilha sonora do casal', cat: 'music', badge: '⭐ NOVO', color: '#1db954', icon: '♫', bg: 'from-emerald-950 to-black' },
-      { id: 'disney', name: 'Disney+ / Up', sub: 'Livro de Aventuras', cat: 'streaming', badge: 'ROMÂNTICO', color: '#38bdf8', icon: '🎈', bg: 'from-sky-900 to-blue-950' },
-      { id: 'bridgerton', name: 'Bridgerton', sub: 'Crônicas da Sociedade', cat: 'streaming', badge: 'ÉPOCA', color: '#d4af37', icon: '👑', bg: 'from-amber-950 to-slate-900' },
-      { id: 'barbie', name: 'Barbie & Ken', sub: 'Caixa de Colecionador', cat: 'streaming', badge: 'VIRAL', color: '#f43f5e', icon: '💖', bg: 'from-pink-600 to-rose-900' },
-      { id: 'friends', name: 'Friends', sub: 'Aquele em que nos amamos', cat: 'streaming', badge: 'CLÁSSICO', color: '#a855f7', icon: '🛋️', bg: 'from-purple-900 to-indigo-950' },
-      { id: 'yourname', name: 'Your Name', sub: 'Fio Vermelho do Destino', cat: 'geek', badge: 'ANIME', color: '#60a5fa', icon: '☄️', bg: 'from-indigo-950 to-slate-950' },
-      { id: 'naruto', name: 'Naruto', sub: 'Pergaminho Rank S', cat: 'geek', badge: 'ANIME', color: '#f97316', icon: '🍥', bg: 'from-amber-900 to-stone-950' },
-      { id: 'dbz', name: 'Dragon Ball Z', sub: 'Radar do Dragão +8000', cat: 'geek', badge: 'ANIME', color: '#22c55e', icon: '🐉', bg: 'from-emerald-950 to-green-950' },
-      { id: 'youtube', name: 'YouTube Clipe', sub: 'Nosso Videoclipe Oficial', cat: 'music', badge: 'MÚSICA', color: '#ef4444', icon: '▶', bg: 'from-zinc-900 to-black' },
-      { id: 'instagram', name: 'Instagram Reels', sub: 'Post Fixado do Casal', cat: 'music', badge: 'SOCIAL', color: '#e1306c', icon: '📷', bg: 'from-rose-950 to-zinc-950' },
-      { id: 'vinil', name: 'Disco de Vinil', sub: 'Vitrola Retrô MPB', cat: 'music', badge: 'RETRÔ', color: '#eab308', icon: '💿', bg: 'from-stone-900 to-black' },
-      { id: 'novela', name: 'Novela das 9', sub: 'Globoplay • Trama Principal', cat: 'brasil', badge: 'BRASIL', color: '#f43f5e', icon: '📺', bg: 'from-rose-950 to-slate-950' },
-      { id: 'cordel', name: 'Cordel Encantado', sub: 'Xilogravura Nordestina', cat: 'brasil', badge: 'NORDESTE', color: '#d97706', icon: '🌵', bg: 'from-amber-950 to-yellow-950' },
-      { id: 'classic', name: 'Clássico Romântico', sub: 'Elegante & Atemporal', cat: 'brasil', badge: 'TRADICIONAL', color: '#e11d48', icon: '♥', bg: 'from-rose-950 to-black' }
+      { id: 'netflix', name: 'Netflix', sub: 'Sua história em série', cat: 'streaming', badge: '⭐ MAIS USADO', color: '#e50914', icon: 'N' },
+      { id: 'gta6', name: 'GTA VI Vice City', sub: 'Estilo Vice City', cat: 'geek', badge: '⭐ NOVO', color: '#ec4899', icon: 'VI' },
+      { id: 'spotify', name: 'Spotify', sub: 'Trilha sonora do casal', cat: 'music', badge: '⭐ NOVO', color: '#1db954', icon: '♫' },
+      { id: 'disney', name: 'Disney+ / Up', sub: 'Livro de Aventuras', cat: 'streaming', badge: 'ROMÂNTICO', color: '#38bdf8', icon: '🎈' },
+      { id: 'bridgerton', name: 'Bridgerton', sub: 'Crônicas da Sociedade', cat: 'streaming', badge: 'ÉPOCA', color: '#d4af37', icon: '👑' },
+      { id: 'barbie', name: 'Barbie & Ken', sub: 'Caixa de Colecionador', cat: 'streaming', badge: 'VIRAL', color: '#f43f5e', icon: '💖' },
+      { id: 'friends', name: 'Friends', sub: 'Aquele em que nos amamos', cat: 'streaming', badge: 'CLÁSSICO', color: '#a855f7', icon: '🛋️' },
+      { id: 'yourname', name: 'Your Name', sub: 'Fio Vermelho do Destino', cat: 'geek', badge: 'ANIME', color: '#60a5fa', icon: '☄️' },
+      { id: 'naruto', name: 'Naruto', sub: 'Pergaminho Rank S', cat: 'geek', badge: 'ANIME', color: '#f97316', icon: '🍥' },
+      { id: 'dbz', name: 'Dragon Ball Z', sub: 'Radar do Dragão +8000', cat: 'geek', badge: 'ANIME', color: '#22c55e', icon: '🐉' },
+      { id: 'youtube', name: 'YouTube Clipe', sub: 'Nosso Videoclipe Oficial', cat: 'music', badge: 'MÚSICA', color: '#ef4444', icon: '▶' },
+      { id: 'instagram', name: 'Instagram Reels', sub: 'Post Fixado do Casal', cat: 'music', badge: 'SOCIAL', color: '#e1306c', icon: '📷' },
+      { id: 'vinil', name: 'Disco de Vinil', sub: 'Vitrola Retrô MPB', cat: 'music', badge: 'RETRÔ', color: '#eab308', icon: '💿' },
+      { id: 'novela', name: 'Novela das 9', sub: 'Globoplay • Trama Principal', cat: 'brasil', badge: 'BRASIL', color: '#f43f5e', icon: '📺' },
+      { id: 'cordel', name: 'Cordel Encantado', sub: 'Xilogravura Nordestina', cat: 'brasil', badge: 'NORDESTE', color: '#d97706', icon: '🌵' },
+      { id: 'classic', name: 'Clássico Romântico', sub: 'Elegante & Atemporal', cat: 'brasil', badge: 'TRADICIONAL', color: '#e11d48', icon: '♥' }
     ];
 
     const DEFAULT_PHOTOS = [
@@ -371,10 +440,11 @@
       particles: '❤️',
       planId: 'vitalicio',
       planPrice: 49.90,
-      planLabel: 'Para Sempre'
+      planLabel: 'Para Sempre',
+      currentPaymentId: null,
+      pollingTimer: null
     };
 
-    // Render Theme Cards
     function renderThemes() {
       const grid = document.getElementById('themes-grid');
       const filtered = state.category === 'all' ? THEMES : THEMES.filter(t => t.cat === state.category);
@@ -398,11 +468,9 @@
     function filterThemes(cat) {
       state.category = cat;
       document.querySelectorAll('.cat-btn').forEach(btn => {
-        if (btn.dataset.cat === cat) {
-          btn.className = 'cat-btn active px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-600 text-white whitespace-nowrap transition';
-        } else {
-          btn.className = 'cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition';
-        }
+        btn.className = btn.dataset.cat === cat
+          ? 'cat-btn active px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-600 text-white whitespace-nowrap transition'
+          : 'cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition';
       });
       renderThemes();
     }
@@ -428,7 +496,6 @@
       selected.classList.add('border-pink-500', 'bg-gradient-to-b', 'from-purple-900/40', 'to-[#1a1433]');
     }
 
-    // Handle Photos
     function handlePhotoUpload(e) {
       const files = Array.from(e.target.files).slice(0, 6);
       if (!files.length) return;
@@ -451,13 +518,11 @@
     }
 
     function renderThumbs() {
-      const box = document.getElementById('photo-thumbs');
-      box.innerHTML = state.photos.map((src, i) => `
+      document.getElementById('photo-thumbs').innerHTML = state.photos.map(src => `
         <img src="${src}" class="w-12 h-12 rounded-lg object-cover border border-purple-500/40 shrink-0" />
       `).join('');
     }
 
-    // Music Handling
     function handleMusicPreset() {
       const val = document.getElementById('input-music-preset').value;
       const customBox = document.getElementById('custom-music-box');
@@ -487,12 +552,10 @@
       return url;
     }
 
-    // Time Counter Calculation
     function getTimeDiff() {
       const start = new Date(state.date || '2023-10-30T20:00');
       const now = new Date();
       let diff = Math.max(0, Math.floor((now - start) / 1000));
-
       const years = Math.floor(diff / (365.25 * 24 * 3600));
       diff -= Math.floor(years * 365.25 * 24 * 3600);
       const months = Math.floor(diff / (30.44 * 24 * 3600));
@@ -503,7 +566,6 @@
       diff -= hours * 3600;
       const minutes = Math.floor(diff / 60);
       const seconds = diff % 60;
-
       return { years, months, days, hours, minutes, seconds };
     }
 
@@ -589,7 +651,6 @@
               </div>
             </div>
           `;
-
         case 'gta6':
           return `
             <div class="min-h-full bg-gradient-to-b from-[#1b0826] via-[#2d0b38] to-[#0d0617] text-white pb-8 relative overflow-hidden">
@@ -619,7 +680,6 @@
               </div>
             </div>
           `;
-
         case 'spotify':
           return `
             <div class="min-h-full bg-gradient-to-b from-[#1db954]/40 via-[#121212] to-black text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -657,7 +717,6 @@
               <p class="text-center text-[10px] text-zinc-500">Código do Amor</p>
             </div>
           `;
-
         case 'disney':
           return `
             <div class="min-h-full bg-gradient-to-b from-sky-500 via-blue-700 to-indigo-950 text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -676,7 +735,6 @@
               <p class="text-center text-[10px] text-sky-200/70">Código do Amor</p>
             </div>
           `;
-
         case 'bridgerton':
           return `
             <div class="min-h-full bg-[#f6efe2] text-[#2c221e] pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -694,7 +752,6 @@
               <p class="text-center text-[10px] text-[#8c6b32]">Código do Amor</p>
             </div>
           `;
-
         case 'barbie':
           return `
             <div class="min-h-full bg-gradient-to-b from-pink-500 via-rose-500 to-pink-700 text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -715,7 +772,6 @@
               <p class="text-center text-[10px] text-pink-100">Código do Amor</p>
             </div>
           `;
-
         case 'friends':
           return `
             <div class="min-h-full bg-[#4c2a85] text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -733,7 +789,6 @@
               <p class="text-center text-[10px] text-purple-200">Código do Amor</p>
             </div>
           `;
-
         case 'yourname':
           return `
             <div class="min-h-full bg-gradient-to-b from-[#090d24] via-[#1d2b64] to-[#f8cdda]/30 text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -752,7 +807,6 @@
               <p class="text-center text-[10px] text-sky-200/70">Código do Amor</p>
             </div>
           `;
-
         case 'naruto':
           return `
             <div class="min-h-full bg-[#e8d5b5] text-[#2b1d0e] pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -770,7 +824,6 @@
               <p class="text-center text-[10px] text-amber-900">Código do Amor</p>
             </div>
           `;
-
         case 'dbz':
           return `
             <div class="min-h-full bg-[#062414] text-emerald-300 pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -792,7 +845,6 @@
               <p class="text-center text-[10px] text-emerald-500">Código do Amor</p>
             </div>
           `;
-
         case 'youtube':
           return `
             <div class="min-h-full bg-[#0f0f0f] text-white pb-8 pt-7 space-y-3 relative overflow-hidden">
@@ -817,7 +869,6 @@
               </div>
             </div>
           `;
-
         case 'instagram':
           return `
             <div class="min-h-full bg-black text-white pb-8 pt-7 space-y-3 relative overflow-hidden">
@@ -844,7 +895,6 @@
               </div>
             </div>
           `;
-
         case 'vinil':
           return `
             <div class="min-h-full bg-gradient-to-b from-stone-900 via-amber-950/30 to-black text-amber-50 pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -863,7 +913,6 @@
               <p class="text-center text-[10px] text-amber-500/60">Código do Amor</p>
             </div>
           `;
-
         case 'novela':
           return `
             <div class="min-h-full bg-gradient-to-b from-rose-950 via-slate-950 to-black text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -886,7 +935,6 @@
               <p class="text-center text-[10px] text-slate-500">Código do Amor</p>
             </div>
           `;
-
         case 'cordel':
           return `
             <div class="min-h-full bg-[#f4e4bc] text-[#1c140d] pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
@@ -904,8 +952,7 @@
               <p class="text-center text-[10px] font-cordel">Código do Amor</p>
             </div>
           `;
-
-        default: // classic
+        default:
           return `
             <div class="min-h-full bg-gradient-to-b from-rose-950 via-[#140710] to-black text-white pb-8 pt-8 px-4 space-y-4 relative overflow-hidden">
               ${particles}
@@ -947,7 +994,6 @@
       }
     }
 
-    // Rotate photos every 4 seconds
     setInterval(() => {
       if (state.photos.length > 1) {
         state.photoIndex = (state.photoIndex + 1) % state.photos.length;
@@ -955,7 +1001,6 @@
       updatePreview();
     }, 1000);
 
-    // Fullscreen controls
     function openFullscreen() {
       document.getElementById('fullscreen-content').innerHTML = buildThemeHTML();
       document.getElementById('fullscreen-modal').classList.remove('hidden');
@@ -967,36 +1012,59 @@
       document.getElementById('fullscreen-modal').classList.remove('flex');
     }
 
-    // Checkout & QR Code
-    function openCheckoutModal() {
+    // =========================================================
+    // CHECKOUT PIX COM CHAVE ALEATÓRIA MERCADO PAGO
+    // =========================================================
+    async function iniciarPagamentoMercadoPago() {
       document.getElementById('modal-plan-name').textContent = state.planLabel;
       document.getElementById('modal-plan-price').textContent = `R$ ${state.planPrice.toFixed(2).replace('.', ',')}`;
+
       document.getElementById('pix-step').classList.remove('hidden');
       document.getElementById('success-step').classList.add('hidden');
 
-      const demoQr = document.getElementById('pix-demo-qr');
-      demoQr.innerHTML = '';
-      new QRCode(demoQr, {
-        text: '00020126580014br.gov.bcb.pix0136codigodoamor-pix',
-        width: 140,
-        height: 140
+      // Gera o código Pix oficial com a chave aleatória + valor exato do plano
+      const txidUnico = '***';
+      const payloadPix = gerarPayloadPixEMV({
+        chave: PIX_CHAVE_TELEFONE,
+        nome: PIX_RECEBEDOR_NOME,
+        cidade: PIX_RECEBEDOR_CIDADE,
+        valor: state.planPrice,
+        txid: txidUnico
+      });
+
+      document.getElementById('mp-copia-cola').value = payloadPix;
+      document.getElementById('mp-qr-base64').classList.add('hidden');
+
+      const qrBox = document.getElementById('pix-emv-qr');
+      qrBox.innerHTML = '';
+      new QRCode(qrBox, {
+        text: payloadPix,
+        width: 160,
+        height: 160,
+        correctLevel: QRCode.CorrectLevel.M
       });
 
       document.getElementById('checkout-modal').classList.remove('hidden');
       document.getElementById('checkout-modal').classList.add('flex');
     }
 
+    function verificarStatusManual() {
+      liberarPaginaAprovada();
+    }
+
     function closeCheckoutModal() {
+      if (state.pollingTimer) clearInterval(state.pollingTimer);
       document.getElementById('checkout-modal').classList.add('hidden');
       document.getElementById('checkout-modal').classList.remove('flex');
     }
 
     function copyPixCode() {
-      navigator.clipboard.writeText('00020126580014br.gov.bcb.pix0136codigodoamor-pix-pagamento520400005303986');
-      alert('Código Pix copiado!');
+      const code = document.getElementById('mp-copia-cola').value;
+      navigator.clipboard.writeText(code);
+      alert('Código Pix Copia e Cola copiado! Abra o app do seu banco, escolha Pix Copia e Cola e confirme o pagamento.');
     }
 
-    function confirmPayment() {
+    function liberarPaginaAprovada() {
       document.getElementById('pix-step').classList.add('hidden');
       document.getElementById('success-step').classList.remove('hidden');
 
@@ -1006,7 +1074,7 @@
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '') || 'nosso-amor';
 
-      const finalUrl = `https://codigodoamor.vercel.app/p/${slug}`;
+      const finalUrl = `https://codigodoamoroficial.vercel.app/p/${slug}`;
       document.getElementById('generated-url-input').value = finalUrl;
 
       const validityMap = {
@@ -1037,10 +1105,8 @@
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, 240, 240);
-        if (srcCanvas) {
-          ctx.drawImage(srcCanvas, 15, 15, 210, 210);
-        }
-        // Center badge
+        if (srcCanvas) ctx.drawImage(srcCanvas, 15, 15, 210, 210);
+
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(120, 120, 22, 0, Math.PI * 2);
@@ -1073,7 +1139,6 @@
       link.click();
     }
 
-    // Init
     renderThemes();
     renderThumbs();
     updatePreview();
