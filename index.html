@@ -42,297 +42,334 @@
       50% { transform: scale(1.35); opacity: 0.5; }
     }
     .radar-dot { animation: pulseRadar 1.5s ease-in-out infinite; }
+
+    .watermark-overlay {
+      background-image: repeating-linear-gradient(
+        -32deg,
+        rgba(255, 255, 255, 0.06) 0px,
+        rgba(255, 255, 255, 0.06) 1px,
+        transparent 1px,
+        transparent 44px
+      );
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- HEADER -->
-  <header class="sticky top-0 z-40 bg-[#090714]/90 backdrop-blur-md border-b border-purple-900/40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-600/30">
-          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+  <!-- MODO VISUALIZAÇÃO PÚBLICA (QUANDO ALGUÉM ABRE O LINK /p/... DO CASAL) -->
+  <div id="public-viewer" class="hidden min-h-screen bg-black flex flex-col items-center justify-center">
+    <div id="public-viewer-content" class="w-full max-w-md min-h-screen relative"></div>
+  </div>
+
+  <!-- MODO CRIADOR (LANDING + EDITOR + CHECKOUT AUTOMÁTICO) -->
+  <div id="creator-app" class="min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 bg-[#090714]/90 backdrop-blur-md border-b border-purple-900/40">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-600/30">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+          <div>
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">Código do Amor</span>
+            <span class="hidden sm:inline-block ml-2 text-[11px] px-2 py-0.5 rounded-full bg-purple-900/60 text-purple-300 border border-purple-700/40">codigodoamoroficial.vercel.app</span>
+          </div>
         </div>
-        <div>
-          <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">Código do Amor</span>
-          <span class="hidden sm:inline-block ml-2 text-[11px] px-2 py-0.5 rounded-full bg-purple-900/60 text-purple-300 border border-purple-700/40">codigodoamoroficial.vercel.app</span>
+
+        <div class="flex items-center gap-2">
+          <button id="header-fullscreen-btn" onclick="handleFullscreenRequest()" class="px-3 py-1.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-200 text-xs font-semibold border border-purple-700/50 transition flex items-center gap-1.5">
+            <span id="fs-lock-icon">🔒</span> <span class="hidden sm:inline">Tela Cheia</span>
+          </button>
+          <a href="#checkout-section" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold shadow-lg shadow-purple-600/25 transition">
+            Criar Agora
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <!-- LEFT COLUMN: EDITOR & PLANS (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- STEP 1: MODEL SELECTION -->
+        <section class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 1 de 3</span>
+              <h2 class="text-xl font-extrabold text-white">Escolha o Tema da Homenagem</h2>
+            </div>
+            <span class="text-xs text-slate-400 bg-[#1a1433] px-2.5 py-1 rounded-full border border-purple-800/40">16 Modelos</span>
+          </div>
+
+          <div id="category-tabs" class="flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
+            <button onclick="filterThemes('all')" data-cat="all" class="cat-btn active px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-600 text-white whitespace-nowrap transition">Todos (16)</button>
+            <button onclick="filterThemes('streaming')" data-cat="streaming" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Streaming & Filmes</button>
+            <button onclick="filterThemes('geek')" data-cat="geek" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Animes & Games</button>
+            <button onclick="filterThemes('music')" data-cat="music" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Música & Social</button>
+            <button onclick="filterThemes('brasil')" data-cat="brasil" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Brasil & Clássicos</button>
+          </div>
+
+          <div id="themes-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[320px] overflow-y-auto pr-1"></div>
+        </section>
+
+        <!-- STEP 2: PERSONALIZATION FORM -->
+        <section class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 2 de 3</span>
+            <h2 class="text-xl font-extrabold text-white">Personalize os Detalhes</h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Casal (Título)</label>
+              <input id="input-couple" type="text" value="Rafael & Juliana" oninput="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" placeholder="Ex: João & Maria" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Início do Relacionamento</label>
+              <input id="input-date" type="datetime-local" value="2023-10-30T20:00" oninput="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Mensagem / Declaração Romântica</label>
+            <textarea id="input-message" rows="3" oninput="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" placeholder="Escreva sua mensagem especial...">Cada segundo ao seu lado transforma dias comuns na nossa melhor história. Obrigado por ser meu porto seguro, minha melhor escolha e o amor da minha vida.</textarea>
+          </div>
+
+          <!-- Photos Upload -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-slate-300">Fotos do Casal (até 4 fotos otimizadas)</label>
+              <button type="button" onclick="resetPhotos()" class="text-[11px] text-purple-400 hover:underline">Restaurar fotos exemplo</button>
+            </div>
+            <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-purple-700/60 rounded-xl cursor-pointer bg-[#1a1433]/60 hover:bg-[#1a1433] transition">
+              <div class="flex flex-col items-center justify-center pt-2 pb-2">
+                <p class="text-xs text-purple-200 font-semibold">📸 Clique para enviar fotos da galeria</p>
+                <p class="text-[11px] text-slate-400">PNG, JPG ou WEBP (compressão automática)</p>
+              </div>
+              <input id="input-photos" type="file" accept="image/*" multiple onchange="handlePhotoUpload(event)" class="hidden" />
+            </label>
+            <div id="photo-thumbs" class="flex gap-2 mt-2 overflow-x-auto"></div>
+          </div>
+
+          <!-- Music Selection -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Trilha Sonora</label>
+              <select id="input-music-preset" onchange="handleMusicPreset()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500">
+                <option value="https://open.spotify.com/embed/track/0tgVpDi06FyKpA1z0VMD4v">Perfect — Ed Sheeran (Spotify)</option>
+                <option value="https://open.spotify.com/embed/track/3U4isOIWM3VvDubwSI3y7a">All of Me — John Legend (Spotify)</option>
+                <option value="https://open.spotify.com/embed/track/1dGr1c8CrMLDpV6mPbImSI">Lover — Taylor Swift (Spotify)</option>
+                <option value="https://open.spotify.com/embed/track/5uCax9HTNlzGybIStD3vDh">Say You Won't Let Go — James Arthur</option>
+                <option value="custom">🔗 Colar meu link do Spotify ou YouTube</option>
+              </select>
+            </div>
+            <div id="custom-music-box" class="hidden">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Link Spotify ou YouTube</label>
+              <input id="input-music-custom" type="url" oninput="updatePreview()" placeholder="https://open.spotify.com/track/..." class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Chuva de Emojis na Tela</label>
+              <select id="input-particles" onchange="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500">
+                <option value="❤️">Corações Vermelhos (❤️)</option>
+                <option value="✨">Brilhos & Estrelas (✨)</option>
+                <option value="🌹">Pétalas de Rosa (🌹)</option>
+                <option value="🦋">Borboletas (🦋)</option>
+                <option value="none">Sem partículas</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 3: PLANS & 100% AUTOMATIC MERCADO PAGO PIX CHECKOUT -->
+        <section id="checkout-section" class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 3 de 3</span>
+              <h2 class="text-xl font-extrabold text-white">Escolha a Validade e Libere Automaticamente</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Assim que o Pix for autorizado no banco, o link e o QR Code liberam na hora!</p>
+            </div>
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#009ee3]/15 border border-[#009ee3]/40 text-[#38bdf8] text-xs font-bold">
+              <span>⚡</span> Liberação Automática
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div onclick="selectPlan('15_dias', 9.90, '15 Dias')" id="plan-15_dias" class="plan-card cursor-pointer rounded-xl p-4 bg-[#1a1433] border-2 border-purple-800/40 hover:border-purple-500 transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Teste Rápido</span>
+                <h3 class="text-base font-bold text-white mt-2">15 Dias</h3>
+                <p class="text-2xl font-black text-white mt-1">R$ 9,90</p>
+                <ul class="text-[11px] text-slate-300 space-y-1 mt-3">
+                  <li>✓ Sem marca d'água</li>
+                  <li>✓ Link ativo por 15 dias</li>
+                  <li>✓ QR Code em alta resolução</li>
+                </ul>
+              </div>
+              <div class="mt-3 text-center text-xs font-semibold text-purple-300">Selecionar</div>
+            </div>
+
+            <div onclick="selectPlan('1_ano', 29.90, '1 Ano')" id="plan-1_ano" class="plan-card cursor-pointer rounded-xl p-4 bg-[#1a1433] border-2 border-purple-800/40 hover:border-purple-500 transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-900/80 text-purple-200">Mais Escolhido</span>
+                <h3 class="text-base font-bold text-white mt-2">1 Ano</h3>
+                <p class="text-2xl font-black text-white mt-1">R$ 29,90</p>
+                <ul class="text-[11px] text-slate-300 space-y-1 mt-3">
+                  <li>✓ Sem marca d'água</li>
+                  <li>✓ Link ativo por 365 dias</li>
+                  <li>✓ QR Code personalizado</li>
+                </ul>
+              </div>
+              <div class="mt-3 text-center text-xs font-semibold text-purple-300">Selecionar</div>
+            </div>
+
+            <div onclick="selectPlan('vitalicio', 49.90, 'Para Sempre')" id="plan-vitalicio" class="plan-card cursor-pointer rounded-xl p-4 bg-gradient-to-b from-purple-900/40 to-[#1a1433] border-2 border-pink-500 shadow-lg shadow-pink-500/10 transition flex flex-col justify-between relative">
+              <span class="absolute -top-2.5 right-3 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white">⭐ Vitalício</span>
+              <div>
+                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-pink-950 text-pink-300">Sem Expiração</span>
+                <h3 class="text-base font-bold text-white mt-2">Para Sempre</h3>
+                <p class="text-2xl font-black text-white mt-1">R$ 49,90</p>
+                <ul class="text-[11px] text-slate-300 space-y-1 mt-3">
+                  <li>✓ Sem marca d'água</li>
+                  <li>✓ Nunca sai do ar</li>
+                  <li>✓ Ideal para quadros e presentes</li>
+                </ul>
+              </div>
+              <div class="mt-3 text-center text-xs font-bold text-pink-300">✓ Selecionado</div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Seu E-mail (recebe o link, QR Code e comprovante automaticamente)</label>
+            <input id="input-payer-email" type="email" required placeholder="seuemail@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-[#009ee3]" />
+          </div>
+
+          <button onclick="iniciarCheckoutAutomatico()" class="w-full py-4 rounded-xl bg-gradient-to-r from-[#009ee3] via-purple-600 to-pink-600 hover:opacity-95 text-white font-extrabold text-base shadow-xl shadow-purple-600/25 transition flex items-center justify-center gap-2">
+            <span>⚡ Pagar Pix e Liberar Automaticamente</span>
+            <span id="btn-price-tag" class="bg-black/30 px-2.5 py-0.5 rounded-lg text-sm">R$ 49,90</span>
+          </button>
+        </section>
+
+      </div>
+
+      <!-- RIGHT COLUMN: LIVE MOBILE PREVIEW (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col items-center">
+        <div class="sticky top-20 w-full flex flex-col items-center">
+          <div class="flex items-center justify-between w-full max-w-[360px] mb-2 px-1">
+            <span id="preview-status-label" class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Modo Prévia (Com Marca d'Água)
+            </span>
+            <button onclick="handleFullscreenRequest()" class="text-xs text-slate-300 hover:text-white underline flex items-center gap-1">
+              <span id="preview-lock-mini">🔒</span> Tela Cheia
+            </button>
+          </div>
+
+          <!-- PHONE FRAME -->
+          <div class="w-[350px] sm:w-[370px] h-[690px] rounded-[44px] p-3 bg-gradient-to-b from-slate-700 via-slate-900 to-black shadow-2xl border border-slate-700/80 relative">
+            <div class="w-32 h-5 bg-black rounded-b-2xl mx-auto absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center">
+              <div class="w-10 h-1 rounded-full bg-slate-800"></div>
+            </div>
+
+            <!-- WATERMARK OVERLAY (VISIBLE UNTIL PIX IS APPROVED) -->
+            <div id="preview-watermark" class="watermark-overlay absolute inset-3 rounded-[34px] z-20 pointer-events-none flex flex-col items-center justify-between py-14 overflow-hidden select-none">
+              <span class="-rotate-12 text-white/25 font-black text-lg tracking-widest uppercase border border-white/20 px-3 py-1 rounded">PRÉVIA NÃO PAGA</span>
+              <div class="bg-black/70 backdrop-blur-sm border border-purple-500/40 px-4 py-2 rounded-2xl text-center shadow-xl">
+                <p class="text-[11px] font-extrabold text-white">🔒 Prévia Protegida</p>
+                <p class="text-[10px] text-purple-200">Libera automaticamente após o Pix</p>
+              </div>
+              <span class="-rotate-12 text-white/25 font-black text-lg tracking-widest uppercase border border-white/20 px-3 py-1 rounded">CÓDIGO DO AMOR</span>
+            </div>
+
+            <div id="phone-screen" class="w-full h-full rounded-[34px] overflow-y-auto overflow-x-hidden relative bg-black text-white"></div>
+          </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button onclick="openFullscreen()" class="px-3 py-1.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-200 text-xs font-semibold border border-purple-700/50 transition flex items-center gap-1.5">
-          <span>📱</span> <span class="hidden sm:inline">Tela Cheia</span>
-        </button>
-        <a href="#checkout-section" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold shadow-lg shadow-purple-600/25 transition">
-          Criar Agora
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN CONTENT -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-    <!-- LEFT COLUMN: EDITOR & PLANS (7 cols) -->
-    <div class="lg:col-span-7 space-y-6">
-
-      <!-- STEP 1: MODEL SELECTION -->
-      <section class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 1 de 3</span>
-            <h2 class="text-xl font-extrabold text-white">Escolha o Tema da Homenagem</h2>
-          </div>
-          <span class="text-xs text-slate-400 bg-[#1a1433] px-2.5 py-1 rounded-full border border-purple-800/40">16 Modelos</span>
-        </div>
-
-        <!-- Category Tabs -->
-        <div id="category-tabs" class="flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
-          <button onclick="filterThemes('all')" data-cat="all" class="cat-btn active px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-600 text-white whitespace-nowrap transition">Todos (16)</button>
-          <button onclick="filterThemes('streaming')" data-cat="streaming" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Streaming & Filmes</button>
-          <button onclick="filterThemes('geek')" data-cat="geek" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Animes & Games</button>
-          <button onclick="filterThemes('music')" data-cat="music" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Música & Social</button>
-          <button onclick="filterThemes('brasil')" data-cat="brasil" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1c1638] text-slate-300 hover:bg-purple-900/50 whitespace-nowrap transition">Brasil & Clássicos</button>
-        </div>
-
-        <!-- Theme Cards Grid -->
-        <div id="themes-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[320px] overflow-y-auto pr-1"></div>
-      </section>
-
-      <!-- STEP 2: PERSONALIZATION FORM -->
-      <section class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 2 de 3</span>
-          <h2 class="text-xl font-extrabold text-white">Personalize os Detalhes</h2>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Casal (Título)</label>
-            <input id="input-couple" type="text" value="Rafael & Juliana" oninput="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" placeholder="Ex: João & Maria" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Início do Relacionamento</label>
-            <input id="input-date" type="datetime-local" value="2023-10-30T20:00" oninput="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Mensagem / Declaração Romântica</label>
-          <textarea id="input-message" rows="3" oninput="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" placeholder="Escreva sua mensagem especial...">Cada segundo ao seu lado transforma dias comuns na nossa melhor história. Obrigado por ser meu porto seguro, minha melhor escolha e o amor da minha vida.</textarea>
-        </div>
-
-        <!-- Photos Upload -->
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block text-xs font-semibold text-slate-300">Fotos do Casal (até 6 fotos)</label>
-            <button type="button" onclick="resetPhotos()" class="text-[11px] text-purple-400 hover:underline">Restaurar fotos exemplo</button>
-          </div>
-          <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-purple-700/60 rounded-xl cursor-pointer bg-[#1a1433]/60 hover:bg-[#1a1433] transition">
-            <div class="flex flex-col items-center justify-center pt-2 pb-2">
-              <p class="text-xs text-purple-200 font-semibold">📸 Clique para enviar fotos da galeria</p>
-              <p class="text-[11px] text-slate-400">PNG, JPG ou WEBP</p>
-            </div>
-            <input id="input-photos" type="file" accept="image/*" multiple onchange="handlePhotoUpload(event)" class="hidden" />
-          </label>
-          <div id="photo-thumbs" class="flex gap-2 mt-2 overflow-x-auto"></div>
-        </div>
-
-        <!-- Music Selection -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Trilha Sonora</label>
-            <select id="input-music-preset" onchange="handleMusicPreset()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500">
-              <option value="https://open.spotify.com/embed/track/0tgVpDi06FyKpA1z0VMD4v">Perfect — Ed Sheeran (Spotify)</option>
-              <option value="https://open.spotify.com/embed/track/3U4isOIWM3VvDubwSI3y7a">All of Me — John Legend (Spotify)</option>
-              <option value="https://open.spotify.com/embed/track/1dGr1c8CrMLDpV6mPbImSI">Lover — Taylor Swift (Spotify)</option>
-              <option value="https://open.spotify.com/embed/track/5uCax9HTNlzGybIStD3vDh">Say You Won't Let Go — James Arthur</option>
-              <option value="custom">🔗 Colar meu link do Spotify ou YouTube</option>
-            </select>
-          </div>
-          <div id="custom-music-box" class="hidden">
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Link Spotify ou YouTube</label>
-            <input id="input-music-custom" type="url" oninput="updatePreview()" placeholder="https://open.spotify.com/track/..." class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Chuva de Emojis na Tela</label>
-            <select id="input-particles" onchange="updatePreview()" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1433] border border-purple-800/50 text-white text-sm focus:outline-none focus:border-purple-500">
-              <option value="❤️">Corações Vermelhos (❤️)</option>
-              <option value="✨">Brilhos & Estrelas (✨)</option>
-              <option value="🌹">Pétalas de Rosa (🌹)</option>
-              <option value="🦋">Borboletas (🦋)</option>
-              <option value="none">Sem partículas</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 3: PLANS & MERCADO PAGO PIX CHECKOUT -->
-      <section id="checkout-section" class="bg-[#120e24] border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Passo 3 de 3</span>
-            <h2 class="text-xl font-extrabold text-white">Escolha a Validade do Acesso</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Pagamento seguro via Mercado Pago Pix • Liberação imediata</p>
-          </div>
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#009ee3]/15 border border-[#009ee3]/40 text-[#38bdf8] text-xs font-bold">
-            <span>🤝</span> Mercado Pago Pix
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <!-- Plan 15 days -->
-          <div onclick="selectPlan('15_dias', 9.90, '15 Dias')" id="plan-15_dias" class="plan-card cursor-pointer rounded-xl p-4 bg-[#1a1433] border-2 border-purple-800/40 hover:border-purple-500 transition flex flex-col justify-between">
-            <div>
-              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Teste Rápido</span>
-              <h3 class="text-base font-bold text-white mt-2">15 Dias</h3>
-              <p class="text-2xl font-black text-white mt-1">R$ 9,90</p>
-              <ul class="text-[11px] text-slate-300 space-y-1 mt-3">
-                <li>✓ Link ativo por 15 dias</li>
-                <li>✓ QR Code em alta resolução</li>
-                <li>✓ Até 6 fotos + música</li>
-              </ul>
-            </div>
-            <div class="mt-3 text-center text-xs font-semibold text-purple-300">Selecionar</div>
-          </div>
-
-          <!-- Plan 1 year -->
-          <div onclick="selectPlan('1_ano', 29.90, '1 Ano')" id="plan-1_ano" class="plan-card cursor-pointer rounded-xl p-4 bg-[#1a1433] border-2 border-purple-800/40 hover:border-purple-500 transition flex flex-col justify-between">
-            <div>
-              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-900/80 text-purple-200">Mais Escolhido</span>
-              <h3 class="text-base font-bold text-white mt-2">1 Ano</h3>
-              <p class="text-2xl font-black text-white mt-1">R$ 29,90</p>
-              <ul class="text-[11px] text-slate-300 space-y-1 mt-3">
-                <li>✓ Link ativo por 365 dias</li>
-                <li>✓ QR Code personalizado</li>
-                <li>✓ Todos os 16 temas</li>
-              </ul>
-            </div>
-            <div class="mt-3 text-center text-xs font-semibold text-purple-300">Selecionar</div>
-          </div>
-
-          <!-- Plan Forever -->
-          <div onclick="selectPlan('vitalicio', 49.90, 'Para Sempre')" id="plan-vitalicio" class="plan-card cursor-pointer rounded-xl p-4 bg-gradient-to-b from-purple-900/40 to-[#1a1433] border-2 border-pink-500 shadow-lg shadow-pink-500/10 transition flex flex-col justify-between relative">
-            <span class="absolute -top-2.5 right-3 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white">⭐ Vitalício</span>
-            <div>
-              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-pink-950 text-pink-300">Sem Expiração</span>
-              <h3 class="text-base font-bold text-white mt-2">Para Sempre</h3>
-              <p class="text-2xl font-black text-white mt-1">R$ 49,90</p>
-              <ul class="text-[11px] text-slate-300 space-y-1 mt-3">
-                <li>✓ Nunca sai do ar</li>
-                <li>✓ QR Code permanente</li>
-                <li>✓ Ideal para quadros e presentes</li>
-              </ul>
-            </div>
-            <div class="mt-3 text-center text-xs font-bold text-pink-300">✓ Selecionado</div>
-          </div>
-        </div>
-
-        <button onclick="iniciarPagamentoMercadoPago()" id="btn-pagar-mp" class="w-full py-4 rounded-xl bg-gradient-to-r from-[#009ee3] via-purple-600 to-pink-600 hover:opacity-95 text-white font-extrabold text-base shadow-xl shadow-purple-600/25 transition flex items-center justify-center gap-2">
-          <span>💳 Pagar com Pix Mercado Pago</span>
-          <span id="btn-price-tag" class="bg-black/30 px-2.5 py-0.5 rounded-lg text-sm">R$ 49,90</span>
-        </button>
-      </section>
-
-    </div>
-
-    <!-- RIGHT COLUMN: LIVE MOBILE PREVIEW (5 cols) -->
-    <div class="lg:col-span-5 flex flex-col items-center">
-      <div class="sticky top-20 w-full flex flex-col items-center">
-        <div class="flex items-center justify-between w-full max-w-[360px] mb-2 px-1">
-          <span class="text-xs font-semibold text-purple-300 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Prévia ao Vivo no Celular
-          </span>
-          <button onclick="openFullscreen()" class="text-xs text-slate-300 hover:text-white underline">Expandir ↗</button>
-        </div>
-
-        <!-- PHONE FRAME -->
-        <div class="w-[350px] sm:w-[370px] h-[690px] rounded-[44px] p-3 bg-gradient-to-b from-slate-700 via-slate-900 to-black shadow-2xl border border-slate-700/80 relative">
-          <div class="w-32 h-5 bg-black rounded-b-2xl mx-auto absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center">
-            <div class="w-10 h-1 rounded-full bg-slate-800"></div>
-          </div>
-          <div id="phone-screen" class="w-full h-full rounded-[34px] overflow-y-auto overflow-x-hidden relative bg-black text-white"></div>
-        </div>
-      </div>
-    </div>
-
-  </main>
+    </main>
+  </div>
 
   <!-- FULLSCREEN MODAL -->
   <div id="fullscreen-modal" class="fixed inset-0 z-50 bg-black hidden flex-col">
     <div class="flex items-center justify-between px-4 py-2.5 bg-zinc-950 border-b border-zinc-800">
-      <span class="text-xs text-zinc-400">Modo Visualização do Presenteado • <strong class="text-white">Código do Amor</strong></span>
+      <span class="text-xs text-emerald-400 font-semibold">✓ Versão Oficial Desbloqueada • <strong class="text-white">Código do Amor</strong></span>
       <button onclick="closeFullscreen()" class="px-3 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold">✕ Fechar Tela Cheia</button>
     </div>
     <div id="fullscreen-content" class="flex-1 overflow-y-auto max-w-md w-full mx-auto relative"></div>
   </div>
 
-  <!-- MERCADO PAGO PIX CHECKOUT & QR CODE MODAL -->
-  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-[#141029] border border-[#009ee3]/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-5">
+  <!-- AUTOMATIC PIX CHECKOUT & UNLOCK MODAL -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#141029] border border-[#009ee3]/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-4 my-auto">
       <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">✕</button>
 
-      <!-- Step A: Mercado Pago Pix Payment -->
+      <!-- STEP A: WAITING AUTOMATIC PIX CONFIRMATION -->
       <div id="pix-step" class="space-y-4">
         <div class="text-center">
-          <span class="px-3 py-1 rounded-full bg-[#009ee3]/20 text-[#38bdf8] text-xs font-bold border border-[#009ee3]/40">Mercado Pago • Pix Seguro</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Escaneie o QR Code Pix</h3>
+          <span class="px-3 py-1 rounded-full bg-[#009ee3]/20 text-[#38bdf8] text-xs font-bold border border-[#009ee3]/40">Mercado Pago • Autorização Automática</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Pague o Pix para Liberar</h3>
           <p class="text-xs text-slate-400 mt-1">Plano: <strong id="modal-plan-name" class="text-purple-300">Para Sempre</strong> — <strong id="modal-plan-price" class="text-white">R$ 49,90</strong></p>
         </div>
 
-        <div id="mp-qr-container" class="bg-[#1d173b] p-4 rounded-xl border border-[#009ee3]/30 text-center space-y-3">
+        <div id="mp-loading" class="py-8 text-center space-y-2">
+          <div class="w-8 h-8 border-4 border-[#009ee3] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p class="text-xs text-slate-300">Gerando cobrança Pix exclusiva no Mercado Pago...</p>
+        </div>
+
+        <div id="mp-error-box" class="hidden bg-rose-950/50 border border-rose-500/40 rounded-xl p-4 text-center space-y-2">
+          <p class="text-xs font-bold text-rose-300">⚠️ Atenção: Credencial Mercado Pago não configurada</p>
+          <p id="mp-error-detail" class="text-[11px] text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <div id="mp-qr-container" class="hidden bg-[#1d173b] p-4 rounded-xl border border-[#009ee3]/30 text-center space-y-3">
           <div class="w-44 h-44 mx-auto bg-white p-2 rounded-xl flex items-center justify-center shadow">
-            <img id="mp-qr-base64" class="w-full h-full object-contain hidden" alt="QR Code Pix Mercado Pago" />
-            <div id="pix-emv-qr"></div>
+            <img id="mp-qr-base64" class="w-full h-full object-contain" alt="QR Code Pix Mercado Pago" />
           </div>
 
-          <div class="text-[11px] text-slate-300 bg-black/30 rounded-lg py-1.5 px-3 border border-purple-800/30">
-            Recebedor: <strong class="text-white">Código do Amor</strong> (Mercado Pago)
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-300 text-[11px] font-semibold border border-amber-500/30">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span id="mp-status-text">Aguardando autorização do banco (verifica a cada 3s)...</span>
           </div>
 
           <div>
-            <p class="text-[11px] text-slate-400 mb-1 text-left">Pix Copia e Cola (com valor já preenchido):</p>
+            <p class="text-[11px] text-slate-400 mb-1 text-left">Pix Copia e Cola (Mercado Pago):</p>
             <div class="flex items-center gap-2">
               <input id="mp-copia-cola" type="text" readonly class="w-full text-[11px] bg-black/40 border border-purple-800/40 rounded-lg px-2.5 py-2 text-slate-300 font-mono" />
               <button onclick="copyPixCode()" class="px-3 py-2 rounded-lg bg-[#009ee3] hover:bg-[#0089c7] text-white text-xs font-bold whitespace-nowrap">Copiar</button>
             </div>
           </div>
-          <div class="pt-1 border-t border-purple-800/30">
-            <p class="text-[10px] text-slate-400 mb-1 text-left">Ou pague usando a Chave Pix Celular:</p>
-            <div class="flex items-center gap-2">
-              <input type="text" readonly value="+5511951615681" class="w-full text-[10px] bg-black/40 border border-purple-800/40 rounded-lg px-2.5 py-1.5 text-purple-200 font-mono" />
-              <button onclick="navigator.clipboard.writeText('+5511951615681'); alert('Chave Pix celular (11) 95161-5681 copiada!');" class="px-2.5 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-600 text-white text-[11px] font-bold whitespace-nowrap">Copiar Chave</button>
-            </div>
-          </div>
-        </div>
 
-        <div class="space-y-2">
-          <button onclick="verificarStatusManual()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20 transition">
-            ✓ Já paguei o Pix (Liberar Página e QR Code)
+          <button onclick="verificarStatusAgora()" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs border border-white/15 transition">
+            🔄 Já paguei — Verificar Autorização Agora
           </button>
-          <p class="text-[10px] text-center text-slate-400">
-            Após pagar no app do seu banco, clique no botão acima para gerar o link e QR Code do casal.
-          </p>
         </div>
       </div>
 
-      <!-- Step B: Activated Link & Downloadable QR Code -->
+      <!-- STEP B: AUTOMATICALLY UNLOCKED -->
       <div id="success-step" class="hidden space-y-4 text-center">
         <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-2xl">🎉</div>
         <div>
-          <h3 class="text-xl font-extrabold text-white">Homenagem Liberada!</h3>
-          <p id="validity-badge" class="text-xs text-emerald-400 font-semibold mt-1">Validade: Acesso Vitalício (Para Sempre)</p>
+          <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold uppercase">Pix Autorizado Automaticamente</span>
+          <h3 class="text-xl font-extrabold text-white mt-1">Homenagem Liberada!</h3>
+          <p id="validity-badge" class="text-xs text-emerald-400 font-semibold mt-0.5">Validade: Acesso Vitalício (Para Sempre)</p>
         </div>
 
         <div class="bg-white p-4 rounded-2xl inline-block shadow-xl mx-auto">
           <canvas id="final-qr-canvas" width="240" height="240"></canvas>
         </div>
 
-        <div class="bg-[#1d173b] p-3 rounded-xl border border-purple-800/40">
-          <p class="text-[11px] text-slate-400 mb-1">Link exclusivo do casal:</p>
-          <div class="flex items-center gap-2">
-            <input id="generated-url-input" type="text" readonly class="w-full text-xs bg-black/40 border border-purple-800/40 rounded-lg px-2.5 py-2 text-purple-200 font-mono" />
-            <button onclick="copyFinalUrl()" class="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-bold">Copiar</button>
+        <div class="bg-[#1d173b] p-3 rounded-xl border border-purple-800/40 space-y-2 text-left">
+          <div>
+            <p class="text-[10px] text-slate-400">Código de Ativação Gerado:</p>
+            <p id="auto-activation-code" class="text-xs font-mono font-bold text-emerald-400"></p>
+          </div>
+          <div>
+            <p class="text-[10px] text-slate-400 mb-1">Link exclusivo da homenagem (abre em qualquer celular):</p>
+            <div class="flex items-center gap-2">
+              <input id="generated-url-input" type="text" readonly class="w-full text-xs bg-black/40 border border-purple-800/40 rounded-lg px-2.5 py-2 text-purple-200 font-mono" />
+              <button onclick="copyFinalUrl()" class="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-bold">Copiar</button>
+            </div>
           </div>
         </div>
 
@@ -350,59 +387,6 @@
   </div>
 
   <script>
-    // =========================================================
-    // CHAVE ALEATÓRIA PIX MERCADO PAGO CONFIGURADA
-    // =========================================================
-    const PIX_CHAVE_TELEFONE = '+5511951615681';
-    const PIX_RECEBEDOR_NOME = 'CODIGO DO AMOR';
-    const PIX_RECEBEDOR_CIDADE = 'SAO PAULO';
-
-    // Gerador oficial de Payload Pix EMV (BR Code + CRC16 CCITT)
-    function gerarPayloadPixEMV({ chave, nome, cidade, valor, txid = '***' }) {
-      const formatField = (id, val) => {
-        const str = String(val);
-        const len = String(str.length).padStart(2, '0');
-        return `${id}${len}${str}`;
-      };
-
-      const cleanNome = nome.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().slice(0, 25);
-      const cleanCidade = cidade.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().slice(0, 15);
-      const cleanTxid = txid.replace(/[^a-zA-Z0-9]/g, '').slice(0, 25) || '***';
-      const valorStr = Number(valor).toFixed(2);
-
-      // Merchant Account Information (ID 26)
-      const gui = formatField('00', 'br.gov.bcb.pix');
-      const key = formatField('01', chave);
-      const merchantAccountInfo = formatField('26', gui + key);
-
-      // Additional Data Field Template (ID 62)
-      const txidField = formatField('05', cleanTxid);
-      const additionalData = formatField('62', txidField);
-
-      const payloadSemCRC =
-        formatField('00', '01') +                 // Payload Format Indicator
-        merchantAccountInfo +                      // Chave Pix Aleatória
-        formatField('52', '0000') +               // Merchant Category Code
-        formatField('53', '986') +                // Moeda BRL (986)
-        formatField('54', valorStr) +             // Valor exato do plano
-        formatField('58', 'BR') +                 // País
-        formatField('59', cleanNome) +            // Nome recebedor
-        formatField('60', cleanCidade) +          // Cidade
-        additionalData +                           // Identificador TXID
-        '6304';                                    // Tag CRC16
-
-      // Cálculo CRC16-CCITT (0xFFFF)
-      let crc = 0xFFFF;
-      for (let i = 0; i < payloadSemCRC.length; i++) {
-        crc ^= payloadSemCRC.charCodeAt(i) << 8;
-        for (let j = 0; j < 8; j++) {
-          crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
-        }
-      }
-      const crcHex = (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
-      return payloadSemCRC + crcHex;
-    }
-
     const THEMES = [
       { id: 'netflix', name: 'Netflix', sub: 'Sua história em série', cat: 'streaming', badge: '⭐ MAIS USADO', color: '#e50914', icon: 'N' },
       { id: 'gta6', name: 'GTA VI Vice City', sub: 'Estilo Vice City', cat: 'geek', badge: '⭐ NOVO', color: '#ec4899', icon: 'VI' },
@@ -441,9 +425,55 @@
       planId: 'vitalicio',
       planPrice: 49.90,
       planLabel: 'Para Sempre',
+      isUnlocked: false,
       currentPaymentId: null,
       pollingTimer: null
     };
+
+    // Verifica se a URL atual é uma página pública de homenagem (/p/slug?pid=...)
+    async function checkPublicRoute() {
+      const path = window.location.pathname;
+      const params = new URLSearchParams(window.location.search);
+      const pid = params.get('pid');
+
+      if (path.startsWith('/p/') && pid) {
+        document.getElementById('creator-app').classList.add('hidden');
+        document.getElementById('public-viewer').classList.remove('hidden');
+        document.getElementById('public-viewer-content').innerHTML = `
+          <div class="min-h-screen flex flex-col items-center justify-center text-center p-6 space-y-3">
+            <div class="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-sm text-purple-200 font-semibold">Validando pagamento e carregando homenagem...</p>
+          </div>
+        `;
+
+        try {
+          const res = await fetch(`/api/verificar-pix?id=${encodeURIComponent(pid)}`);
+          const data = await res.json();
+
+          if (data.status === 'approved' && data.page_data) {
+            state = { ...state, ...data.page_data, isUnlocked: true };
+            setInterval(() => {
+              if (state.photos.length > 1) state.photoIndex = (state.photoIndex + 1) % state.photos.length;
+              document.getElementById('public-viewer-content').innerHTML = buildThemeHTML();
+            }, 1000);
+            document.getElementById('public-viewer-content').innerHTML = buildThemeHTML();
+          } else {
+            document.getElementById('public-viewer-content').innerHTML = `
+              <div class="min-h-screen flex flex-col items-center justify-center text-center p-6 space-y-4">
+                <span class="text-4xl">🔒</span>
+                <h1 class="text-xl font-extrabold text-white">Homenagem não ativa ou expirada</h1>
+                <p class="text-xs text-slate-400">Este link ainda não teve o pagamento autorizado ou atingiu o prazo contratado.</p>
+                <a href="/" class="px-5 py-2.5 rounded-xl bg-purple-600 text-white text-xs font-bold">Criar minha homenagem</a>
+              </div>
+            `;
+          }
+        } catch (e) {
+          document.getElementById('public-viewer-content').innerHTML = `<p class="p-6 text-center text-xs text-rose-400">Erro ao carregar homenagem.</p>`;
+        }
+        return true;
+      }
+      return false;
+    }
 
     function renderThemes() {
       const grid = document.getElementById('themes-grid');
@@ -496,19 +526,37 @@
       selected.classList.add('border-pink-500', 'bg-gradient-to-b', 'from-purple-900/40', 'to-[#1a1433]');
     }
 
-    function handlePhotoUpload(e) {
-      const files = Array.from(e.target.files).slice(0, 6);
-      if (!files.length) return;
-      state.photos = [];
-      files.forEach(file => {
+    // Compressão de imagem para caber nos metadados do pagamento sem estourar limite
+    function compressImage(file, maxWidth = 480, quality = 0.65) {
+      return new Promise((resolve) => {
         const reader = new FileReader();
-        reader.onload = (ev) => {
-          state.photos.push(ev.target.result);
-          renderThumbs();
-          updatePreview();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const scale = Math.min(1, maxWidth / img.width);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.src = e.target.result;
         };
         reader.readAsDataURL(file);
       });
+    }
+
+    async function handlePhotoUpload(e) {
+      const files = Array.from(e.target.files).slice(0, 4);
+      if (!files.length) return;
+      state.photos = [];
+      for (const file of files) {
+        const compressed = await compressImage(file);
+        state.photos.push(compressed);
+      }
+      renderThumbs();
+      updatePreview();
     }
 
     function resetPhotos() {
@@ -994,12 +1042,14 @@
       }
     }
 
-    setInterval(() => {
-      if (state.photos.length > 1) {
-        state.photoIndex = (state.photoIndex + 1) % state.photos.length;
+    function handleFullscreenRequest() {
+      if (!state.isUnlocked) {
+        alert('🔒 O modo Tela Cheia sem marca d’água libera automaticamente assim que o pagamento Pix for autorizado.');
+        iniciarCheckoutAutomatico();
+        return;
       }
-      updatePreview();
-    }, 1000);
+      openFullscreen();
+    }
 
     function openFullscreen() {
       document.getElementById('fullscreen-content').innerHTML = buildThemeHTML();
@@ -1013,43 +1063,98 @@
     }
 
     // =========================================================
-    // CHECKOUT PIX COM CHAVE ALEATÓRIA MERCADO PAGO
+    // CHECKOUT 100% AUTOMÁTICO VIA API MERCADO PAGO
     // =========================================================
-    async function iniciarPagamentoMercadoPago() {
+    async function iniciarCheckoutAutomatico() {
+      const emailInput = document.getElementById('input-payer-email');
+      const payerEmail = emailInput.value.trim();
+
+      if (!payerEmail || !payerEmail.includes('@')) {
+        alert('Digite um e-mail válido no Passo 3 para receber seu comprovante e o link automático da homenagem.');
+        emailInput.focus();
+        return;
+      }
+
       document.getElementById('modal-plan-name').textContent = state.planLabel;
       document.getElementById('modal-plan-price').textContent = `R$ ${state.planPrice.toFixed(2).replace('.', ',')}`;
 
       document.getElementById('pix-step').classList.remove('hidden');
       document.getElementById('success-step').classList.add('hidden');
-
-      // Gera o código Pix oficial com a chave aleatória + valor exato do plano
-      const txidUnico = '***';
-      const payloadPix = gerarPayloadPixEMV({
-        chave: PIX_CHAVE_TELEFONE,
-        nome: PIX_RECEBEDOR_NOME,
-        cidade: PIX_RECEBEDOR_CIDADE,
-        valor: state.planPrice,
-        txid: txidUnico
-      });
-
-      document.getElementById('mp-copia-cola').value = payloadPix;
-      document.getElementById('mp-qr-base64').classList.add('hidden');
-
-      const qrBox = document.getElementById('pix-emv-qr');
-      qrBox.innerHTML = '';
-      new QRCode(qrBox, {
-        text: payloadPix,
-        width: 160,
-        height: 160,
-        correctLevel: QRCode.CorrectLevel.M
-      });
+      document.getElementById('mp-loading').classList.remove('hidden');
+      document.getElementById('mp-qr-container').classList.add('hidden');
+      document.getElementById('mp-error-box').classList.add('hidden');
 
       document.getElementById('checkout-modal').classList.remove('hidden');
       document.getElementById('checkout-modal').classList.add('flex');
+
+      try {
+        const res = await fetch('/api/criar-pix', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            planId: state.planId,
+            planLabel: state.planLabel,
+            coupleName: state.couple,
+            payerEmail: payerEmail,
+            pageData: {
+              theme: state.theme,
+              couple: state.couple,
+              date: state.date,
+              message: state.message,
+              photos: state.photos.slice(0, 3),
+              musicUrl: state.musicUrl,
+              particles: state.particles,
+              planId: state.planId
+            }
+          })
+        });
+
+        const data = await res.json();
+        document.getElementById('mp-loading').classList.add('hidden');
+
+        if (!res.ok || !data.qr_code) {
+          document.getElementById('mp-error-box').classList.remove('hidden');
+          document.getElementById('mp-error-detail').textContent =
+            data.error || 'Adicione a variável MP_ACCESS_TOKEN nas Configurações da Vercel para gerar cobranças Pix automáticas.';
+          return;
+        }
+
+        state.currentPaymentId = data.payment_id;
+        document.getElementById('mp-copia-cola').value = data.qr_code;
+        document.getElementById('mp-qr-base64').src = `data:image/png;base64,${data.qr_code_base64}`;
+        document.getElementById('mp-qr-container').classList.remove('hidden');
+
+        // Inicia verificação automática a cada 3 segundos
+        iniciarPollingAutomatico(data.payment_id);
+      } catch (err) {
+        document.getElementById('mp-loading').classList.add('hidden');
+        document.getElementById('mp-error-box').classList.remove('hidden');
+        document.getElementById('mp-error-detail').textContent = 'Falha de conexão com o servidor de pagamento. Tente novamente.';
+      }
     }
 
-    function verificarStatusManual() {
-      liberarPaginaAprovada();
+    function iniciarPollingAutomatico(paymentId) {
+      if (state.pollingTimer) clearInterval(state.pollingTimer);
+      state.pollingTimer = setInterval(() => consultarAutorizacao(paymentId, false), 3000);
+    }
+
+    async function verificarStatusAgora() {
+      if (!state.currentPaymentId) return;
+      await consultarAutorizacao(state.currentPaymentId, true);
+    }
+
+    async function consultarAutorizacao(paymentId, manualClick) {
+      try {
+        const res = await fetch(`/api/verificar-pix?id=${encodeURIComponent(paymentId)}`);
+        const data = await res.json();
+
+        if (data.status === 'approved') {
+          if (state.pollingTimer) clearInterval(state.pollingTimer);
+          desbloquearAutomaticamente(paymentId, data.activation_code);
+        } else if (manualClick) {
+          alert('O banco ainda não confirmou o pagamento deste Pix. Assim que o pagamento for concluído no app do banco, a liberação acontece sozinha em segundos.');
+        }
+      } catch (e) {}
     }
 
     function closeCheckoutModal() {
@@ -1061,10 +1166,19 @@
     function copyPixCode() {
       const code = document.getElementById('mp-copia-cola').value;
       navigator.clipboard.writeText(code);
-      alert('Código Pix Copia e Cola copiado! Abra o app do seu banco, escolha Pix Copia e Cola e confirme o pagamento.');
+      alert('Código Pix Copia e Cola copiado! Pague no aplicativo do seu banco e aguarde nesta tela para liberação automática.');
     }
 
-    function liberarPaginaAprovada() {
+    function desbloquearAutomaticamente(paymentId, activationCode) {
+      state.isUnlocked = true;
+
+      // Remove marca d'água e libera Tela Cheia
+      document.getElementById('preview-watermark').classList.add('hidden');
+      document.getElementById('fs-lock-icon').textContent = '📱';
+      document.getElementById('preview-lock-mini').textContent = '↗';
+      document.getElementById('preview-status-label').className = 'text-xs font-semibold text-emerald-400 flex items-center gap-1.5';
+      document.getElementById('preview-status-label').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Versão Oficial Desbloqueada';
+
       document.getElementById('pix-step').classList.add('hidden');
       document.getElementById('success-step').classList.remove('hidden');
 
@@ -1074,8 +1188,9 @@
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '') || 'nosso-amor';
 
-      const finalUrl = `https://codigodoamoroficial.vercel.app/p/${slug}`;
+      const finalUrl = `https://codigodoamoroficial.vercel.app/p/${slug}?pid=${paymentId}`;
       document.getElementById('generated-url-input').value = finalUrl;
+      document.getElementById('auto-activation-code').textContent = activationCode || `MP-${paymentId}`;
 
       const validityMap = {
         '15_dias': 'Validade: Ativo por 15 dias a partir de hoje',
@@ -1139,9 +1254,21 @@
       link.click();
     }
 
-    renderThemes();
-    renderThumbs();
-    updatePreview();
+    // Boot
+    (async () => {
+      const isPublic = await checkPublicRoute();
+      if (!isPublic) {
+        renderThemes();
+        renderThumbs();
+        updatePreview();
+        setInterval(() => {
+          if (state.photos.length > 1) {
+            state.photoIndex = (state.photoIndex + 1) % state.photos.length;
+          }
+          updatePreview();
+        }, 1000);
+      }
+    })();
   </script>
 </body>
 </html>
