@@ -1,6 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/api/criar-pix", "destination": "/criar-pix.js" },
-    { "source": "/api/verificar-pix", "destination": "/verificar-pix.js" }
-  ]
-}
