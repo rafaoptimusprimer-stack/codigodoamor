@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="Cyw7ex44iI1-beVm3_2TlNvx8LJuld5mgQ8Qo5fJTAU" />
+  <title>Código do Amor — Crie sua Homenagem Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@700;800&family=Inter:wght@400;600;700;800&family=Orbitron:wght@700;800&family=Pacifico&family=Playfair+Display:ital,wght@0,700;1,600&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fafafa; }
+    .font-netflix { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
+    .font-gta { font-family: 'Press Start 2P', cursive; }
+    .font-serif-romance { font-family: 'Playfair Display', serif; }
+    .font-cinzel { font-family: 'Cinzel', serif; letter-spacing: 0.04em; }
+    .font-orbitron { font-family: 'Orbitron', sans-serif; letter-spacing: 0.05em; }
+    .font-pacifico { font-family: 'Pacifico', cursive; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- PAINEL ADMIN SECRETO (#admin) -->
+  <div id="admin-view" class="hidden min-h-screen flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md bg-zinc-900 border border-pink-500/40 rounded-3xl p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-pink-400">Área Restrita • Gerador de Brinde</span>
+        <a href="/" class="text-xs text-zinc-400 hover:text-white underline">Voltar ao site</a>
+      </div>
+      <h1 class="text-xl font-extrabold text-white">Gerar Código de 15 Dias Grátis</h1>
+      <p class="text-xs text-zinc-400">O código gerado abaixo fica válido por exatamente <strong>24 horas</strong> para o cliente resgatar no site.</p>
+      <div>
+        <label class="block text-xs text-zinc-400 mb-1">Senha de Administrador</label>
+        <input id="admin-pass-input" type="password" placeholder="Digite sua senha secreta" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-pink-500" />
+      </div>
+      <button id="btn-generate-gift-code" type="button" class="w-full bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white font-extrabold py-3 rounded-xl transition">
+        Gerar Código Válido por 24h
+      </button>
+      <div id="admin-error" class="hidden bg-red-950/60 border border-red-500/40 text-red-200 text-xs p-3 rounded-xl"></div>
+      <div id="admin-result" class="hidden bg-zinc-950 border border-emerald-500/40 rounded-2xl p-4 space-y-2 text-center">
+        <div class="text-xs text-emerald-400 font-bold">✓ Código Gerado (Expira em 24h):</div>
+        <input id="generated-code-output" type="text" readonly class="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-center font-mono text-base font-extrabold text-amber-300" />
+        <button id="btn-copy-admin-code" type="button" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-lg">Copiar Código para Enviar ao Cliente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODO PRESENTE -->
+  <div id="gift-view" class="hidden min-h-screen flex-col items-center justify-center p-4">
+    <div id="gift-card-container" class="w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10 transition-all"></div>
+    <a href="/" class="mt-8 text-xs text-zinc-400 hover:text-white underline">Criar minha própria homenagem no Código do Amor</a>
+  </div>
+
+  <!-- MODO CRIADOR -->
+  <div id="creator-view" class="flex-1 flex flex-col">
+    <header class="border-b border-white/10 bg-zinc-950/80 backdrop-blur sticky top-0 z-30">
+      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">💜</span>
+          <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Código do Amor</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-open-saved-drawer" type="button" class="hidden bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold px-3 py-2 rounded-full transition">
+            💾 Minhas Homenagens (<span id="saved-gifts-badge-count">0</span>)
+          </button>
+          <a href="#criar" class="bg-pink-600 hover:bg-pink-500 text-white text-sm font-bold px-4 py-2 rounded-full transition">Criar Agora</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- BANNER / PAINEL AUTOMÁTICO DE HOMENAGENS SALVAS NO NAVEGADOR -->
+    <section id="saved-gifts-section" class="hidden max-w-6xl mx-auto w-full px-4 pt-6">
+      <div class="bg-gradient-to-r from-emerald-950/70 via-zinc-900 to-pink-950/50 border border-emerald-500/40 rounded-2xl p-4 sm:p-5 space-y-3 shadow-xl">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <div class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">✓ Salvo Automaticamente neste Dispositivo</div>
+            <h2 class="text-base font-extrabold text-white">Suas Homenagens Liberadas (Link + QR Code)</h2>
+          </div>
+          <span class="text-[11px] text-zinc-400 hidden sm:inline">Mesmo se fechar o navegador, elas ficam salvas aqui</span>
+        </div>
+        <div id="saved-gifts-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+
+    <main id="criar" class="max-w-6xl mx-auto w-full px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-7 space-y-6">
+        <div class="bg-zinc-900/90 border border-white/10 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-pink-400">1. Escolha o Tema (19 Estilos)</h2>
+            <span class="text-[11px] text-zinc-400">Séries, Filmes, Jogos & Times</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-80 overflow-y-auto pr-1" id="theme-selector">
+            <!-- Séries, Música & Romance -->
+            <button type="button" data-theme="netflix" class="theme-btn ring-2 ring-pink-500 bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-red-500">STREAMING</div>
+              <div class="font-bold text-xs sm:text-sm">Netflix</div>
+            </button>
+            <button type="button" data-theme="spotify" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-emerald-400">MÚSICA</div>
+              <div class="font-bold text-xs sm:text-sm">Spotify</div>
+            </button>
+            <button type="button" data-theme="stranger" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-red-400">SÉRIE 80s</div>
+              <div class="font-bold text-xs sm:text-sm">Stranger Things</div>
+            </button>
+            <button type="button" data-theme="friends" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-amber-300">SITCOM</div>
+              <div class="font-bold text-xs sm:text-sm">Friends</div>
+            </button>
+            <button type="button" data-theme="bridgerton" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-amber-300">ROMANCE</div>
+              <div class="font-bold text-xs sm:text-sm">Bridgerton</div>
+            </button>
+            <button type="button" data-theme="disney" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-sky-400">ANIMAÇÃO</div>
+              <div class="font-bold text-xs sm:text-sm">Disney+ / Up</div>
+            </button>
+
+            <!-- Filmes, Cultura Pop & Games -->
+            <button type="button" data-theme="barbie" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-pink-400">PINK POP</div>
+              <div class="font-bold text-xs sm:text-sm">Barbie</div>
+            </button>
+            <button type="button" data-theme="harrypotter" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-amber-400">MAGIA</div>
+              <div class="font-bold text-xs sm:text-sm">Harry Potter</div>
+            </button>
+            <button type="button" data-theme="starwars" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-yellow-400">GALÁXIA</div>
+              <div class="font-bold text-xs sm:text-sm">Star Wars</div>
+            </button>
+            <button type="button" data-theme="marvel" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-red-500">HERÓIS</div>
+              <div class="font-bold text-xs sm:text-sm">Marvel / Vingadores</div>
+            </button>
+            <button type="button" data-theme="gta6" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-fuchsia-400">GAME</div>
+              <div class="font-bold text-xs sm:text-sm">GTA VI Vice City</div>
+            </button>
+            <button type="button" data-theme="lastofus" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-lime-400">SÉRIE / GAME</div>
+              <div class="font-bold text-xs sm:text-sm">The Last of Us</div>
+            </button>
+
+            <!-- Especiais & Fotografia -->
+            <button type="button" data-theme="polaroid" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-rose-300">RETRÔ</div>
+              <div class="font-bold text-xs sm:text-sm">Polaroid / Álbum</div>
+            </button>
+            <button type="button" data-theme="ceu" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-indigo-300">UNIVERSO</div>
+              <div class="font-bold text-xs sm:text-sm">Céu Estrelado</div>
+            </button>
+            <button type="button" data-theme="classico" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-pink-400">CLÁSSICO</div>
+              <div class="font-bold text-xs sm:text-sm">Nosso Amor</div>
+            </button>
+
+            <!-- Times Paulistas -->
+            <button type="button" data-theme="saopaulo" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-red-500">TRICOLOR</div>
+              <div class="font-bold text-xs sm:text-sm">🔴⚪⚫ São Paulo FC</div>
+            </button>
+            <button type="button" data-theme="corinthians" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-zinc-300">TIMÃO</div>
+              <div class="font-bold text-xs sm:text-sm">⚫⚪ Corinthians</div>
+            </button>
+            <button type="button" data-theme="santos" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-amber-300">PEIXE</div>
+              <div class="font-bold text-xs sm:text-sm">⚪⚫ Santos FC</div>
+            </button>
+            <button type="button" data-theme="palmeiras" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-emerald-400">VERDÃO</div>
+              <div class="font-bold text-xs sm:text-sm">🟢⚪ Palmeiras</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-zinc-900/90 border border-white/10 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-pink-400">2. Personalize os Detalhes</h2>
+            <span id="draft-autosave-badge" class="text-[11px] text-zinc-500">Rascunho salvo automaticamente</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1">Nome do Casal / Título</label>
+              <input id="input-names" type="text" value="Rafael & Juliana" maxlength="40" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-pink-500" />
+            </div>
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1">Data de Início do Relacionamento</label>
+              <input id="input-date" type="datetime-local" value="2023-10-30T20:00" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-pink-500" />
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs text-zinc-400">Fotos do Casal (Galeria do Celular)</label>
+              <span id="photo-counter" class="text-xs font-semibold text-pink-400">0/4 fotos</span>
+            </div>
+            <label id="photo-upload-label" class="flex items-center justify-center gap-2 w-full bg-pink-600/20 hover:bg-pink-600/30 border border-dashed border-pink-500/60 rounded-xl px-4 py-3 text-sm font-medium text-pink-300 cursor-pointer mb-2">
+              <span>📷 Escolher até 4 Fotos da Galeria</span>
+              <input id="input-photo-file" type="file" accept="image/*" multiple style="display:none" />
+            </label>
+            <p id="photo-file-status" class="text-xs text-emerald-400 hidden mb-2"></p>
+            <div id="photo-thumbs" class="grid grid-cols-4 gap-2 mb-2 hidden"></div>
+            <input id="input-photo" type="url" placeholder="Ou cole um link público da foto (opcional)" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-zinc-300 focus:outline-none focus:border-pink-500" />
+          </div>
+
+          <!-- MÚSICA DO CASAL (YOUTUBE + SUGESTÕES PRONTAS + PRÉVIA DE ÁUDIO) -->
+          <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <label class="block text-xs font-semibold text-zinc-300">🎵 Música do Casal (YouTube)</label>
+              <a id="btn-search-yt" href="https://www.youtube.com/results?search_query=musica+romantica" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-300 text-[11px] font-bold px-2.5 py-1 rounded-lg transition">
+                <span>▶ Pesquisar no YouTube</span>
+              </a>
+            </div>
+
+            <div class="space-y-2">
+              <div class="text-[11px] text-zinc-400">🎧 Ouça a prévia ou toque em <strong>Usar</strong> para colocar no cartão:</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5" id="music-presets">
+                <div data-yt-url="https://www.youtube.com/watch?v=csPSV7f8sDg" data-yt-id="csPSV7f8sDg" data-yt-label="Marcos & Belutti – Sonho De Todo Casal" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">🤠 Marcos & Belutti – Sonho De Todo Casal</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=7nbgYS6Wi8Y" data-yt-id="7nbgYS6Wi8Y" data-yt-label="Pelé MilFlows – Vem Cá" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">🎤 Pelé MilFlows – Vem Cá</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=z4wXqDxdexo" data-yt-id="z4wXqDxdexo" data-yt-label="Pollo – Vagalumes (part. Ivo Mozart)" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">✨ Pollo – Vagalumes (Ivo Mozart)</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=5cWF6Laoewk" data-yt-id="5cWF6Laoewk" data-yt-label="Zé Neto & Cristiano – Plano C" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">💍 Zé Neto & Cristiano – Plano C</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=2Vv-BfVoq4g" data-yt-id="2Vv-BfVoq4g" data-yt-label="Ed Sheeran – Perfect" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">🎵 Ed Sheeran – Perfect</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=450p7goxZqg" data-yt-id="450p7goxZqg" data-yt-label="John Legend – All of Me" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">🎹 John Legend – All of Me</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="song-audition-box" class="hidden bg-zinc-900 border border-amber-500/40 rounded-xl p-2.5 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                  <span id="audition-title" class="text-[11px] font-bold text-amber-300 truncate">Ouvindo prévia...</span>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <a id="audition-yt-fallback" href="#" target="_blank" rel="noopener noreferrer" class="text-[10px] text-zinc-400 hover:text-white underline">Abrir no YouTube</a>
+                    <button id="btn-apply-audition" type="button" class="bg-pink-600 hover:bg-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-md transition">✓ Usar esta no cartão</button>
+                    <button id="btn-close-audition" type="button" class="text-zinc-400 hover:text-white text-xs font-bold px-1.5">✕</button>
+                  </div>
+                </div>
+                <div id="audition-iframe-wrap" class="rounded-lg overflow-hidden bg-black aspect-video max-h-36 w-full"></div>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <input id="input-yt-search" type="text" placeholder="Ou digite outra música para buscar no YouTube..." class="flex-1 bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500" />
+              <button id="btn-go-yt-search" type="button" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition">
+                Buscar
+              </button>
+            </div>
+            <div class="flex gap-2">
+              <input id="input-youtube" type="url" placeholder="Link do YouTube (ex: https://youtu.be/...)" class="flex-1 bg-zinc-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 focus:outline-none focus:border-pink-500" />
+              <button id="btn-clear-yt" type="button" title="Remover música" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold px-3 rounded-xl">Limpar</button>
+            </div>
+            <p id="yt-status" class="text-[11px] text-zinc-400">Toque em "Ouvir" para escutar ou em "Usar" para aplicar no cartão.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs text-zinc-400 mb-1">Mensagem / Declaração</label>
+            <textarea id="input-message" rows="3" maxlength="280" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-pink-500">Cada segundo ao seu lado transforma dias comuns na nossa melhor história. Te amo hoje e sempre!</textarea>
+          </div>
+        </div>
+
+        <div class="bg-zinc-900/90 border border-white/10 rounded-2xl p-5 space-y-4">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-pink-400">3. Escolha o Plano e Gere seu Link + QR Code</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label class="plan-card cursor-pointer border border-pink-500 bg-pink-500/10 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <input type="radio" name="plan" value="15_dias" checked class="hidden" />
+                <div class="font-bold text-white">Plano 15 Dias</div>
+                <div class="text-xs text-zinc-400">Ativo por 15 dias</div>
+              </div>
+              <div class="text-lg font-extrabold text-pink-400">R$ 9,90</div>
+            </label>
+            <label class="plan-card cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <input type="radio" name="plan" value="1_ano" class="hidden" />
+                <div class="font-bold text-white">Plano 1 Ano</div>
+                <div class="text-xs text-zinc-400">Ativo por 1 ano</div>
+              </div>
+              <div class="text-lg font-extrabold text-emerald-400">R$ 29,90</div>
+            </label>
+            <label class="plan-card cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <input type="radio" name="plan" value="vitalicio" class="hidden" />
+                <div class="font-bold text-white">Plano Vitalício</div>
+                <div class="text-xs text-zinc-400">Para sempre</div>
+              </div>
+              <div class="text-lg font-extrabold text-amber-400">R$ 49,90</div>
+            </label>
+          </div>
+          <button id="btn-checkout" type="button" class="w-full bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white font-extrabold py-3.5 rounded-xl shadow-lg transition">
+            Gerar Homenagem e Pagar no Pix
+          </button>
+
+          <!-- RESGATE DE CÓDIGO DE BRINDE -->
+          <div class="pt-3 border-t border-white/10 space-y-2">
+            <label class="block text-xs text-zinc-400">🎁 Ganhou um código de brinde (15 dias grátis)?</label>
+            <div class="flex gap-2">
+              <input id="input-gift-code" type="text" placeholder="Ex: AMOR-XXXX-XXXX" class="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs uppercase text-amber-300 focus:outline-none focus:border-amber-400" />
+              <button id="btn-redeem-code" type="button" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-extrabold text-xs px-4 py-2.5 rounded-xl transition">
+                Resgatar Brinde
+              </button>
+            </div>
+            <p id="redeem-status" class="text-xs hidden"></p>
+          </div>
+        </div>
+
+        <!-- DICAS DE COMO UTILIZAR O QR CODE + PARCERIAS -->
+        <div class="bg-zinc-900/90 border border-pink-500/25 rounded-2xl p-5 space-y-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-pink-400">💡 Ideias para Surpreender</span>
+              <h2 class="text-base font-extrabold text-white mt-0.5">Como usar o QR Code do Código do Amor</h2>
+            </div>
+            <span class="text-2xl">🎁</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="font-bold text-pink-300">💐 Floriculturas & Buquês</div>
+              <p class="text-zinc-400 leading-relaxed">Imprima o QR Code no cartão do buquê para que a pessoa escaneie e abra a homenagem com fotos e música ao receber as flores.</p>
+            </div>
+            <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="font-bold text-amber-300">🥐 Cestas de Café da Manhã</div>
+              <p class="text-zinc-400 leading-relaxed">Cole o cartão com o QR Code dentro da tampa da cesta ou preso na caneca para emocionar logo ao acordar.</p>
+            </div>
+            <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="font-bold text-emerald-300">🛍️ Lojas de Presentes & Personalizados</div>
+              <p class="text-zinc-400 leading-relaxed">Transforme caixas de presente, porta-retratos, chocolates ou canecas em uma experiência digital interativa.</p>
+            </div>
+            <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="font-bold text-sky-300">📱 Stories & Direct do Instagram</div>
+              <p class="text-zinc-400 leading-relaxed">Salve o cartão do QR Code na galeria e poste nos Stories ou envie direto no Instagram com a mensagem pronta abaixo.</p>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-pink-950/50 via-zinc-950 to-violet-950/50 border border-white/10 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="text-xs">
+              <div class="font-bold text-white">🤝 Tem Floricultura, Loja de Presentes ou Cestas?</div>
+              <div class="text-zinc-400 mt-0.5">Indique o Código do Amor aos seus clientes como diferencial exclusivo nos seus kits!</div>
+            </div>
+            <button id="btn-copy-partner-pitch" type="button" class="shrink-0 bg-pink-600/25 hover:bg-pink-600/40 border border-pink-500/40 text-pink-200 text-xs font-bold px-3.5 py-2 rounded-xl transition">
+              📋 Copiar Texto de Indicação
+            </button>
+          </div>
+        </div>
+
+        <!-- AVALIAÇÃO DA EXPERIÊNCIA DOS CLIENTES -->
+        <div class="bg-zinc-900/90 border border-white/10 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-pink-400">⭐ Avaliação dos Clientes</h2>
+              <p class="text-xs text-zinc-400 mt-0.5">Conte como foi criar e presentear com o Código do Amor</p>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-extrabold text-amber-300" id="reviews-avg">4,9 ★</div>
+              <div class="text-[11px] text-zinc-400" id="reviews-count">128 avaliações</div>
+            </div>
+          </div>
+
+          <form id="review-form" class="bg-zinc-950/90 border border-white/10 rounded-xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-zinc-300 font-semibold">Sua nota:</span>
+              <div id="star-selector" class="flex gap-1 text-2xl cursor-pointer select-none">
+                <button type="button" data-star="1" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+                <button type="button" data-star="2" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+                <button type="button" data-star="3" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+                <button type="button" data-star="4" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+                <button type="button" data-star="5" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <input id="review-name" type="text" maxlength="35" placeholder="Seu nome (ex: Lucas M.)" class="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-pink-500" />
+              <select id="review-theme" class="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-pink-500">
+                <option value="Tema Netflix">Tema Netflix</option>
+                <option value="Tema Spotify">Tema Spotify</option>
+                <option value="Tema Stranger Things">Tema Stranger Things</option>
+                <option value="Tema Friends">Tema Friends</option>
+                <option value="Tema Bridgerton">Tema Bridgerton</option>
+                <option value="Tema Disney+">Tema Disney+</option>
+                <option value="Tema Barbie">Tema Barbie</option>
+                <option value="Tema Harry Potter">Tema Harry Potter</option>
+                <option value="Tema Star Wars">Tema Star Wars</option>
+                <option value="Tema Marvel">Tema Marvel / Vingadores</option>
+                <option value="Tema GTA VI">Tema GTA VI</option>
+                <option value="Tema The Last of Us">Tema The Last of Us</option>
+                <option value="Tema Polaroid">Tema Polaroid / Álbum</option>
+                <option value="Tema Céu Estrelado">Tema Céu Estrelado</option>
+                <option value="Tema São Paulo FC">Tema São Paulo FC</option>
+                <option value="Tema Corinthians">Tema Corinthians</option>
+                <option value="Tema Santos FC">Tema Santos FC</option>
+                <option value="Tema Palmeiras">Tema Palmeiras</option>
+                <option value="Tema Clássico">Tema Clássico</option>
+              </select>
+            </div>
+            <textarea id="review-comment" rows="2" maxlength="220" placeholder="Escreva aqui o que achou da experiência ou a reação de quem recebeu..." class="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-pink-500"></textarea>
+            <div class="flex items-center justify-between gap-2">
+              <span id="review-feedback" class="text-xs text-emerald-400 hidden"></span>
+              <button type="submit" class="ml-auto bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition">
+                Publicar Avaliação
+              </button>
+            </div>
+          </form>
+
+          <div id="reviews-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <div class="sticky top-24">
+          <div class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 text-center">Pré-visualização ao Vivo</div>
+          <div id="live-preview" class="w-full max-w-sm mx-auto rounded-3xl overflow-hidden shadow-2xl border border-white/15"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL PIX / ENTREGA -->
+  <div id="pix-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-zinc-900 border border-white/15 rounded-3xl max-w-md w-full p-6 relative text-center space-y-3.5 my-auto">
+      <button id="close-modal" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xl">&times;</button>
+      <div id="modal-badge" class="inline-block bg-emerald-500/20 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full">Mercado Pago • Liberação Automática</div>
+      <h3 class="text-xl font-extrabold" id="modal-title">Pague o Pix para Liberar</h3>
+      <div id="pix-loading" class="py-8 text-sm text-zinc-400">Gerando QR Code Pix...</div>
+      <div id="pix-error" class="hidden bg-red-950/60 border border-red-500/40 text-red-200 text-xs p-3 rounded-xl"></div>
+      <div id="pix-content" class="hidden space-y-4">
+        <img id="pix-qr-img" src="" alt="QR Code Pix" class="w-48 h-48 mx-auto rounded-xl bg-white p-2" />
+        <div class="text-left">
+          <label class="text-xs text-zinc-400">Pix Copia e Cola:</label>
+          <div class="flex gap-2 mt-1">
+            <input id="pix-copy-input" type="text" readonly class="w-full bg-zinc-950 border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-300" />
+            <button id="btn-copy-pix" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 rounded-lg">Copiar</button>
+          </div>
+        </div>
+        <div class="text-xs text-amber-300 animate-pulse">Aguardando confirmação do pagamento...</div>
+      </div>
+      <div id="pix-success" class="hidden space-y-3">
+        <div class="text-3xl">🎉</div>
+        <h4 id="success-heading" class="text-lg font-extrabold text-emerald-400">Pagamento Aprovado!</h4>
+        <p class="text-xs text-zinc-300">Salvo automaticamente neste aparelho. Baixe o QR Code ou envie direto no <strong>WhatsApp</strong> ou <strong>Instagram</strong>:</p>
+        <div id="final-qrcode" class="flex justify-center bg-white p-3 rounded-xl w-fit mx-auto shadow-lg"></div>
+        <input id="final-link-input" type="text" readonly class="w-full bg-zinc-950 border border-white/10 rounded-lg px-3 py-2 text-xs text-pink-300" />
+
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-download-qr-png" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition">
+            ⬇ Baixar QR Code
+          </button>
+          <button id="btn-download-qr-card" type="button" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition">
+            🎴 Cartão para Imprimir
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <a id="btn-whatsapp-share" href="#" target="_blank" rel="noopener noreferrer" class="bg-green-600 hover:bg-green-500 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-1">
+            <span>💬 Enviar WhatsApp</span>
+          </a>
+          <button id="btn-instagram-share" type="button" class="bg-gradient-to-r from-fuchsia-600 via-pink-600 to-amber-500 hover:opacity-95 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-1">
+            <span>📸 Enviar Instagram</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-copy-link" type="button" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2.5 rounded-xl">Copiar Link</button>
+          <a id="btn-open-gift" href="#" target="_blank" class="bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center">Abrir Presente</a>
+        </div>
+
+        <p id="ig-share-feedback" class="hidden text-[11px] text-amber-300 bg-amber-950/50 border border-amber-500/30 rounded-xl p-2"></p>
+
+        <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-2.5 text-left text-[11px] text-zinc-400 space-y-1">
+          <div class="font-bold text-pink-300">💡 Dica de ouro para presentear:</div>
+          <p>Baixe o <strong>Cartão para Imprimir</strong> e coloque junto em <strong>flores, cestas de café da manhã, caixas de presente</strong> ou envie no Direct/WhatsApp!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PARA BAIXAR QR CODE / COMPARTILHAR DE HOMENAGEM SALVA -->
+  <div id="saved-qr-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-white/15 rounded-3xl max-w-sm w-full p-6 relative text-center space-y-4">
+      <button id="close-saved-qr-modal" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xl">&times;</button>
+      <div class="text-xs font-bold uppercase tracking-wider text-emerald-400">Homenagem Salva</div>
+      <h3 id="saved-qr-title" class="text-lg font-extrabold text-white">Rafael & Juliana</h3>
+      <div id="saved-qr-box" class="flex justify-center bg-white p-3 rounded-xl w-fit mx-auto"></div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btn-saved-dl-png" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-xl">⬇ Baixar QR Code</button>
+        <button id="btn-saved-dl-card" type="button" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold py-2.5 rounded-xl">🎴 Cartão Imprimir</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <a id="btn-saved-wa" href="#" target="_blank" rel="noopener noreferrer" class="bg-green-600 hover:bg-green-500 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center">💬 WhatsApp</a>
+        <button id="btn-saved-ig" type="button" class="bg-gradient-to-r from-fuchsia-600 via-pink-600 to-amber-500 text-white text-xs font-bold py-2.5 rounded-xl">📸 Instagram</button>
+      </div>
+      <p id="saved-ig-feedback" class="hidden text-[11px] text-amber-300"></p>
+    </div>
+  </div>
+
+  <script>
+    const MAX_PHOTOS = 4;
+    const DEFAULT_PHOTO = 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80';
+    const DEMO_PHOTOS = [
+      'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80', // Casal de mãos dadas
+      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80', // Casamento
+      'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=800&q=80', // Sentados ao pôr do sol
+      'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80'  // Casal sorrindo com filho brincando
+    ];
+    const DEFAULT_DEMO_YT = 'csPSV7f8sDg'; // Marcos & Belutti - Sonho De Todo Casal (música padrão da prévia)
+    const DRAFT_STORAGE_KEY = 'codigo_do_amor_draft_v1';
+    const SAVED_GIFTS_KEY = 'codigo_do_amor_saved_gifts_v1';
+    let currentTheme = 'netflix';
+    let pollInterval = null;
+    let uploadedPhotos = [];
+    let activeSlideIndex = 0;
+    let currentAuditionSong = null;
+    let currentDeliveredData = null;
+    let currentModalSavedGift = null;
+    let isPreviewMuted = false;
+
+    const themesConfig = {
+      netflix: {
+        bg: 'bg-gradient-to-b from-red-950 via-zinc-950 to-black border-red-500/30',
+        badge: 'N SÉRIE ORIGINAL',
+        badgeColor: 'text-red-500',
+        titleClass: 'font-netflix text-4xl text-white'
+      },
+      spotify: {
+        bg: 'bg-gradient-to-b from-emerald-900 via-zinc-950 to-black border-emerald-500/30',
+        badge: 'PLAYLIST EXCLUSIVA',
+        badgeColor: 'text-emerald-400',
+        titleClass: 'font-extrabold text-2xl text-white'
+      },
+      stranger: {
+        bg: 'bg-gradient-to-b from-red-950 via-slate-950 to-black border-red-600/40',
+        badge: 'MUNDO INVERTIDO • HAWKINS 85',
+        badgeColor: 'text-red-400',
+        titleClass: 'font-cinzel text-2xl text-red-100 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]'
+      },
+      friends: {
+        bg: 'bg-gradient-to-b from-purple-950 via-indigo-950 to-zinc-950 border-amber-400/30',
+        badge: 'CENTRAL PERK • I’LL BE THERE FOR YOU',
+        badgeColor: 'text-amber-300',
+        titleClass: 'font-extrabold text-2xl text-white tracking-wide'
+      },
+      bridgerton: {
+        bg: 'bg-gradient-to-b from-amber-900/80 via-stone-900 to-zinc-950 border-amber-300/30',
+        badge: 'CRÔNICAS DA SOCIEDADE',
+        badgeColor: 'text-amber-300',
+        titleClass: 'font-serif-romance italic text-3xl text-amber-100'
+      },
+      disney: {
+        bg: 'bg-gradient-to-b from-sky-900 via-blue-950 to-slate-950 border-sky-400/30',
+        badge: 'AVENTURA A DOIS • DISNEY+',
+        badgeColor: 'text-sky-300',
+        titleClass: 'font-extrabold text-2xl text-white'
+      },
+      barbie: {
+        bg: 'bg-gradient-to-b from-pink-600 via-fuchsia-800 to-rose-950 border-pink-300/40',
+        badge: '💖 DREAMHOUSE EDITION',
+        badgeColor: 'text-pink-200',
+        titleClass: 'font-pacifico text-3xl text-white drop-shadow'
+      },
+      harrypotter: {
+        bg: 'bg-gradient-to-b from-amber-950 via-stone-950 to-black border-amber-500/40',
+        badge: '⚡ EXPRESSO DE HOGWARTS • SEMPRE',
+        badgeColor: 'text-amber-400',
+        titleClass: 'font-cinzel text-2xl text-amber-200'
+      },
+      starwars: {
+        bg: 'bg-gradient-to-b from-zinc-950 via-slate-950 to-black border-yellow-400/40',
+        badge: '✨ NUMA GALÁXIA MUITO DISTANTE',
+        badgeColor: 'text-yellow-400',
+        titleClass: 'font-orbitron text-xl text-yellow-300'
+      },
+      marvel: {
+        bg: 'bg-gradient-to-b from-red-900 via-zinc-900 to-slate-950 border-red-500/40',
+        badge: '🛡️ UNIVERSO MARVEL • EU TE AMO MIL MILHÕES',
+        badgeColor: 'text-red-400',
+        titleClass: 'font-netflix text-4xl text-white'
+      },
+      gta6: {
+        bg: 'bg-gradient-to-b from-fuchsia-900 via-purple-950 to-zinc-950 border-fuchsia-400/30',
+        badge: 'VICE CITY EDITION',
+        badgeColor: 'text-amber-300',
+        titleClass: 'font-gta text-lg text-pink-300 leading-relaxed'
+      },
+      lastofus: {
+        bg: 'bg-gradient-to-b from-stone-900 via-emerald-950 to-zinc-950 border-lime-500/30',
+        badge: '🌿 PROCURE A LUZ • THE LAST OF US',
+        badgeColor: 'text-lime-400',
+        titleClass: 'font-netflix text-3xl text-stone-100 tracking-wider'
+      },
+      polaroid: {
+        bg: 'bg-gradient-to-b from-rose-950 via-stone-900 to-zinc-950 border-rose-300/30',
+        badge: '📸 ÁLBUM DE MEMÓRIAS',
+        badgeColor: 'text-rose-300',
+        titleClass: 'font-pacifico text-2xl text-rose-100'
+      },
+      ceu: {
+        bg: 'bg-gradient-to-b from-indigo-950 via-slate-950 to-black border-indigo-400/40',
+        badge: '🌌 SOB O MESMO CÉU ESTRELADO',
+        badgeColor: 'text-indigo-300',
+        titleClass: 'font-serif-romance italic text-3xl text-indigo-100'
+      },
+      classico: {
+        bg: 'bg-gradient-to-b from-pink-950 via-zinc-950 to-black border-pink-500/30',
+        badge: 'NOSSA HISTÓRIA',
+        badgeColor: 'text-pink-400',
+        titleClass: 'font-extrabold text-2xl text-white'
+      },
+      saopaulo: {
+        bg: 'bg-gradient-to-b from-red-800 via-zinc-950 to-black border-red-500/50',
+        badge: '🔴⚪⚫ SOBERANO • AMOR TRICOLOR',
+        badgeColor: 'text-red-400',
+        titleClass: 'font-extrabold text-2xl text-white'
+      },
+      corinthians: {
+        bg: 'bg-gradient-to-b from-zinc-900 via-neutral-950 to-black border-white/40',
+        badge: '⚫⚪ BANDO DE LOUCOS • FIEL TORCEDOR',
+        badgeColor: 'text-zinc-200',
+        titleClass: 'font-extrabold text-2xl text-white'
+      },
+      santos: {
+        bg: 'bg-gradient-to-b from-slate-800 via-zinc-950 to-black border-amber-300/40',
+        badge: '⚪⚫ ALVINEGRO PRAIANO • MENINOS DA VILA',
+        badgeColor: 'text-amber-300',
+        titleClass: 'font-extrabold text-2xl text-white'
+      },
+      palmeiras: {
+        bg: 'bg-gradient-to-b from-emerald-800 via-green-950 to-black border-emerald-400/50',
+        badge: '🟢⚪ MAIOR CAMPEÃO DO BRASIL • AVANTI',
+        badgeColor: 'text-emerald-300',
+        titleClass: 'font-extrabold text-2xl text-white'
+      }
+    };
+
+    function buildMarketingShareText(coupleName, finalUrl) {
+      return `💜 Olha que surpresa especial criei para ${coupleName || 'nós'} no Código do Amor!
+
+✨ Abra aqui para ver nossas fotos, música e contador ao vivo:
+${finalUrl}
+
+🎁 Dica: Dá para imprimir o QR Code e colocar em flores, cestas de café da manhã ou presentes! Crie o seu em: https://codigodoamoroficial.vercel.app`;
+    }
+
+    function openInstagramDirectWithCopy(coupleName, finalUrl, feedbackEl) {
+      const shareText = buildMarketingShareText(coupleName, finalUrl);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareText).catch(() => {});
+      }
+      if (feedbackEl) {
+        feedbackEl.textContent = '✓ Mensagem + link copiados! Abrindo o Instagram Direct — é só colar e enviar 💜';
+        feedbackEl.classList.remove('hidden');
+      }
+      setTimeout(() => {
+        window.open('https://www.instagram.com/direct/inbox/', '_blank', 'noopener,noreferrer');
+      }, 350);
+    }
+
+    function extractYouTubeId(url) {
+      if (!url || typeof url !== 'string') return '';
+      const clean = url.trim();
+      if (/^[a-zA-Z0-9_-]{11}$/.test(clean)) return clean;
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|music\.youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+        /[?&]v=([a-zA-Z0-9_-]{11})/
+      ];
+      for (const p of patterns) {
+        const match = clean.match(p);
+        if (match && match[1]) return match[1];
+      }
+      return '';
+    }
+
+    function calcElapsed(dateStr) {
+      const start = new Date(dateStr);
+      const now = new Date();
+      const diff = Math.max(0, now - start);
+      return {
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff / 3600000) % 24),
+        mins: Math.floor((diff / 60000) % 60),
+        secs: Math.floor((diff / 1000) % 60)
+      };
+    }
+
+    function getPhotosList(data, useDemoFallback = false) {
+      if (Array.isArray(data.ps) && data.ps.length > 0) return data.ps;
+      if (data.p) return [data.p];
+      return useDemoFallback ? DEMO_PHOTOS : [DEFAULT_PHOTO];
+    }
+
+    function downloadQRCodeImage(targetUrl, coupleName, mode = 'qr') {
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.left = '-9999px';
+      document.body.appendChild(tempDiv);
+
+      const qrSize = mode === 'card' ? 380 : 512;
+      new QRCode(tempDiv, {
+        text: targetUrl,
+        width: qrSize,
+        height: qrSize,
+        colorDark: '#09090b',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      setTimeout(() => {
+        const qrCanvas = tempDiv.querySelector('canvas');
+        const qrImg = tempDiv.querySelector('img');
+        const source = qrCanvas || qrImg;
+        if (!source) {
+          document.body.removeChild(tempDiv);
+          return;
+        }
+
+        const outCanvas = document.createElement('canvas');
+        const ctx = outCanvas.getContext('2d');
+        const safeSlug = (coupleName || 'homenagem').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'homenagem';
+
+        if (mode === 'qr') {
+          const pad = 44;
+          outCanvas.width = qrSize + pad * 2;
+          outCanvas.height = qrSize + pad * 2;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+          ctx.drawImage(source, pad, pad, qrSize, qrSize);
+        } else {
+          outCanvas.width = 640;
+          outCanvas.height = 860;
+          const grad = ctx.createLinearGradient(0, 0, 0, 860);
+          grad.addColorStop(0, '#18181b');
+          grad.addColorStop(1, '#09090b');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 640, 860);
+
+          ctx.strokeStyle = '#ec4899';
+          ctx.lineWidth = 6;
+          ctx.strokeRect(24, 24, 592, 812);
+
+          ctx.fillStyle = '#f472b6';
+          ctx.font = 'bold 22px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('CÓDIGO DO AMOR', 320, 88);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 34px Inter, sans-serif';
+          const displayTitle = (coupleName || 'Nossa História').slice(0, 28);
+          ctx.fillText(displayTitle, 320, 142);
+
+          const boxSize = 420;
+          const boxX = (640 - boxSize) / 2;
+          const boxY = 185;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(boxX, boxY, boxSize, boxSize);
+          ctx.drawImage(source, boxX + 20, boxY + 20, 380, 380);
+
+          ctx.fillStyle = '#e4e4e7';
+          ctx.font = 'bold 24px Inter, sans-serif';
+          ctx.fillText('Aponte a câmera do celular', 320, 675);
+          ctx.fillStyle = '#a1a1aa';
+          ctx.font = '20px Inter, sans-serif';
+          ctx.fillText('para abrir sua surpresa especial 💜', 320, 712);
+
+          ctx.fillStyle = '#71717a';
+          ctx.font = '16px Inter, sans-serif';
+          ctx.fillText('codigodoamoroficial.vercel.app', 320, 795);
+        }
+
+        const link = document.createElement('a');
+        link.download = mode === 'card' ? `cartao-qrcode-${safeSlug}.png` : `qrcode-${safeSlug}.png`;
+        link.href = outCanvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        document.body.removeChild(tempDiv);
+      }, 120);
+    }
+
+    function saveDraftAuto() {
+      try {
+        const draft = {
+          t: currentTheme,
+          n: document.getElementById('input-names').value,
+          d: document.getElementById('input-date').value,
+          p: document.getElementById('input-photo').value,
+          yt: document.getElementById('input-youtube').value,
+          m: document.getElementById('input-message').value,
+          ps: uploadedPhotos
+        };
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+        const badge = document.getElementById('draft-autosave-badge');
+        if (badge) {
+          badge.textContent = '✓ Rascunho salvo';
+          badge.className = 'text-[11px] text-emerald-400';
+        }
+      } catch (e) {}
+    }
+
+    function restoreDraftAuto() {
+      try {
+        const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (draft.t && themesConfig[draft.t]) {
+          currentTheme = draft.t;
+          document.querySelectorAll('.theme-btn').forEach(b => {
+            b.classList.toggle('ring-2', b.dataset.theme === currentTheme);
+            b.classList.toggle('ring-pink-500', b.dataset.theme === currentTheme);
+          });
+        }
+        if (typeof draft.n === 'string') document.getElementById('input-names').value = draft.n;
+        if (typeof draft.d === 'string') document.getElementById('input-date').value = draft.d;
+        if (typeof draft.p === 'string') document.getElementById('input-photo').value = draft.p;
+        if (typeof draft.yt === 'string') document.getElementById('input-youtube').value = draft.yt;
+        if (typeof draft.m === 'string') document.getElementById('input-message').value = draft.m;
+        if (Array.isArray(draft.ps)) {
+          uploadedPhotos = draft.ps.slice(0, MAX_PHOTOS);
+          updatePhotoThumbsUI();
+        }
+      } catch (e) {}
+    }
+
+    function getSavedGifts() {
+      try {
+        const list = JSON.parse(localStorage.getItem(SAVED_GIFTS_KEY) || '[]');
+        return Array.isArray(list) ? list : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveDeliveredGiftAuto(data, finalUrl, isGift = false) {
+      try {
+        const list = getSavedGifts().filter(item => item.url !== finalUrl);
+        list.unshift({
+          id: Date.now(),
+          name: data.n || 'Nosso Amor',
+          theme: data.t || 'netflix',
+          plan: isGift ? 'Brinde 15 dias' : (data.pl === 'vitalicio' ? 'Vitalício' : data.pl === '1_ano' ? '1 Ano' : '15 Dias'),
+          exp: data.exp,
+          url: finalUrl,
+          createdAt: new Date().toLocaleDateString('pt-BR')
+        });
+        localStorage.setItem(SAVED_GIFTS_KEY, JSON.stringify(list.slice(0, 10)));
+        renderSavedGifts();
+      } catch (e) {}
+    }
+
+    function renderSavedGifts() {
+      const section = document.getElementById('saved-gifts-section');
+      const listEl = document.getElementById('saved-gifts-list');
+      const headerBtn = document.getElementById('btn-open-saved-drawer');
+      const countSpan = document.getElementById('saved-gifts-badge-count');
+      if (!section || !listEl) return;
+
+      const items = getSavedGifts().filter(item => !item.exp || Date.now() < item.exp);
+      if (items.length === 0) {
+        section.classList.add('hidden');
+        if (headerBtn) headerBtn.classList.add('hidden');
+        return;
+      }
+
+      section.classList.remove('hidden');
+      if (headerBtn) {
+        headerBtn.classList.remove('hidden');
+        countSpan.textContent = items.length;
+      }
+
+      listEl.innerHTML = items.map((item, idx) => `
+        <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 flex flex-col justify-between gap-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="truncate">
+              <div class="text-sm font-extrabold text-white truncate">${item.name}</div>
+              <div class="text-[11px] text-zinc-400">Plano ${item.plan} • Criado em ${item.createdAt}</div>
+            </div>
+            <span class="text-[10px] bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full font-bold shrink-0">Ativo</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button type="button" data-saved-qr-idx="${idx}" class="btn-saved-qr bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-2 rounded-lg transition">⬇ QR / Enviar</button>
+            <button type="button" data-saved-copy-idx="${idx}" class="btn-saved-copy bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[11px] font-bold py-2 rounded-lg transition">Copiar Link</button>
+            <a href="${item.url}" target="_blank" class="bg-pink-600 hover:bg-pink-500 text-white text-[11px] font-bold py-2 rounded-lg text-center transition">Abrir</a>
+          </div>
+        </div>
+      `).join('');
+
+      listEl.querySelectorAll('.btn-saved-copy').forEach(btn => {
+        btn.onclick = () => {
+          const item = items[Number(btn.dataset.savedCopyIdx)];
+          if (!item) return;
+          navigator.clipboard.writeText(item.url);
+          btn.textContent = '✓ Copiado!';
+          setTimeout(() => { btn.textContent = 'Copiar Link'; }, 2000);
+        };
+      });
+
+      listEl.querySelectorAll('.btn-saved-qr').forEach(btn => {
+        btn.onclick = () => {
+          const item = items[Number(btn.dataset.savedQrIdx)];
+          if (!item) return;
+          currentModalSavedGift = item;
+          document.getElementById('saved-qr-title').textContent = item.name;
+          document.getElementById('saved-ig-feedback').classList.add('hidden');
+          const waText = encodeURIComponent(buildMarketingShareText(item.name, item.url));
+          document.getElementById('btn-saved-wa').href = `https://wa.me/?text=${waText}`;
+          const box = document.getElementById('saved-qr-box');
+          box.innerHTML = '';
+          new QRCode(box, { text: item.url, width: 170, height: 170 });
+          document.getElementById('saved-qr-modal').classList.remove('hidden');
+        };
+      });
+    }
+
+    function updateClockOnly(container, dateStr) {
+      const e = calcElapsed(dateStr);
+      const dEl = container.querySelector('[data-clock="days"]');
+      if (!dEl) return;
+      dEl.textContent = e.days;
+      container.querySelector('[data-clock="hours"]').textContent = e.hours;
+      container.querySelector('[data-clock="mins"]').textContent = e.mins;
+      container.querySelector('[data-clock="secs"]').textContent = e.secs;
+    }
+
+    function updatePhotoSlideOnly(container, data, useDemoFallback = false) {
+      const photos = getPhotosList(data, useDemoFallback);
+      const imgEl = container.querySelector('[data-card-photo]');
+      if (!imgEl || photos.length <= 1) return;
+      if (activeSlideIndex >= photos.length) activeSlideIndex = 0;
+      imgEl.src = photos[activeSlideIndex];
+      const counterEl = container.querySelector('[data-slide-counter]');
+      if (counterEl) counterEl.textContent = `${activeSlideIndex + 1} / ${photos.length}`;
+      container.querySelectorAll('[data-slide-dot]').forEach((dot, idx) => {
+        dot.className = `w-2 h-2 rounded-full transition-all ${idx === activeSlideIndex ? 'bg-pink-500 w-4' : 'bg-white/50'}`;
+      });
+    }
+
+    function renderCard(container, data, opts = {}) {
+      const isPreview = Boolean(opts.isPreview);
+      const cfg = themesConfig[data.t] || themesConfig.netflix;
+      const elapsed = calcElapsed(data.d);
+      const photos = getPhotosList(data, isPreview);
+      if (activeSlideIndex >= photos.length) activeSlideIndex = 0;
+
+      const currentPhoto = photos[activeSlideIndex];
+      const hasMultiple = photos.length > 1;
+      const ytId = data.yt || (isPreview ? DEFAULT_DEMO_YT : '');
+      const isDemoMusic = isPreview && !data.yt;
+      const isPolaroid = data.t === 'polaroid';
+
+      const navButtons = hasMultiple ? `
+        <button type="button" data-slide-dir="-1" class="slide-nav-btn absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center text-lg font-bold">‹</button>
+        <button type="button" data-slide-dir="1" class="slide-nav-btn absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center text-lg font-bold">›</button>
+        <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 px-2.5 py-1 rounded-full">
+          ${photos.map((_, idx) => `<span data-slide-dot="${idx}" class="w-2 h-2 rounded-full transition-all ${idx === activeSlideIndex ? 'bg-pink-500 w-4' : 'bg-white/50'}"></span>`).join('')}
+        </div>
+      ` : '';
+
+      const embedParams = `autoplay=1&rel=0&playsinline=1&mute=${isPreviewMuted ? 1 : 0}`;
+      const musicBlock = ytId ? `
+        <div class="bg-black/50 border border-white/10 rounded-2xl p-2.5 space-y-2">
+          <div class="flex items-center justify-between gap-2 px-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-pink-400 truncate">
+              ${isDemoMusic ? '🎵 Prévia Musical (Exemplo)' : '🎵 Nossa Música'}
+            </span>
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" class="btn-toggle-card-mute inline-flex items-center gap-1 ${isPreviewMuted ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-white/10 text-zinc-200 border-white/15'} border text-[10px] font-bold px-2 py-0.5 rounded-full transition">
+                ${isPreviewMuted ? '🔇 Ativar Som' : '🔊 Silenciar'}
+              </button>
+              <a href="https://www.youtube.com/watch?v=${ytId}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-zinc-400 hover:text-white underline">YouTube</a>
+            </div>
+          </div>
+          <div class="rounded-xl overflow-hidden bg-black aspect-video max-h-36 w-full">
+            <iframe class="w-full h-full" src="https://www.youtube.com/embed/${ytId}?${embedParams}" title="Música do Casal" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+      ` : '';
+
+      const photoFrameClass = isPolaroid
+        ? 'relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-white p-2.5 pb-8 shadow-xl'
+        : 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-zinc-900 border border-white/10';
+
+      container.className = `w-full max-w-sm mx-auto rounded-3xl overflow-hidden shadow-2xl border p-5 space-y-4 ${cfg.bg}`;
+      container.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <div class="text-[11px] font-extrabold tracking-widest ${cfg.badgeColor}">${cfg.badge}</div>
+          ${hasMultiple ? `<div data-slide-counter class="text-[10px] text-zinc-400 font-semibold shrink-0">${activeSlideIndex + 1} / ${photos.length}</div>` : ''}
+        </div>
+        <div class="${photoFrameClass}">
+          <img data-card-photo src="${currentPhoto}" alt="Foto do casal" class="w-full h-full object-cover ${isPolaroid ? 'rounded-sm' : ''}" onerror="this.src='${DEFAULT_PHOTO}'" />
+          ${navButtons}
+        </div>
+        <div>
+          <h3 class="${cfg.titleClass}">${data.n}</h3>
+          <p class="text-xs text-zinc-200 mt-2 leading-relaxed">${data.m}</p>
+        </div>
+        ${musicBlock}
+        <div class="bg-black/45 border border-white/10 rounded-2xl p-3">
+          <div class="text-[10px] uppercase tracking-wider text-zinc-400 text-center mb-2">Juntos há</div>
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="days" class="text-base font-extrabold">${elapsed.days}</div><div class="text-[10px] text-zinc-400">Dias</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="hours" class="text-base font-extrabold">${elapsed.hours}</div><div class="text-[10px] text-zinc-400">Horas</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="mins" class="text-base font-extrabold">${elapsed.mins}</div><div class="text-[10px] text-zinc-400">Min</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="secs" class="text-base font-extrabold text-pink-400">${elapsed.secs}</div><div class="text-[10px] text-zinc-400">Seg</div></div>
+          </div>
+        </div>
+      `;
+
+      container.querySelectorAll('.slide-nav-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          activeSlideIndex = (activeSlideIndex + Number(btn.dataset.slideDir) + photos.length) % photos.length;
+          updatePhotoSlideOnly(container, data, isPreview);
+        };
+      });
+
+      const muteBtn = container.querySelector('.btn-toggle-card-mute');
+      if (muteBtn) {
+        muteBtn.onclick = (e) => {
+          e.stopPropagation();
+          isPreviewMuted = !isPreviewMuted;
+          renderCard(container, data, opts);
+        };
+      }
+    }
+
+    function updatePhotoThumbsUI() {
+      const thumbsEl = document.getElementById('photo-thumbs');
+      const counterEl = document.getElementById('photo-counter');
+      const statusEl = document.getElementById('photo-file-status');
+      const uploadLabel = document.getElementById('photo-upload-label');
+
+      counterEl.textContent = `${uploadedPhotos.length}/${MAX_PHOTOS} fotos`;
+
+      if (uploadedPhotos.length === 0) {
+        thumbsEl.classList.add('hidden');
+        thumbsEl.innerHTML = '';
+        statusEl.classList.add('hidden');
+      } else {
+        thumbsEl.classList.remove('hidden');
+        thumbsEl.innerHTML = uploadedPhotos.map((src, idx) => `
+          <div class="relative aspect-square rounded-xl overflow-hidden border border-white/15 bg-zinc-950">
+            <img src="${src}" class="w-full h-full object-cover" />
+            <button type="button" data-remove-idx="${idx}" class="remove-photo-btn absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 text-white text-xs font-bold flex items-center justify-center">&times;</button>
+          </div>
+        `).join('');
+
+        thumbsEl.querySelectorAll('.remove-photo-btn').forEach(btn => {
+          btn.onclick = () => {
+            uploadedPhotos.splice(Number(btn.dataset.removeIdx), 1);
+            activeSlideIndex = 0;
+            updatePhotoThumbsUI();
+            saveDraftAuto();
+            renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+          };
+        });
+
+        statusEl.textContent = uploadedPhotos.length >= MAX_PHOTOS
+          ? '✓ Limite máximo de 4 fotos atingido!'
+          : `✓ ${uploadedPhotos.length} foto(s) carregada(s). Pode adicionar mais ${MAX_PHOTOS - uploadedPhotos.length}.`;
+        statusEl.classList.remove('hidden');
+      }
+
+      uploadLabel.style.opacity = uploadedPhotos.length >= MAX_PHOTOS ? '0.5' : '1';
+      uploadLabel.style.pointerEvents = uploadedPhotos.length >= MAX_PHOTOS ? 'none' : 'auto';
+    }
+
+    function compressOne(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxDim = 340;
+            let w = img.width || 340, h = img.height || 340;
+            if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.58));
+          };
+          img.onerror = () => resolve(null);
+          img.src = ev.target.result;
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.getElementById('input-photo-file').addEventListener('change', async function() {
+      const files = this.files;
+      if (!files || !files.length) return;
+      const statusEl = document.getElementById('photo-file-status');
+      statusEl.textContent = '⏳ Carregando fotos...';
+      statusEl.classList.remove('hidden');
+
+      const limit = Math.min(files.length, MAX_PHOTOS - uploadedPhotos.length);
+      for (let i = 0; i < limit; i++) {
+        const dataUrl = await compressOne(files[i]);
+        if (dataUrl) uploadedPhotos.push(dataUrl);
+      }
+      this.value = '';
+      activeSlideIndex = Math.max(0, uploadedPhotos.length - 1);
+      updatePhotoThumbsUI();
+      saveDraftAuto();
+      renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+    });
+
+    function closeSongAudition() {
+      const box = document.getElementById('song-audition-box');
+      const wrap = document.getElementById('audition-iframe-wrap');
+      box.classList.add('hidden');
+      wrap.innerHTML = '';
+      currentAuditionSong = null;
+      document.querySelectorAll('.btn-preview-song').forEach(b => {
+        b.textContent = '▶ Ouvir';
+      });
+    }
+
+    function openSongAudition(ytId, ytUrl, ytLabel, clickedBtn) {
+      if (currentAuditionSong && currentAuditionSong.ytId === ytId) {
+        closeSongAudition();
+        return;
+      }
+      currentAuditionSong = { ytId, ytUrl, ytLabel };
+      document.querySelectorAll('.btn-preview-song').forEach(b => {
+        b.textContent = '▶ Ouvir';
+      });
+      if (clickedBtn) clickedBtn.textContent = '⏹ Parar';
+
+      document.getElementById('audition-title').textContent = `🎧 Ouvindo: ${ytLabel}`;
+      document.getElementById('audition-yt-fallback').href = ytUrl;
+      document.getElementById('audition-iframe-wrap').innerHTML = `
+        <iframe class="w-full h-full" src="https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0" title="${ytLabel}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      `;
+      document.getElementById('song-audition-box').classList.remove('hidden');
+    }
+
+    function syncYouTubeUI(customLabel = null) {
+      const ytInput = document.getElementById('input-youtube');
+      const clearBtn = document.getElementById('btn-clear-yt');
+      const statusEl = document.getElementById('yt-status');
+      const raw = ytInput.value.trim();
+      const ytId = extractYouTubeId(raw);
+
+      document.querySelectorAll('.music-preset-row').forEach(row => {
+        const isMatch = row.dataset.ytUrl === raw;
+        row.className = isMatch
+          ? 'music-preset-row flex items-center justify-between gap-1.5 bg-pink-600/20 border border-pink-500 rounded-lg px-2.5 py-1.5 transition'
+          : 'music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition';
+        const useBtn = row.querySelector('.btn-select-song');
+        if (useBtn) useBtn.textContent = isMatch ? '✓ Em uso' : 'Usar';
+      });
+
+      if (!raw) {
+        clearBtn.classList.add('hidden');
+        statusEl.textContent = 'Toque em "Ouvir" para escutar ou em "Usar" para aplicar no cartão.';
+        statusEl.className = 'text-[11px] text-zinc-400';
+      } else if (ytId) {
+        clearBtn.classList.remove('hidden');
+        statusEl.textContent = customLabel
+          ? `✓ "${customLabel}" selecionada no cartão!`
+          : '✓ Música do YouTube vinculada ao cartão!';
+        statusEl.className = 'text-[11px] text-emerald-400 font-semibold';
+      } else {
+        clearBtn.classList.remove('hidden');
+        statusEl.textContent = '⚠ Link não reconhecido. Copie o link de compartilhar do vídeo no YouTube.';
+        statusEl.className = 'text-[11px] text-amber-400';
+      }
+      saveDraftAuto();
+      renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+    }
+
+    document.querySelectorAll('.music-preset-row').forEach(row => {
+      const previewBtn = row.querySelector('.btn-preview-song');
+      const selectBtn = row.querySelector('.btn-select-song');
+
+      previewBtn.addEventListener('click', () => {
+        openSongAudition(row.dataset.ytId, row.dataset.ytUrl, row.dataset.ytLabel, previewBtn);
+      });
+
+      selectBtn.addEventListener('click', () => {
+        closeSongAudition();
+        document.getElementById('input-youtube').value = row.dataset.ytUrl;
+        syncYouTubeUI(row.dataset.ytLabel);
+      });
+    });
+
+    document.getElementById('btn-apply-audition').addEventListener('click', () => {
+      if (!currentAuditionSong) return;
+      const { ytUrl, ytLabel } = currentAuditionSong;
+      closeSongAudition();
+      document.getElementById('input-youtube').value = ytUrl;
+      syncYouTubeUI(ytLabel);
+    });
+
+    document.getElementById('btn-close-audition').addEventListener('click', closeSongAudition);
+
+    document.getElementById('btn-clear-yt').addEventListener('click', () => {
+      document.getElementById('input-youtube').value = '';
+      syncYouTubeUI();
+    });
+
+    document.getElementById('btn-go-yt-search').addEventListener('click', () => {
+      const q = document.getElementById('input-yt-search').value.trim() || 'musica romantica';
+      window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, '_blank', 'noopener,noreferrer');
+    });
+
+    document.getElementById('input-yt-search').addEventListener('input', (e) => {
+      const q = e.target.value.trim() || 'musica romantica';
+      document.getElementById('btn-search-yt').href = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+    });
+
+    document.getElementById('input-youtube').addEventListener('input', () => syncYouTubeUI());
+
+    function getFormData(overrideDays = null) {
+      const planEl = document.querySelector('input[name="plan"]:checked');
+      const plan = overrideDays ? 'brinde_15_dias' : (planEl ? planEl.value : '15_dias');
+      const manualUrl = document.getElementById('input-photo').value.trim();
+      const photos = [...uploadedPhotos];
+      if (manualUrl && photos.length < MAX_PHOTOS) photos.push(manualUrl);
+      const ytId = extractYouTubeId(document.getElementById('input-youtube').value);
+      const daysMap = { '15_dias': 15, '1_ano': 365, 'vitalicio': 36500 };
+      const validDays = overrideDays || daysMap[plan] || 15;
+      return {
+        t: currentTheme,
+        n: document.getElementById('input-names').value.trim() || 'Nosso Amor',
+        d: document.getElementById('input-date').value || '2024-01-01T00:00',
+        ps: photos,
+        yt: ytId,
+        m: document.getElementById('input-message').value.trim(),
+        pl: plan,
+        exp: Date.now() + validDays * 86400000
+      };
+    }
+
+    function encodePayload(obj) {
+      return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+    }
+
+    function decodePayload(str) {
+      return JSON.parse(decodeURIComponent(escape(atob(str))));
+    }
+
+    function showDeliveryModal(data, isGift = false) {
+      const finalUrl = `${window.location.origin}/#d=${encodePayload(data)}`;
+      currentDeliveredData = { data, finalUrl };
+      saveDeliveredGiftAuto(data, finalUrl, isGift);
+
+      const modal = document.getElementById('pix-modal');
+      modal.classList.remove('hidden');
+      document.getElementById('pix-loading').classList.add('hidden');
+      document.getElementById('pix-content').classList.add('hidden');
+      document.getElementById('pix-error').classList.add('hidden');
+      document.getElementById('pix-success').classList.remove('hidden');
+      document.getElementById('ig-share-feedback').classList.add('hidden');
+      document.getElementById('modal-badge').textContent = isGift ? '🎁 Brinde Exclusivo • Ativo por 15 Dias' : 'Mercado Pago • Liberação Automática';
+      document.getElementById('modal-title').textContent = isGift ? 'Seu Presente de 15 Dias está Pronto!' : 'Homenagem Liberada!';
+      document.getElementById('success-heading').textContent = isGift ? 'Código Resgatado com Sucesso!' : 'Pagamento Aprovado!';
+      document.getElementById('final-link-input').value = finalUrl;
+      document.getElementById('btn-open-gift').href = finalUrl;
+      const waText = encodeURIComponent(buildMarketingShareText(data.n, finalUrl));
+      document.getElementById('btn-whatsapp-share').href = `https://wa.me/?text=${waText}`;
+
+      const qrDiv = document.getElementById('final-qrcode');
+      qrDiv.innerHTML = '';
+      new QRCode(qrDiv, { text: finalUrl, width: 150, height: 150 });
+    }
+
+    const hash = window.location.hash;
+    if (hash === '#admin') {
+      document.getElementById('creator-view').classList.add('hidden');
+      const adminView = document.getElementById('admin-view');
+      adminView.classList.remove('hidden');
+      adminView.classList.add('flex');
+    } else if (hash.startsWith('#d=')) {
+      try {
+        const giftData = decodePayload(hash.replace('#d=', ''));
+        document.getElementById('creator-view').classList.add('hidden');
+        const giftView = document.getElementById('gift-view');
+        giftView.classList.remove('hidden');
+        giftView.classList.add('flex');
+        const container = document.getElementById('gift-card-container');
+
+        if (giftData.exp && Date.now() > giftData.exp) {
+          container.className = 'w-full max-w-sm mx-auto rounded-3xl bg-zinc-900 border border-pink-500/30 p-6 text-center space-y-4';
+          container.innerHTML = `
+            <div class="text-4xl">⏳</div>
+            <h2 class="text-xl font-extrabold text-white">Esta homenagem expirou</h2>
+            <p class="text-xs text-zinc-400">O prazo de exibição desta página encerrou. Crie uma nova homenagem ou ative o plano de 1 ano / vitalício.</p>
+            <a href="/" class="inline-block w-full bg-gradient-to-r from-pink-600 to-violet-600 text-white font-bold text-xs py-3 rounded-xl">Criar Nova Homenagem</a>
+          `;
+        } else {
+          const photos = getPhotosList(giftData);
+          renderCard(container, giftData);
+          setInterval(() => updateClockOnly(container, giftData.d), 1000);
+          if (photos.length > 1) {
+            setInterval(() => {
+              activeSlideIndex = (activeSlideIndex + 1) % photos.length;
+              updatePhotoSlideOnly(container, giftData);
+            }, 4000);
+          }
+        }
+      } catch (e) {}
+    } else {
+      restoreDraftAuto();
+      if (document.getElementById('input-youtube').value.trim()) {
+        syncYouTubeUI();
+      }
+      renderSavedGifts();
+
+      const previewEl = document.getElementById('live-preview');
+      renderCard(previewEl, getFormData(), { isPreview: true });
+      setInterval(() => updateClockOnly(previewEl, getFormData().d), 1000);
+      setInterval(() => {
+        const formData = getFormData();
+        const photos = getPhotosList(formData, true);
+        if (photos.length > 1) {
+          activeSlideIndex = (activeSlideIndex + 1) % photos.length;
+          updatePhotoSlideOnly(previewEl, formData, true);
+        }
+      }, 3500);
+
+      ['input-names', 'input-date', 'input-photo', 'input-message'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+          saveDraftAuto();
+          renderCard(previewEl, getFormData(), { isPreview: true });
+        });
+      });
+    }
+
+    document.getElementById('btn-download-qr-png').addEventListener('click', () => {
+      if (!currentDeliveredData) return;
+      downloadQRCodeImage(currentDeliveredData.finalUrl, currentDeliveredData.data.n, 'qr');
+    });
+
+    document.getElementById('btn-download-qr-card').addEventListener('click', () => {
+      if (!currentDeliveredData) return;
+      downloadQRCodeImage(currentDeliveredData.finalUrl, currentDeliveredData.data.n, 'card');
+    });
+
+    document.getElementById('btn-instagram-share').addEventListener('click', () => {
+      if (!currentDeliveredData) return;
+      openInstagramDirectWithCopy(
+        currentDeliveredData.data.n,
+        currentDeliveredData.finalUrl,
+        document.getElementById('ig-share-feedback')
+      );
+    });
+
+    document.getElementById('btn-saved-dl-png').addEventListener('click', () => {
+      if (!currentModalSavedGift) return;
+      downloadQRCodeImage(currentModalSavedGift.url, currentModalSavedGift.name, 'qr');
+    });
+
+    document.getElementById('btn-saved-dl-card').addEventListener('click', () => {
+      if (!currentModalSavedGift) return;
+      downloadQRCodeImage(currentModalSavedGift.url, currentModalSavedGift.name, 'card');
+    });
+
+    document.getElementById('btn-saved-ig').addEventListener('click', () => {
+      if (!currentModalSavedGift) return;
+      openInstagramDirectWithCopy(
+        currentModalSavedGift.name,
+        currentModalSavedGift.url,
+        document.getElementById('saved-ig-feedback')
+      );
+    });
+
+    document.getElementById('close-saved-qr-modal').addEventListener('click', () => {
+      document.getElementById('saved-qr-modal').classList.add('hidden');
+    });
+
+    document.getElementById('btn-open-saved-drawer').addEventListener('click', () => {
+      document.getElementById('saved-gifts-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-copy-partner-pitch').addEventListener('click', () => {
+      const pitch = `💜 Que tal transformar seu presente em uma experiência inesquecível?\n\nCom o Código do Amor, você cria um cartão digital personalizado com fotos, música do casal e contador de tempo juntos — e recebe um QR Code pronto para imprimir e colocar junto em buquês de flores, cestas de café da manhã, caixas de presente ou canecas!\n\n✨ Crie em 1 minuto no site: https://codigodoamoroficial.vercel.app`;
+      navigator.clipboard.writeText(pitch);
+      const btn = document.getElementById('btn-copy-partner-pitch');
+      btn.textContent = '✓ Texto Copiado!';
+      setTimeout(() => { btn.textContent = '📋 Copiar Texto de Indicação'; }, 2500);
+    });
+
+    document.getElementById('btn-generate-gift-code').addEventListener('click', async () => {
+      const pass = document.getElementById('admin-pass-input').value.trim();
+      const errBox = document.getElementById('admin-error');
+      const resBox = document.getElementById('admin-result');
+      errBox.classList.add('hidden');
+      resBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/brinde', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'generate', adminPassword: pass })
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          errBox.textContent = json.error || 'Erro ao gerar código.';
+          errBox.classList.remove('hidden');
+          return;
+        }
+        document.getElementById('generated-code-output').value = json.code;
+        resBox.classList.remove('hidden');
+      } catch (e) {
+        errBox.textContent = 'Erro de conexão com o servidor.';
+        errBox.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('btn-copy-admin-code').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('generated-code-output').value);
+      document.getElementById('btn-copy-admin-code').textContent = '✓ Código Copiado!';
+    });
+
+    document.getElementById('btn-redeem-code').addEventListener('click', async () => {
+      const codeInput = document.getElementById('input-gift-code').value.trim();
+      const statusEl = document.getElementById('redeem-status');
+      if (!codeInput) {
+        statusEl.textContent = 'Digite o código de brinde primeiro.';
+        statusEl.className = 'text-xs text-red-400';
+        return;
+      }
+
+      statusEl.textContent = 'Validando código...';
+      statusEl.className = 'text-xs text-amber-300';
+
+      try {
+        const res = await fetch('/api/brinde', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'redeem', code: codeInput })
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          statusEl.textContent = json.error || 'Código inválido.';
+          statusEl.className = 'text-xs text-red-400';
+          return;
+        }
+        statusEl.classList.add('hidden');
+        const giftData = getFormData(json.planDays || 15);
+        showDeliveryModal(giftData, true);
+      } catch (e) {
+        statusEl.textContent = 'Erro ao validar código. Tente novamente.';
+        statusEl.className = 'text-xs text-red-400';
+      }
+    });
+
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('ring-2', 'ring-pink-500'));
+        btn.classList.add('ring-2', 'ring-pink-500');
+        currentTheme = btn.dataset.theme;
+        saveDraftAuto();
+        renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+      });
+    });
+
+    document.querySelectorAll('input[name="plan"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        document.querySelectorAll('.plan-card').forEach(card => {
+          card.className = 'plan-card cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between';
+        });
+        e.target.closest('.plan-card').className = 'plan-card cursor-pointer border border-pink-500 bg-pink-500/10 rounded-xl p-4 flex items-center justify-between';
+      });
+    });
+
+    document.getElementById('btn-checkout').addEventListener('click', async () => {
+      const data = getFormData();
+      const modal = document.getElementById('pix-modal');
+      modal.classList.remove('hidden');
+      document.getElementById('modal-badge').textContent = 'Mercado Pago • Liberação Automática';
+      document.getElementById('modal-title').textContent = 'Pague o Pix para Liberar';
+      document.getElementById('pix-loading').classList.remove('hidden');
+      document.getElementById('pix-content').classList.add('hidden');
+      document.getElementById('pix-error').classList.add('hidden');
+      document.getElementById('pix-success').classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/criar-pix', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId: data.pl, coupleName: data.n })
+        });
+        const pix = await res.json();
+        document.getElementById('pix-loading').classList.add('hidden');
+        if (!res.ok) {
+          const errBox = document.getElementById('pix-error');
+          errBox.textContent = pix.error || 'Erro ao iniciar pagamento.';
+          errBox.classList.remove('hidden');
+          return;
+        }
+        document.getElementById('pix-qr-img').src = `data:image/png;base64,${pix.qr_code_base64}`;
+        document.getElementById('pix-copy-input').value = pix.qr_code;
+        document.getElementById('pix-content').classList.remove('hidden');
+
+        clearInterval(pollInterval);
+        pollInterval = setInterval(async () => {
+          const check = await fetch(`/api/verificar-pix?id=${pix.id}`);
+          const statusData = await check.json();
+          if (statusData.status === 'approved') {
+            clearInterval(pollInterval);
+            showDeliveryModal(data, false);
+          }
+        }, 4000);
+      } catch (err) {
+        document.getElementById('pix-loading').classList.add('hidden');
+        const errBox = document.getElementById('pix-error');
+        errBox.textContent = 'Falha de conexão com o servidor.';
+        errBox.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('close-modal').addEventListener('click', () => {
+      clearInterval(pollInterval);
+      document.getElementById('pix-modal').classList.add('hidden');
+    });
+
+    document.getElementById('btn-copy-pix').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('pix-copy-input').value);
+      document.getElementById('btn-copy-pix').textContent = 'Copiado!';
+    });
+
+    document.getElementById('btn-copy-link').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('final-link-input').value);
+      document.getElementById('btn-copy-link').textContent = 'Link Copiado!';
+    });
+
+    const DEFAULT_REVIEWS = [
+      { name: 'Camila & Pedro', theme: 'Tema Netflix', stars: 5, comment: 'Fiz no tema Netflix com 4 fotos nossas e imprimi o QR Code num cartão. Ele chorou na hora!', date: 'Hoje' },
+      { name: 'Mariana S.', theme: 'Tema Spotify', stars: 5, comment: 'Super rápido! Paguei o Pix e o link já liberou na mesma hora com o contador ao vivo.', date: 'Ontem' },
+      { name: 'Gabriel R.', theme: 'Tema São Paulo FC', stars: 5, comment: 'Fiz no tema Tricolor pro aniversário de namoro e coloquei na cesta de café da manhã, ficou perfeito!', date: 'Há 2 dias' }
+    ];
+
+    let selectedStars = 5;
+
+    function loadReviews() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('codigo_do_amor_reviews') || '[]');
+        return [...saved, ...DEFAULT_REVIEWS];
+      } catch (e) {
+        return [...DEFAULT_REVIEWS];
+      }
+    }
+
+    function renderReviews() {
+      const listEl = document.getElementById('reviews-list');
+      const countEl = document.getElementById('reviews-count');
+      if (!listEl) return;
+      const reviews = loadReviews();
+      countEl.textContent = `${125 + reviews.length} avaliações`;
+
+      listEl.innerHTML = reviews.map(r => `
+        <div class="bg-zinc-950/80 border border-white/10 rounded-xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-white">${r.name}</span>
+              <span class="text-[10px] bg-pink-500/15 text-pink-300 px-2 py-0.5 rounded-full font-semibold">${r.theme}</span>
+            </div>
+            <span class="text-xs text-amber-400">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</span>
+          </div>
+          <p class="text-xs text-zinc-300 leading-relaxed">${r.comment}</p>
+          <div class="text-[10px] text-zinc-500">${r.date} • Compra verificada</div>
+        </div>
+      `).join('');
+    }
+
+    function updateStarButtons(rating) {
+      selectedStars = rating;
+      document.querySelectorAll('.star-btn').forEach(btn => {
+        const val = Number(btn.dataset.star);
+        btn.className = `star-btn transition hover:scale-110 ${val <= rating ? 'text-amber-400' : 'text-zinc-600'}`;
+      });
+    }
+
+    document.querySelectorAll('.star-btn').forEach(btn => {
+      btn.addEventListener('click', () => updateStarButtons(Number(btn.dataset.star)));
+    });
+
+    const reviewForm = document.getElementById('review-form');
+    if (reviewForm) {
+      reviewForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('review-name');
+        const commentInput = document.getElementById('review-comment');
+        const themeInput = document.getElementById('review-theme');
+        const feedbackEl = document.getElementById('review-feedback');
+
+        const name = nameInput.value.trim();
+        const comment = commentInput.value.trim();
+
+        if (!name || !comment) {
+          feedbackEl.textContent = 'Preencha seu nome e comentário.';
+          feedbackEl.className = 'text-xs text-red-400';
+          return;
+        }
+
+        const newReview = {
+          name,
+          theme: themeInput.value,
+          stars: selectedStars,
+          comment,
+          date: 'Agora mesmo'
+        };
+
+        try {
+          const saved = JSON.parse(localStorage.getItem('codigo_do_amor_reviews') || '[]');
+          saved.unshift(newReview);
+          localStorage.setItem('codigo_do_amor_reviews', JSON.stringify(saved.slice(0, 20)));
+        } catch (err) {}
+
+        nameInput.value = '';
+        commentInput.value = '';
+        updateStarButtons(5);
+        feedbackEl.textContent = '✓ Obrigado! Sua avaliação foi publicada.';
+        feedbackEl.className = 'text-xs text-emerald-400';
+        renderReviews();
+      });
+
+      renderReviews();
+    }
+  </script>
+</body>
+</html>
