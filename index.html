@@ -85,10 +85,12 @@
               <label class="block text-xs text-zinc-400">Fotos do Casal (Galeria do Celular)</label>
               <span id="photo-counter" class="text-xs font-semibold text-pink-400">0/4 fotos</span>
             </div>
-            <label id="photo-upload-label" class="flex items-center justify-center gap-2 w-full bg-pink-600/20 hover:bg-pink-600/30 border border-dashed border-pink-500/60 rounded-xl px-4 py-3 text-sm font-medium text-pink-300 cursor-pointer mb-2 transition">
-              <span>📷 Escolher até 4 Fotos da Galeria</span>
-              <input id="input-photo-file" type="file" accept="image/*" multiple class="hidden" />
-            </label>
+            <div class="relative mb-2">
+              <label id="photo-upload-label" for="input-photo-file" class="flex items-center justify-center gap-2 w-full bg-pink-600/20 hover:bg-pink-600/30 border border-dashed border-pink-500/60 rounded-xl px-4 py-3 text-sm font-medium text-pink-300 cursor-pointer transition">
+                <span>📷 Escolher até 4 Fotos da Galeria</span>
+              </label>
+              <input id="input-photo-file" type="file" accept="image/*" multiple class="sr-only" />
+            </div>
             <p id="photo-file-status" class="text-xs text-emerald-400 hidden mb-2"></p>
             <div id="photo-thumbs" class="grid grid-cols-4 gap-2 mb-2 hidden"></div>
             <input id="input-photo" type="url" placeholder="Ou cole um link público da foto (opcional)" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-zinc-300 focus:outline-none focus:border-pink-500" />
@@ -203,6 +205,17 @@
       return [DEFAULT_PHOTO];
     }
 
+    function updateClockOnly(container, dateStr) {
+      const elapsed = calcElapsed(dateStr);
+      const dEl = container.querySelector('[data-clock="days"]');
+      if (!dEl) return false;
+      dEl.textContent = elapsed.days;
+      container.querySelector('[data-clock="hours"]').textContent = elapsed.hours;
+      container.querySelector('[data-clock="mins"]').textContent = elapsed.mins;
+      container.querySelector('[data-clock="secs"]').textContent = elapsed.secs;
+      return true;
+    }
+
     function renderCard(container, data) {
       const cfg = themesConfig[data.t] || themesConfig.netflix;
       const elapsed = calcElapsed(data.d);
@@ -227,7 +240,7 @@
           ${hasMultiple ? `<div class="text-[10px] text-zinc-400 font-semibold">${activeSlideIndex + 1} / ${photos.length}</div>` : ''}
         </div>
         <div class="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-zinc-900 border border-white/10">
-          <img src="${currentPhoto}" alt="Foto do casal" class="w-full h-full object-cover transition-opacity duration-300" onerror="this.src='${DEFAULT_PHOTO}'" />
+          <img src="${currentPhoto}" alt="Foto do casal" class="w-full h-full object-cover" onerror="this.src='${DEFAULT_PHOTO}'" />
           ${navButtons}
         </div>
         <div>
@@ -237,10 +250,10 @@
         <div class="bg-black/40 border border-white/10 rounded-2xl p-3">
           <div class="text-[10px] uppercase tracking-wider text-zinc-400 text-center mb-2">Juntos há</div>
           <div class="grid grid-cols-4 gap-2 text-center">
-            <div class="bg-white/5 rounded-xl py-2"><div class="text-base font-extrabold">${elapsed.days}</div><div class="text-[10px] text-zinc-400">Dias</div></div>
-            <div class="bg-white/5 rounded-xl py-2"><div class="text-base font-extrabold">${elapsed.hours}</div><div class="text-[10px] text-zinc-400">Horas</div></div>
-            <div class="bg-white/5 rounded-xl py-2"><div class="text-base font-extrabold">${elapsed.mins}</div><div class="text-[10px] text-zinc-400">Min</div></div>
-            <div class="bg-white/5 rounded-xl py-2"><div class="text-base font-extrabold text-pink-400">${elapsed.secs}</div><div class="text-[10px] text-zinc-400">Seg</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="days" class="text-base font-extrabold">${elapsed.days}</div><div class="text-[10px] text-zinc-400">Dias</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="hours" class="text-base font-extrabold">${elapsed.hours}</div><div class="text-[10px] text-zinc-400">Horas</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="mins" class="text-base font-extrabold">${elapsed.mins}</div><div class="text-[10px] text-zinc-400">Min</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="secs" class="text-base font-extrabold text-pink-400">${elapsed.secs}</div><div class="text-[10px] text-zinc-400">Seg</div></div>
           </div>
         </div>
       `;
@@ -288,7 +301,7 @@
 
         statusEl.textContent = uploadedPhotos.length >= MAX_PHOTOS
           ? '✓ Limite máximo de 4 fotos atingido!'
-          : `✓ ${uploadedPhotos.length} foto(s) adicionada(s). Você pode adicionar mais ${MAX_PHOTOS - uploadedPhotos.length}.`;
+          : `✓ ${uploadedPhotos.length} foto(s) carregada(s). Pode adicionar mais ${MAX_PHOTOS - uploadedPhotos.length}.`;
         statusEl.classList.remove('hidden');
       }
 
@@ -300,25 +313,9 @@
     }
 
     function compressImageFile(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const maxDim = 360;
-            let w = img.width, h = img.height;
-            if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
-            else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
-            canvas.width = w;
-            canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', 0.60));
-          };
-          img.src = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    const photoFileInput = document.getElementById('input-photo-fi
+      return new Promise((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('can
