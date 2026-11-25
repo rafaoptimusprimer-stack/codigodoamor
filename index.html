@@ -85,12 +85,10 @@
               <label class="block text-xs text-zinc-400">Fotos do Casal (Galeria do Celular)</label>
               <span id="photo-counter" class="text-xs font-semibold text-pink-400">0/4 fotos</span>
             </div>
-            <div id="photo-upload-label" class="relative mb-2 overflow-hidden rounded-xl">
-              <div class="flex items-center justify-center gap-2 w-full bg-pink-600/20 border border-dashed border-pink-500/60 rounded-xl px-4 py-3 text-sm font-medium text-pink-300">
-                <span>📷 Escolher até 4 Fotos da Galeria</span>
-              </div>
-              <input id="input-photo-file" type="file" accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-            </div>
+            <label id="photo-upload-label" class="flex items-center justify-center gap-2 w-full bg-pink-600/20 hover:bg-pink-600/30 border border-dashed border-pink-500/60 rounded-xl px-4 py-3 text-sm font-medium text-pink-300 cursor-pointer mb-2">
+              <span>📷 Escolher até 4 Fotos da Galeria</span>
+              <input id="input-photo-file" type="file" accept="image/*" multiple style="display:none" />
+            </label>
             <p id="photo-file-status" class="text-xs text-emerald-400 hidden mb-2"></p>
             <div id="photo-thumbs" class="grid grid-cols-4 gap-2 mb-2 hidden"></div>
             <input id="input-photo" type="url" placeholder="Ou cole um link público da foto (opcional)" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-zinc-300 focus:outline-none focus:border-pink-500" />
@@ -104,22 +102,30 @@
 
         <div class="bg-zinc-900/90 border border-white/10 rounded-2xl p-5 space-y-4">
           <h2 class="text-sm font-bold uppercase tracking-wider text-pink-400">3. Escolha o Plano e Gere seu Link + QR Code</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <label class="cursor-pointer border border-pink-500 bg-pink-500/10 rounded-xl p-4 flex items-center justify-between">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label class="plan-card cursor-pointer border border-pink-500 bg-pink-500/10 rounded-xl p-4 flex items-center justify-between">
               <div>
                 <input type="radio" name="plan" value="15_dias" checked class="hidden" />
                 <div class="font-bold text-white">Plano 15 Dias</div>
-                <div class="text-xs text-zinc-400">Link + QR Code ativo por 15 dias</div>
+                <div class="text-xs text-zinc-400">Ativo por 15 dias</div>
               </div>
               <div class="text-lg font-extrabold text-pink-400">R$ 9,90</div>
             </label>
-            <label class="cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between">
+            <label class="plan-card cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between">
               <div>
                 <input type="radio" name="plan" value="1_ano" class="hidden" />
                 <div class="font-bold text-white">Plano 1 Ano</div>
-                <div class="text-xs text-zinc-400">Link + QR Code ativo por 1 ano</div>
+                <div class="text-xs text-zinc-400">Ativo por 1 ano</div>
               </div>
               <div class="text-lg font-extrabold text-emerald-400">R$ 29,90</div>
+            </label>
+            <label class="plan-card cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <input type="radio" name="plan" value="vitalicio" class="hidden" />
+                <div class="font-bold text-white">Plano Vitalício</div>
+                <div class="text-xs text-zinc-400">Para sempre</div>
+              </div>
+              <div class="text-lg font-extrabold text-amber-400">R$ 49,90</div>
             </label>
           </div>
           <button id="btn-checkout" type="button" class="w-full bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white font-extrabold py-3.5 rounded-xl shadow-lg transition">
@@ -127,8 +133,7 @@
           </button>
         </div>
       </div>
-
-      <div class="lg:col-span-5">
+            <div class="lg:col-span-5">
         <div class="sticky top-24">
           <div class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 text-center">Pré-visualização ao Vivo</div>
           <div id="live-preview" class="w-full max-w-sm mx-auto rounded-3xl overflow-hidden shadow-2xl border border-white/15"></div>
@@ -192,11 +197,10 @@
       const now = new Date();
       const diff = Math.max(0, now - start);
       return {
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-        mins: Math.floor((diff / 1000 / 60) % 60),
-        secs: Math.floor((diff / 10
-00) % 60)
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff / 3600000) % 24),
+        mins: Math.floor((diff / 60000) % 60),
+        secs: Math.floor((diff / 1000) % 60)
       };
     }
 
@@ -207,14 +211,13 @@
     }
 
     function updateClockOnly(container, dateStr) {
-      const elapsed = calcElapsed(dateStr);
+      const e = calcElapsed(dateStr);
       const dEl = container.querySelector('[data-clock="days"]');
-      if (!dEl) return false;
-      dEl.textContent = elapsed.days;
-      container.querySelector('[data-clock="hours"]').textContent = elapsed.hours;
-      container.querySelector('[data-clock="mins"]').textContent = elapsed.mins;
-      container.querySelector('[data-clock="secs"]').textContent = elapsed.secs;
-      return true;
+      if (!dEl) return;
+      dEl.textContent = e.days;
+      container.querySelector('[data-clock="hours"]').textContent = e.hours;
+      container.querySelector('[data-clock="mins"]').textContent = e.mins;
+      container.querySelector('[data-clock="secs"]').textContent = e.secs;
     }
 
     function renderCard(container, data) {
@@ -227,10 +230,10 @@
       const hasMultiple = photos.length > 1;
 
       const navButtons = hasMultiple ? `
-        <button type="button" data-slide-dir="-1" class="slide-nav-btn absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-lg font-bold backdrop-blur-sm">‹</button>
-        <button type="button" data-slide-dir="1" class="slide-nav-btn absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-lg font-bold backdrop-blur-sm">›</button>
-        <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 px-2.5 py-1 rounded-full backdrop-blur-sm">
-          ${photos.map((_, idx) => `<span class="w-2 h-2 rounded-full transition-all ${idx === activeSlideIndex ? 'bg-pink-500 w-4' : 'bg-white/50'}"></span>`).join('')}
+        <button type="button" data-slide-dir="-1" class="slide-nav-btn absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center text-lg font-bold">‹</button>
+        <button type="button" data-slide-dir="1" class="slide-nav-btn absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center text-lg font-bold">›</button>
+        <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 px-2.5 py-1 rounded-full">
+          ${photos.map((_, idx) => `<span class="w-2 h-2 rounded-full ${idx === activeSlideIndex ? 'bg-pink-500 w-4' : 'bg-white/50'}"></span>`).join('')}
         </div>
       ` : '';
 
@@ -260,12 +263,11 @@
       `;
 
       container.querySelectorAll('.slide-nav-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.onclick = (e) => {
           e.stopPropagation();
-          const dir = Number(btn.dataset.slideDir);
-          activeSlideIndex = (activeSlideIndex + dir + photos.length) % photos.length;
+          activeSlideIndex = (activeSlideIndex + Number(btn.dataset.slideDir) + photos.length) % photos.length;
           renderCard(container, data);
-        });
+        };
       });
     }
 
@@ -286,18 +288,17 @@
         thumbsEl.innerHTML = uploadedPhotos.map((src, idx) => `
           <div class="relative aspect-square rounded-xl overflow-hidden border border-white/15 bg-zinc-950">
             <img src="${src}" class="w-full h-full object-cover" />
-            <button type="button" data-remove-idx="${idx}" class="remove-photo-btn absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 text-white text-xs font-bold flex items-center justify-center hover:bg-red-600">&times;</button>
+            <button type="button" data-remove-idx="${idx}" class="remove-photo-btn absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 text-white text-xs font-bold flex items-center justify-center">&times;</button>
           </div>
         `).join('');
 
         thumbsEl.querySelectorAll('.remove-photo-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const idx = Number(btn.dataset.removeIdx);
-            uploadedPhotos.splice(idx, 1);
+          btn.onclick = () => {
+            uploadedPhotos.splice(Number(btn.dataset.removeIdx), 1);
             activeSlideIndex = 0;
             updatePhotoThumbsUI();
             renderCard(document.getElementById('live-preview'), getFormData());
-          });
+          };
         });
 
         statusEl.textContent = uploadedPhotos.length >= MAX_PHOTOS
@@ -306,23 +307,19 @@
         statusEl.classList.remove('hidden');
       }
 
-      if (uploadedPhotos.length >= MAX_PHOTOS) {
-        uploadLabel.classList.add('opacity-50', 'pointer-events-none');
-      } else {
-        uploadLabel.classList.remove('opacity-50', 'pointer-events-none');
-      }
+      uploadLabel.style.opacity = uploadedPhotos.length >= MAX_PHOTOS ? '0.5' : '1';
+      uploadLabel.style.pointerEvents = uploadedPhotos.length >= MAX_PHOTOS ? 'none' : 'auto';
     }
 
-    function compressImageFile(file) {
-      return new Promise((resolve, reject) => {
+    function compressOne(file) {
+      return new Promise((resolve) => {
         const reader = new FileReader();
-        reader.onload = function(ev) {
+        reader.onload = (ev) => {
           const img = new Image();
-          img.onload = function() {
+          img.onload = () => {
             const canvas = document.createElement('canvas');
             const maxDim = 340;
-            let w = img.width || 340;
-            let h = img.height || 340;
+            let w = img.width || 340, h = img.height || 340;
             if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
             else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
             canvas.width = w;
@@ -330,57 +327,39 @@
             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
             resolve(canvas.toDataURL('image/jpeg', 0.58));
           };
-          img.onerror = function() { reject(new Error('Formato não suportado')); };
+          img.onerror = () => resolve(null);
           img.src = ev.target.result;
         };
-        reader.onerror = function() { reject(new Error('Falha ao ler foto')); };
+        reader.onerror = () => resolve(null);
         reader.readAsDataURL(file);
       });
     }
 
-    const photoFileInput = document.getElementById('input-photo-file');
-    if (photoFileInput) {
-      photoFileInput.onchange = async function(e) {
-        const fileList = e.target.files;
-        if (!fileList || fileList.length === 0) return;
+    document.getElementById('input-photo-file').addEventListener('change', async function() {
+      const files = this.files;
+      if (!files || !files.length) return;
+      const statusEl = document.getElementById('photo-file-status');
+      statusEl.textContent = '⏳ Carregando fotos...';
+      statusEl.classList.remove('hidden');
 
-        const statusEl = document.getElementById('photo-file-status');
-        statusEl.textContent = '⏳ Carregando ' + fileList.length + ' foto(s)...';
-        statusEl.classList.remove('hidden');
-
-        const remaining = MAX_PHOTOS - uploadedPhotos.length;
-        const totalToProcess = Math.min(fileList.length, remaining);
-        let loadedCount = 0;
-
-        for (let i = 0; i < totalToProcess; i++) {
-          try {
-            const compressed = await compressImageFile(fileList[i]);
-            uploadedPhotos.push(compressed);
-            loadedCount++;
-          } catch (err) {
-            console.error(err);
-          }
-        }
-
-        photoFileInput.value = '';
-        if (loadedCount > 0) {
-          activeSlideIndex = uploadedPhotos.length - 1;
-          updatePhotoThumbsUI();
-          renderCard(document.getElementById('live-preview'), getFormData());
-        } else {
-          statusEl.textContent = '⚠️ Não foi possível ler essa foto. Tente selecionar imagens JPG ou PNG.';
-        }
-      };
-    }
+      const limit = Math.min(files.length, MAX_PHOTOS - uploadedPhotos.length);
+      for (let i = 0; i < limit; i++) {
+        const dataUrl = await compressOne(files[i]);
+        if (dataUrl) uploadedPhotos.push(dataUrl);
+      }
+      this.value = '';
+      activeSlideIndex = Math.max(0, uploadedPhotos.length - 1);
+      updatePhotoThumbsUI();
+      renderCard(document.getElementById('live-preview'), getFormData());
+    });
 
     function getFormData() {
       const planEl = document.querySelector('input[name="plan"]:checked');
       const plan = planEl ? planEl.value : '15_dias';
       const manualUrl = document.getElementById('input-photo').value.trim();
       const photos = [...uploadedPhotos];
-      if (manualUrl && photos.length < MAX_PHOTOS) {
-        photos.push(manualUrl);
-      }
+      if (manualUrl && photos.length < MAX_PHOTOS) photos.push(manualUrl);
+      const daysMap = { '15_dias': 15, '1_ano': 365, 'vitalicio': 36500 };
       return {
         t: currentTheme,
         n: document.getElementById('input-names').value.trim() || 'Nosso Amor',
@@ -388,7 +367,7 @@
         ps: photos,
         m: document.getElementById('input-message').value.trim(),
         pl: plan,
-        exp: Date.now() + (plan === '1_ano' ? 365 : 15) * 86400000
+        exp: Date.now() + (daysMap[plan] || 15) * 86400000
       };
     }
 
@@ -418,9 +397,7 @@
             renderCard(container, giftData);
           }, 4000);
         }
-      } catch (e) {
-        console.error('Link inválido');
-      }
+      } catch (e) {}
     } else {
       const previewEl = document.getElementById('live-preview');
       renderCard(previewEl, getFormData());
@@ -434,9 +411,7 @@
       }, 4000);
 
       ['input-names', 'input-date', 'input-photo', 'input-message'].forEach(id => {
-        document.getElementById(id).addEventListener('input', () => {
-          renderCard(previewEl, getFormData());
-        });
+        document.getElementById(id).addEventListener('input', () => renderCard(previewEl, getFormData()));
       });
     }
 
@@ -451,10 +426,10 @@
 
     document.querySelectorAll('input[name="plan"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
-        document.querySelectorAll('input[name="plan"]').forEach(r => {
-          r.parentElement.parentElement.className = 'cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between';
+        document.querySelectorAll('.plan-card').forEach(card => {
+          card.className = 'plan-card cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between';
         });
-        e.target.parentElement.parentElement.className = 'cursor-pointer border border-pink-500 bg-pink-500/10 rounded-xl p-4 flex items-center justify-between';
+        e.target.closest('.plan-card').className = 'plan-card cursor-pointer border border-pink-500 bg-pink-500/10 rounded-xl p-4 flex items-center justify-between';
       });
     });
 
@@ -474,7 +449,6 @@
           body: JSON.stringify({ planId: data.pl, coupleName: data.n })
         });
         const pix = await res.json();
-
         document.getElementById('pix-loading').classList.add('hidden');
         if (!res.ok) {
           const errBox = document.getElementById('pix-error');
@@ -482,7 +456,6 @@
           errBox.classList.remove('hidden');
           return;
         }
-
         document.getElementById('pix-qr-img').src = `data:image/png;base64,${pix.qr_code_base64}`;
         document.getElementById('pix-copy-input').value = pix.qr_code;
         document.getElementById('pix-content').classList.remove('hidden');
