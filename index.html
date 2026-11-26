@@ -1,0 +1,3100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="Cyw7ex44iI1-beVm3_2TlNvx8LJuld5mgQ8Qo5fJTAU" />
+  <title>Código do Amor — Crie sua Homenagem Digital</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@700;800&family=Inter:wght@400;600;700;800&family=Orbitron:wght@700;800&family=Pacifico&family=Playfair+Display:ital,wght@0,700;1,600&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fafafa; }
+    .font-netflix { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
+    .font-gta { font-family: 'Press Start 2P', cursive; }
+    .font-serif-romance { font-family: 'Playfair Display', serif; }
+    .font-cinzel { font-family: 'Cinzel', serif; letter-spacing: 0.04em; }
+    .font-orbitron { font-family: 'Orbitron', sans-serif; letter-spacing: 0.05em; }
+    .font-pacifico { font-family: 'Pacifico', cursive; }
+
+    @keyframes fallDown {
+      0% { transform: translateY(-12%) translateX(0px) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.95; }
+      50% { transform: translateY(230px) translateX(14px) rotate(180deg); opacity: 0.9; }
+      90% { opacity: 0.9; }
+      100% { transform: translateY(520px) translateX(-12px) rotate(360deg); opacity: 0; }
+    }
+    .falling-particle {
+      position: absolute;
+      top: -28px;
+      pointer-events: none;
+      user-select: none;
+      animation-name: fallDown;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45));
+    }
+    @keyframes pulseZoom {
+      0% { transform: scale(0.82); opacity: 0.35; }
+      50% { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.95; }
+    }
+    .countdown-num-anim {
+      animation: pulseZoom 0.85s ease-out;
+    }
+    @keyframes bouncePointer {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .pointer-bounce {
+      animation: bouncePointer 1.2s infinite ease-in-out;
+    }
+    .preview-watermark-overlay {
+      background-image: repeating-linear-gradient(
+        -28deg,
+        rgba(255, 255, 255, 0.06) 0px,
+        rgba(255, 255, 255, 0.06) 2px,
+        transparent 2px,
+        transparent 34px
+      );
+    }
+    @keyframes blinkSoftLight {
+      0%, 100% { opacity: 0.14; transform: scale(0.95); }
+      50% { opacity: 0.52; transform: scale(1.06); }
+    }
+    .soft-blink-light {
+      position: absolute;
+      pointer-events: none;
+      user-select: none;
+      animation-name: blinkSoftLight;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      filter: blur(0.4px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- PAINEL ADMIN SECRETO (#admin) -->
+  <div id="admin-view" class="hidden min-h-screen flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md bg-zinc-900 border border-pink-500/40 rounded-3xl p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-pink-400">Área Restrita • Gerador de Brinde</span>
+        <a href="/" class="text-xs text-zinc-400 hover:text-white underline">Voltar ao site</a>
+      </div>
+      <h1 class="text-xl font-extrabold text-white">Gerar Código de 15 Dias Grátis</h1>
+      <p class="text-xs text-zinc-400">O código gerado abaixo fica válido por exatamente <strong>24 horas</strong> para o cliente resgatar no site.</p>
+      <div>
+        <label class="block text-xs text-zinc-400 mb-1">Senha de Administrador</label>
+        <input id="admin-pass-input" type="password" placeholder="Digite sua senha secreta" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-pink-500" />
+      </div>
+      <button id="btn-generate-gift-code" type="button" class="w-full bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white font-extrabold py-3 rounded-xl transition">
+        Gerar Código Válido por 24h
+      </button>
+      <div id="admin-error" class="hidden bg-red-950/60 border border-red-500/40 text-red-200 text-xs p-3 rounded-xl"></div>
+      <div id="admin-result" class="hidden bg-zinc-950 border border-emerald-500/40 rounded-2xl p-4 space-y-2 text-center">
+        <div class="text-xs text-emerald-400 font-bold">✓ Código Gerado (Expira em 24h):</div>
+        <input id="generated-code-output" type="text" readonly class="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-center font-mono text-base font-extrabold text-amber-300" />
+        <button id="btn-copy-admin-code" type="button" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-lg">Copiar Código para Enviar ao Cliente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODO PRESENTE -->
+  <div id="gift-view" class="hidden min-h-screen flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md flex items-center justify-between gap-2 mb-2.5">
+      <button id="btn-gift-replay-intro" type="button" class="inline-flex items-center gap-1.5 bg-pink-600/20 hover:bg-pink-600/35 border border-pink-500/40 text-pink-200 text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg transition">
+        <span>🎬 Rever Abertura (5s)</span>
+      </button>
+      <button id="btn-gift-fullscreen" type="button" class="inline-flex items-center gap-1.5 bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-200 text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg transition">
+        <span>⛶ Tela Cheia</span>
+      </button>
+    </div>
+    <div id="gift-card-container" class="w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10 transition-all"></div>
+    <div id="gift-validity-footer" class="mt-4 text-[11px] text-zinc-400 text-center"></div>
+    <div class="mt-6 text-center">
+      <a href="/" class="text-[11px] text-zinc-500 hover:text-pink-300 transition underline">
+        Código do Amor • Conheça a página
+      </a>
+    </div>
+  </div>
+
+  <!-- MODO CRIADOR -->
+  <div id="creator-view" class="flex-1 flex flex-col">
+    <header class="border-b border-white/10 bg-zinc-950/85 backdrop-blur sticky top-0 z-30">
+      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-2xl">💜</span>
+          <span class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Código do Amor</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-open-saved-drawer" type="button" class="inline-flex items-center gap-1.5 bg-emerald-600/20 hover:bg-emerald-600/35 border border-emerald-400/50 text-emerald-200 text-xs font-extrabold px-3 py-2 rounded-full shadow-md transition">
+            <span class="pointer-bounce">👇</span>
+            <span>Meu Projeto Salvo (<span id="saved-gifts-badge-count">1</span>)</span>
+          </button>
+          <a href="#criar" class="bg-pink-600 hover:bg-pink-500 text-white text-xs sm:text-sm font-bold px-3.5 py-2 rounded-full transition shrink-0">Criar Agora</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- PASSO A PASSO DIVERTIDO E AMIGÁVEL LOGO NO TOPO -->
+    <section class="max-w-6xl mx-auto w-full px-4 pt-5">
+      <div class="bg-gradient-to-br from-pink-950/50 via-zinc-900 to-violet-950/50 border border-pink-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+          <div>
+            <span class="inline-block text-[11px] font-extrabold uppercase tracking-wider text-pink-400">💜 Como Fazer seu Projeto em 1 Minuto</span>
+            <h1 class="text-base sm:text-lg font-extrabold text-white mt-0.5">Siga estes 7 passinhos simples e surpreenda quem você ama:</h1>
+          </div>
+          <span class="text-[11px] text-zinc-400">Monte na ordem que preferir ✨</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+          <a href="#sec-tema" class="group bg-zinc-950/85 hover:bg-zinc-900 border border-white/10 hover:border-pink-500/50 rounded-xl p-3 flex items-start gap-2.5 transition">
+            <span class="w-6 h-6 rounded-full bg-pink-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <div>
+              <div class="font-bold text-white group-hover:text-pink-300 transition">🎨 Escolha seu tema</div>
+              <div class="text-[11px] text-zinc-400">19 molduras exclusivas (séries, filmes, romance e times).</div>
+            </div>
+          </a>
+
+          <a href="#sec-texto" class="group bg-zinc-950/85 hover:bg-zinc-900 border border-white/10 hover:border-pink-500/50 rounded-xl p-3 flex items-start gap-2.5 transition">
+            <span class="w-6 h-6 rounded-full bg-pink-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+            <div>
+              <div class="font-bold text-white group-hover:text-pink-300 transition">💑 Nome, data e efeito</div>
+              <div class="text-[11px] text-zinc-400">Coloque o nome do casal, a data e a animação caindo.</div>
+            </div>
+          </a>
+
+          <a href="#sec-fotos" class="group bg-zinc-950/85 hover:bg-zinc-900 border border-white/10 hover:border-pink-500/50 rounded-xl p-3 flex items-start gap-2.5 transition">
+            <span class="w-6 h-6 rounded-full bg-pink-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+            <div>
+              <div class="font-bold text-white group-hover:text-pink-300 transition">📷 Escolha suas fotos</div>
+              <div class="text-[11px] text-zinc-400">Selecione até 4 fotos especiais direto da sua galeria.</div>
+            </div>
+          </a>
+
+          <a href="#sec-musica" class="group bg-zinc-950/85 hover:bg-zinc-900 border border-white/10 hover:border-pink-500/50 rounded-xl p-3 flex items-start gap-2.5 transition">
+            <span class="w-6 h-6 rounded-full bg-pink-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
+            <div>
+              <div class="font-bold text-white group-hover:text-pink-300 transition">🎵 Música do casal</div>
+              <div class="text-[11px] text-zinc-400">Escolha a trilha sonora que vai tocar em loop infinito.</div>
+            </div>
+          </a>
+
+          <a href="#sec-texto" class="group bg-zinc-950/85 hover:bg-zinc-900 border border-white/10 hover:border-pink-500/50 rounded-xl p-3 flex items-start gap-2.5 transition">
+            <span class="w-6 h-6 rounded-full bg-violet-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">5</span>
+            <div>
+              <div class="font-bold text-white group-hover:text-pink-300 transition">💌 Sua mensagem</div>
+              <div class="text-[11px] text-zinc-400">Escreva sua declaração de amor com todo carinho.</div>
+            </div>
+          </a>
+
+          <a href="#live-preview" class="group bg-zinc-950/85 hover:bg-zinc-900 border border-white/10 hover:border-pink-500/50 rounded-xl p-3 flex items-start gap-2.5 transition">
+            <span class="w-6 h-6 rounded-full bg-violet-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">6</span>
+            <div>
+              <div class="font-bold text-white group-hover:text-pink-300 transition">👀 Pré-visualização</div>
+              <div class="text-[11px] text-zinc-400">Veja como ficou ao vivo (com marca d'água de prévia).</div>
+            </div>
+          </a>
+
+          <a href="#sec-plano" class="sm:col-span-2 group bg-gradient-to-r from-emerald-950/70 to-pink-950/60 hover:from-emerald-900/70 hover:to-pink-900/60 border border-emerald-500/35 rounded-xl p-3 flex items-start gap-2.5 transition">
+            <span class="w-6 h-6 rounded-full bg-emerald-500 text-zinc-950 font-black text-xs flex items-center justify-center shrink-0 mt-0.5">7</span>
+            <div>
+              <div class="font-bold text-emerald-300 group-hover:text-white transition">💳 Finalize: escolha o plano e pagamento</div>
+              <div class="text-[11px] text-zinc-300">Pague no Pix (ou resgate seu brinde) e receba na hora o link sem marca d'água + QR Code para baixar e enviar!</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAIXA LOGO NO COMEÇO INDICANDO MEU PROJETO SALVO (PAGO OU NÃO PAGO) -->
+    <section id="saved-gifts-section" class="max-w-6xl mx-auto w-full px-4 pt-5">
+      <div class="bg-gradient-to-r from-zinc-900 via-zinc-900 to-pink-950/40 border border-pink-500/35 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-start gap-2.5">
+            <span class="text-xl pointer-bounce mt-0.5">⬇️</span>
+            <div>
+              <div class="text-[11px] font-extrabold uppercase tracking-wider text-pink-400">Seu Espaço Exclusivo • Acesso Rápido</div>
+              <h2 class="text-base font-extrabold text-white">Meu Projeto Salvo (Pago ou em Edição)</h2>
+              <p class="text-[11px] text-zinc-400">Seu projeto fica salvo automaticamente aqui. Quem já pagou pode abrir, baixar o QR Code e compartilhar quando quiser dentro do prazo do plano.</p>
+            </div>
+          </div>
+          <span id="pending-pix-banner-btn-wrap" class="hidden shrink-0">
+            <button id="btn-check-pending-pix-top" type="button" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-extrabold px-3.5 py-2 rounded-xl shadow transition">
+              🔄 Verificar Pix Pendente
+            </button>
+          </span>
+        </div>
+        <div id="saved-gifts-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+
+    <main id="criar" class="max-w-6xl mx-auto w-full px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-7 space-y-5">
+        <div class="bg-zinc-900/70 border border-white/10 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span class="font-bold text-pink-300">✨ Personalize na ordem que desejar:</span>
+          <div class="flex flex-wrap gap-1.5 text-[11px]">
+            <a href="#sec-tema" class="bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-full text-zinc-200">🎨 Tema</a>
+            <a href="#sec-fotos" class="bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-full text-zinc-200">📷 Fotos</a>
+            <a href="#sec-efeito" class="bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-full text-zinc-200">🦋 Efeito</a>
+            <a href="#sec-musica" class="bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-full text-zinc-200">🎵 Música</a>
+            <a href="#sec-texto" class="bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-full text-zinc-200">✍️ Texto</a>
+          </div>
+        </div>
+
+                <div id="sec-ocasioes" class="bg-zinc-900/90 border border-pink-500/30 rounded-2xl p-4 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-pink-400">🎯 Tipo de Homenagem</span>
+              <h2 class="text-sm font-extrabold text-white">É para Casal ou Aniversário?</h2>
+            </div>
+            <span class="text-[11px] text-zinc-400">Nenhuma opção é bloqueada</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2" id="occasion-selector">
+            <button type="button" data-occasion="todos" class="occasion-btn ring-2 ring-pink-500 bg-pink-600/20 border border-white/10 rounded-xl p-2.5 text-center transition">
+              <div class="text-sm">✨</div>
+              <div class="text-xs font-extrabold text-white mt-0.5">Todos</div>
+              <div class="text-[10px] text-zinc-400">Casal e aniversário</div>
+            </button>
+            <button type="button" data-occasion="casal" class="occasion-btn bg-zinc-950 border border-white/10 rounded-xl p-2.5 text-center hover:bg-zinc-800 transition">
+              <div class="text-sm">💜</div>
+              <div class="text-xs font-extrabold text-pink-200 mt-0.5">Casal</div>
+              <div class="text-[10px] text-zinc-400">Temas e músicas</div>
+            </button>
+            <button type="button" data-occasion="aniversario" class="occasion-btn bg-zinc-950 border border-white/10 rounded-xl p-2.5 text-center hover:bg-zinc-800 transition">
+              <div class="text-sm">🎂</div>
+              <div class="text-xs font-extrabold text-amber-200 mt-0.5">Aniversário</div>
+              <div class="text-[10px] text-zinc-400">Idade, músicas e festa</div>
+            </button>
+          </div>
+          <p id="occasion-hint" class="text-[11px] text-zinc-300">Mostrando todos os temas, músicas e efeitos. Se quiser, escolha <strong>Casal</strong> ou <strong>Aniversário</strong> para destacar o que combina mais com a sua homenagem.</p>
+        </div>
+
+        <div id="sec-tema" class="bg-zinc-900/90 border border-white/10 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-pink-400">🎨 Tema & Moldura (23 Estilos)</h2>
+            <span class="text-[11px] text-zinc-400">Cada tema tem moldura exclusiva</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-80 overflow-y-auto pr-1" id="theme-selector">
+            <!-- Séries, Música & Romance -->
+            <button type="button" data-theme="netflix" data-cat="casal" class="theme-btn ring-2 ring-pink-500 bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-red-500">STREAMING</div>
+              <div class="font-bold text-xs sm:text-sm">Netflix</div>
+            </button>
+            <button type="button" data-theme="spotify" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-emerald-400">MÚSICA</div>
+              <div class="font-bold text-xs sm:text-sm">Spotify</div>
+            </button>
+            <button type="button" data-theme="stranger" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-red-400">SÉRIE 80s</div>
+              <div class="font-bold text-xs sm:text-sm">Stranger Things</div>
+            </button>
+            <button type="button" data-theme="friends" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-amber-300">SITCOM</div>
+              <div class="font-bold text-xs sm:text-sm">Friends</div>
+            </button>
+            <button type="button" data-theme="bridgerton" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-amber-300">ROMANCE</div>
+              <div class="font-bold text-xs sm:text-sm">Bridgerton</div>
+            </button>
+            <button type="button" data-theme="disney" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-sky-400">ANIMAÇÃO</div>
+              <div class="font-bold text-xs sm:text-sm">Disney+ / Up</div>
+            </button>
+
+            <!-- Filmes, Cultura Pop & Games -->
+            <button type="button" data-theme="barbie" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-pink-400">PINK POP</div>
+              <div class="font-bold text-xs sm:text-sm">Barbie</div>
+            </button>
+            <button type="button" data-theme="harrypotter" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-amber-400">MAGIA</div>
+              <div class="font-bold text-xs sm:text-sm">Harry Potter</div>
+            </button>
+            <button type="button" data-theme="starwars" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-yellow-400">GALÁXIA</div>
+              <div class="font-bold text-xs sm:text-sm">Star Wars</div>
+            </button>
+            <button type="button" data-theme="marvel" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-red-500">HERÓIS</div>
+              <div class="font-bold text-xs sm:text-sm">Marvel / Vingadores</div>
+            </button>
+            <button type="button" data-theme="gta6" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-fuchsia-400">GAME</div>
+              <div class="font-bold text-xs sm:text-sm">GTA VI Vice City</div>
+            </button>
+            <button type="button" data-theme="lastofus" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-lime-400">SÉRIE / GAME</div>
+              <div class="font-bold text-xs sm:text-sm">The Last of Us</div>
+            </button>
+
+            <!-- Especiais & Fotografia -->
+            <button type="button" data-theme="polaroid" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-rose-300">RETRÔ</div>
+              <div class="font-bold text-xs sm:text-sm">Polaroid / Álbum</div>
+            </button>
+            <button type="button" data-theme="ceu" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-indigo-300">UNIVERSO</div>
+              <div class="font-bold text-xs sm:text-sm">Céu Estrelado</div>
+            </button>
+            <button type="button" data-theme="classico" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-pink-400">CLÁSSICO</div>
+              <div class="font-bold text-xs sm:text-sm">Nosso Amor</div>
+            </button>
+
+            <!-- Times Paulistas -->
+            <button type="button" data-theme="saopaulo" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-red-500">TRICOLOR</div>
+              <div class="font-bold text-xs sm:text-sm">🔴⚪⚫ São Paulo FC</div>
+            </button>
+            <button type="button" data-theme="corinthians" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-zinc-300">TIMÃO</div>
+              <div class="font-bold text-xs sm:text-sm">⚫⚪ Corinthians</div>
+            </button>
+            <button type="button" data-theme="santos" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-amber-300">PEIXE</div>
+              <div class="font-bold text-xs sm:text-sm">⚪⚫ Santos FC</div>
+            </button>
+            <button type="button" data-theme="palmeiras" data-cat="casal" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-emerald-400">VERDÃO</div>
+              <div class="font-bold text-xs sm:text-sm">🟢⚪ Palmeiras</div>
+            </button>
+
+            <!-- Temas de Aniversário (com Idade & Tempo de Vida) -->
+            <button type="button" data-theme="bday_festa" data-cat="aniversario" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-amber-300">ANIVERSÁRIO</div>
+              <div class="font-bold text-xs sm:text-sm">🎂 Festa & Parabéns</div>
+            </button>
+            <button type="button" data-theme="bday_neon" data-cat="aniversario" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-cyan-300">ANIVERSÁRIO</div>
+              <div class="font-bold text-xs sm:text-sm">🎉 Balada Neon</div>
+            </button>
+            <button type="button" data-theme="bday_dourado" data-cat="aniversario" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-yellow-300">ANIVERSÁRIO</div>
+              <div class="font-bold text-xs sm:text-sm">👑 Gold Celebration</div>
+            </button>
+            <button type="button" data-theme="bday_infantil" data-cat="aniversario" class="theme-btn bg-zinc-800 p-2.5 rounded-xl text-left hover:bg-zinc-700 transition">
+              <div class="text-[10px] font-bold text-pink-300">ANIVERSÁRIO</div>
+              <div class="font-bold text-xs sm:text-sm">🎈 Sonho & Balões</div>
+            </button>
+          </div>
+        </div>
+
+        <div id="sec-fotos" class="bg-zinc-900/90 border border-white/10 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-pink-400">📷 Fotos, Efeito, Música & Texto</h2>
+            <span id="draft-autosave-badge" class="text-[11px] text-zinc-500">Salvo automaticamente</span>
+          </div>
+
+          <!-- 1. FOTOS -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-zinc-300">Fotos do Casal (Galeria do Celular)</label>
+              <span id="photo-counter" class="text-xs font-semibold text-pink-400">0/4 fotos</span>
+            </div>
+            <label id="photo-upload-label" class="flex items-center justify-center gap-2 w-full bg-pink-600/20 hover:bg-pink-600/30 border border-dashed border-pink-500/60 rounded-xl px-4 py-3 text-sm font-medium text-pink-300 cursor-pointer mb-2">
+              <span>📷 Escolher até 4 Fotos da Galeria</span>
+              <input id="input-photo-file" type="file" accept="image/*" multiple style="display:none" />
+            </label>
+            <p id="photo-file-status" class="text-xs text-emerald-400 hidden mb-2"></p>
+            <div id="photo-thumbs" class="grid grid-cols-4 gap-2 mb-2 hidden"></div>
+            <input id="input-photo" type="url" placeholder="Ou cole um link público da foto (opcional)" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-zinc-300 focus:outline-none focus:border-pink-500" />
+          </div>
+
+          <!-- 2. EFEITO ESPECIAL CAINDO NO CARTÃO -->
+          <div id="sec-efeito" class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-semibold text-zinc-300">✨ Efeito Caindo no Cartão</label>
+              <span class="text-[11px] text-pink-400">Animação ao vivo</span>
+            </div>
+            <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5" id="effect-selector">
+              <button type="button" data-effect="coracoes" data-ecat="casal" class="effect-btn ring-2 ring-pink-500 bg-pink-600/20 border border-white/10 rounded-lg py-2 px-1 text-center transition">
+                <div class="text-base">❤️</div>
+                <div class="text-[10px] font-bold text-zinc-200 mt-0.5">Corações</div>
+              </button>
+              <button type="button" data-effect="flores" data-ecat="casal" class="effect-btn bg-zinc-900 border border-white/10 rounded-lg py-2 px-1 text-center hover:bg-zinc-800 transition">
+                <div class="text-base">🌸</div>
+                <div class="text-[10px] font-bold text-zinc-200 mt-0.5">Flores</div>
+              </button>
+              <button type="button" data-effect="estrelas" data-ecat="casal" class="effect-btn bg-zinc-900 border border-white/10 rounded-lg py-2 px-1 text-center hover:bg-zinc-800 transition">
+                <div class="text-base">✨</div>
+                <div class="text-[10px] font-bold text-zinc-200 mt-0.5">Estrelas</div>
+              </button>
+              <button type="button" data-effect="neve" data-ecat="casal" class="effect-btn bg-zinc-900 border border-white/10 rounded-lg py-2 px-1 text-center hover:bg-zinc-800 transition">
+                <div class="text-base">❄️</div>
+                <div class="text-[10px] font-bold text-zinc-200 mt-0.5">Neve</div>
+              </button>
+              <button type="button" data-effect="borboletas" data-ecat="casal" class="effect-btn bg-zinc-900 border border-white/10 rounded-lg py-2 px-1 text-center hover:bg-zinc-800 transition">
+                <div class="text-base">🦋</div>
+                <div class="text-[10px] font-bold text-zinc-200 mt-0.5">Borboletas</div>
+              </button>
+              <button type="button" data-effect="notas" data-ecat="casal" class="effect-btn bg-zinc-900 border border-white/10 rounded-lg py-2 px-1 text-center hover:bg-zinc-800 transition">
+                <div class="text-base">🎵</div>
+                <div class="text-[10px] font-bold text-zinc-200 mt-0.5">Música</div>
+              </button>
+              <button type="button" data-effect="fogos" data-ecat="aniversario" class="effect-btn bg-zinc-900 border border-white/10 rounded-lg py-2 px-1 text-center hover:bg-zinc-800 transition">
+                <div class="text-base">🎆</div>
+                <div class="text-[10px] font-bold text-amber-200 mt-0.5">Fogos</div>
+              </button>
+              <button type="button" data-effect="confetes" data-ecat="aniversario" class="effect-btn bg-zinc-900 border border-white/10 rounded-lg py-2 px-1 text-center hover:bg-zinc-800 transition">
+                <div class="text-base">🎊</div>
+                <div class="text-[10px] font-bold text-pink-200 mt-0.5">Confetes</div>
+              </button>
+              <button type="button" data-effect="luzes" data-ecat="aniversario" class="effect-btn bg-zinc-900 border border-white/10 rounded-lg py-2 px-1 text-center hover:bg-zinc-800 transition">
+                <div class="text-base">💡</div>
+                <div class="text-[10px] font-bold text-sky-200 mt-0.5">Luzes</div>
+              </button>
+              <button type="button" data-effect="nenhum" data-ecat="casal" class="effect-btn bg-zinc-900 border border-white/10 rounded-lg py-2 px-1 text-center hover:bg-zinc-800 transition">
+                <div class="text-base">🚫</div>
+                <div class="text-[10px] font-bold text-zinc-400 mt-0.5">Nenhum</div>
+              </button>
+            </div>
+            <div class="text-[10px] text-zinc-400">💡 Dica: Fogos, Confetes e Luzes são livres para usar em qualquer projeto (casal ou aniversário). As luzes piscam de forma bem discreta e translúcida.</div>
+          </div>
+
+          <div id="sec-musica"></div>
+          <!-- MÚSICA DO CASAL (YOUTUBE + SUGESTÕES PRONTAS + PRÉVIA DE ÁUDIO) -->
+          <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <label class="block text-xs font-semibold text-zinc-300">🎵 Música do Casal (Loop Infinito no Presente)</label>
+              <a id="btn-search-yt" href="https://www.youtube.com/results?search_query=musica+romantica" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-300 text-[11px] font-bold px-2.5 py-1 rounded-lg transition">
+                <span>▶ Pesquisar no YouTube</span>
+              </a>
+            </div>
+
+            <div class="space-y-2">
+              <div class="text-[11px] text-zinc-400">🎧 Ouça a prévia ou toque em <strong>Usar</strong> para colocar no cartão:</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5" id="music-presets">
+                <div data-yt-url="https://www.youtube.com/watch?v=csPSV7f8sDg" data-yt-id="csPSV7f8sDg" data-mcat="casal" data-yt-label="Marcos & Belutti – Sonho De Todo Casal" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">🤠 Marcos & Belutti – Sonho De Todo Casal</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=7nbgYS6Wi8Y" data-yt-id="7nbgYS6Wi8Y" data-mcat="casal" data-yt-label="Pelé MilFlows – Vem Cá" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">🎤 Pelé MilFlows – Vem Cá</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=z4wXqDxdexo" data-yt-id="z4wXqDxdexo" data-mcat="casal" data-yt-label="Pollo – Vagalumes (part. Ivo Mozart)" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">✨ Pollo – Vagalumes (Ivo Mozart)</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=5cWF6Laoewk" data-yt-id="5cWF6Laoewk" data-mcat="casal" data-yt-label="Zé Neto & Cristiano – Plano C" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">💍 Zé Neto & Cristiano – Plano C</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=2Vv-BfVoq4g" data-yt-id="2Vv-BfVoq4g" data-mcat="casal" data-yt-label="Ed Sheeran – Perfect" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">🎵 Ed Sheeran – Perfect</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=450p7goxZqg" data-yt-id="450p7goxZqg" data-mcat="casal" data-yt-label="John Legend – All of Me" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-zinc-200 truncate">🎹 John Legend – All of Me</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-pink-600/30 hover:bg-pink-600 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+
+                <!-- 4 Músicas Nacionais Animadas de Aniversário (Sucesso no Instagram, Facebook & YouTube) -->
+                <div data-yt-url="https://www.youtube.com/watch?v=P52crWWUnOw" data-yt-id="P52crWWUnOw" data-mcat="aniversario" data-yt-label="Xuxa – Parabéns da Xuxa (Clássico Oficial)" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-amber-500/30 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-amber-100 truncate">🎂 Xuxa – Parabéns da Xuxa</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-amber-500/30 hover:bg-amber-500 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=430biFjgYOQ" data-yt-id="430biFjgYOQ" data-mcat="aniversario" data-yt-label="Pabllo Vittar & Psirico – Parabéns (Viral Reels)" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-amber-500/30 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-amber-100 truncate">🔥 Pabllo Vittar & Psirico – Parabéns</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-amber-500/30 hover:bg-amber-500 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=h2xU3E6kePw" data-yt-id="h2xU3E6kePw" data-mcat="aniversario" data-yt-label="Ivete Sangalo – Festa (Clássico Animado)" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-amber-500/30 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-amber-100 truncate">🎉 Ivete Sangalo – Festa</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-amber-500/30 hover:bg-amber-500 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+                <div data-yt-url="https://www.youtube.com/watch?v=K9z10AHjrto" data-yt-id="K9z10AHjrto" data-mcat="aniversario" data-yt-label="Mulekada – Parabéns da Xuxa / Com Quem Será" class="music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-amber-500/30 rounded-lg px-2.5 py-1.5 transition">
+                  <span class="text-[11px] text-amber-100 truncate">🎈 Mulekada – Parabéns / Com Quem Será</span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" class="btn-preview-song bg-zinc-800 hover:bg-amber-500/20 border border-white/10 text-[10px] text-amber-300 font-bold px-2 py-1 rounded-md transition">▶ Ouvir</button>
+                    <button type="button" class="btn-select-song bg-amber-500/30 hover:bg-amber-500 text-[10px] text-white font-bold px-2 py-1 rounded-md transition">Usar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="song-audition-box" class="hidden bg-zinc-900 border border-amber-500/40 rounded-xl p-2.5 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                  <span id="audition-title" class="text-[11px] font-bold text-amber-300 truncate">Ouvindo prévia...</span>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <a id="audition-yt-fallback" href="#" target="_blank" rel="noopener noreferrer" class="text-[10px] text-zinc-400 hover:text-white underline">Abrir no YouTube</a>
+                    <button id="btn-apply-audition" type="button" class="bg-pink-600 hover:bg-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-md transition">✓ Usar esta no cartão</button>
+                    <button id="btn-close-audition" type="button" class="text-zinc-400 hover:text-white text-xs font-bold px-1.5">✕</button>
+                  </div>
+                </div>
+                <div id="audition-iframe-wrap" class="rounded-lg overflow-hidden bg-black aspect-video max-h-36 w-full"></div>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <input id="input-yt-search" type="text" placeholder="Ou digite outra música para buscar no YouTube..." class="flex-1 bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500" />
+              <button id="btn-go-yt-search" type="button" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition">
+                Buscar
+              </button>
+            </div>
+            <div class="flex gap-2">
+              <input id="input-youtube" type="url" placeholder="Link do YouTube (ex: https://youtu.be/...)" class="flex-1 bg-zinc-900 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 focus:outline-none focus:border-pink-500" />
+              <button id="btn-clear-yt" type="button" title="Remover música" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold px-3 rounded-xl">Limpar</button>
+            </div>
+            <p id="yt-status" class="text-[11px] text-zinc-400">Toque em "Ouvir" para escutar ou em "Usar" para aplicar no cartão.</p>
+          </div>
+
+          <div id="sec-texto" class="space-y-3 pt-1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1">✍️ Nome do Casal / Título</label>
+                <input id="input-names" type="text" value="Rafael & Juliana" maxlength="40" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-pink-500" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1">📅 Data de Início</label>
+                <input id="input-date" type="datetime-local" value="2023-10-30T20:00" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-pink-500" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">💌 Mensagem / Declaração</label>
+              <textarea id="input-message" rows="3" maxlength="280" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-pink-500">Cada segundo ao seu lado transforma dias comuns na nossa melhor história. Te amo hoje e sempre!</textarea>
+            </div>
+            <div id="sec-texto-ia" class="bg-zinc-900/90 border border-pink-500/25 rounded-xl p-3 space-y-2.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-[11px] font-bold text-pink-300">✨ Corrigir e Ajustar Texto na Hora</span>
+                <div class="flex flex-wrap items-center gap-1" id="text-tone-selector">
+                  <button type="button" data-tone="normal" class="tone-btn bg-pink-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full transition">Normal</button>
+                  <button type="button" data-tone="romantico" class="tone-btn bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[10px] font-bold px-2.5 py-1 rounded-full transition">Romântico</button>
+                  <button type="button" data-tone="amigavel" class="tone-btn bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[10px] font-bold px-2.5 py-1 rounded-full transition">Amigável</button>
+                  <button type="button" data-tone="profissional" class="tone-btn bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[10px] font-bold px-2.5 py-1 rounded-full transition">Profissional</button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[10px] text-zinc-400">Corrige vírgulas, acentos, erros de digitação e ajusta o tom.</span>
+                <button id="btn-improve-message-ai" type="button" class="shrink-0 bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white text-[11px] font-extrabold px-3 py-1.5 rounded-lg shadow transition">
+                  ✨ Melhorar Texto
+                </button>
+              </div>
+              <div id="ai-text-suggestion-box" class="hidden bg-zinc-950 border border-emerald-500/35 rounded-xl p-2.5 space-y-2">
+                <div class="text-[10px] font-bold text-emerald-400">Sugestão revisada:</div>
+                <p id="ai-text-suggestion-preview" class="text-xs text-zinc-100 leading-relaxed"></p>
+                <div class="flex gap-2">
+                  <button id="btn-apply-ai-text" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">✓ Usar este texto</button>
+                  <button id="btn-discard-ai-text" type="button" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Manter original</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="sec-plano" class="bg-zinc-900/90 border border-white/10 rounded-2xl p-5 space-y-4">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-pink-400">💳 Finalizar: Escolha o Plano e Pagamento</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label class="plan-card cursor-pointer border border-pink-500 bg-pink-500/10 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <input type="radio" name="plan" value="15_dias" checked class="hidden" />
+                <div class="font-bold text-white">Plano 15 Dias</div>
+                <div class="text-xs text-zinc-400">Ativo por 15 dias</div>
+              </div>
+              <div class="text-lg font-extrabold text-pink-400">R$ 9,90</div>
+            </label>
+            <label class="plan-card cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <input type="radio" name="plan" value="1_ano" class="hidden" />
+                <div class="font-bold text-white">Plano 1 Ano</div>
+                <div class="text-xs text-zinc-400">Ativo por 1 ano</div>
+              </div>
+              <div class="text-lg font-extrabold text-emerald-400">R$ 29,90</div>
+            </label>
+            <label class="plan-card cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <input type="radio" name="plan" value="vitalicio" class="hidden" />
+                <div class="font-bold text-white">Plano Vitalício</div>
+                <div class="text-xs text-zinc-400">Para sempre • <span class="text-emerald-300 font-semibold">10% OFF na renovação (R$ 44,91)</span></div>
+              </div>
+              <div class="text-lg font-extrabold text-amber-400">R$ 49,90</div>
+            </label>
+          </div>
+          <button id="btn-checkout" type="button" class="w-full bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white font-extrabold py-3.5 rounded-xl shadow-lg transition">
+            Gerar Homenagem e Pagar no Pix
+          </button>
+
+          <!-- RESGATE DE CÓDIGO DE BRINDE -->
+          <div class="pt-3 border-t border-white/10 space-y-2">
+            <label class="block text-xs text-zinc-400">🎁 Ganhou um código de brinde (15 dias grátis)?</label>
+            <div class="flex gap-2">
+              <input id="input-gift-code" type="text" placeholder="Ex: AMOR-XXXX-XXXX" class="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs uppercase text-amber-300 focus:outline-none focus:border-amber-400" />
+              <button id="btn-redeem-code" type="button" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-extrabold text-xs px-4 py-2.5 rounded-xl transition">
+                Resgatar Brinde
+              </button>
+            </div>
+            <p id="redeem-status" class="text-xs hidden"></p>
+          </div>
+        </div>
+
+        <!-- DICAS DE COMO UTILIZAR O QR CODE + PARCERIAS -->
+        <div class="bg-zinc-900/90 border border-pink-500/25 rounded-2xl p-5 space-y-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-pink-400">💡 Ideias para Surpreender</span>
+              <h2 class="text-base font-extrabold text-white mt-0.5">Como usar o QR Code do Código do Amor</h2>
+            </div>
+            <span class="text-2xl">🎁</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="font-bold text-pink-300">💐 Floriculturas & Buquês</div>
+              <p class="text-zinc-400 leading-relaxed">Imprima o QR Code no cartão do buquê para que a pessoa escaneie e abra a homenagem com fotos e música ao receber as flores.</p>
+            </div>
+            <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="font-bold text-amber-300">🥐 Cestas de Café da Manhã</div>
+              <p class="text-zinc-400 leading-relaxed">Cole o cartão com o QR Code dentro da tampa da cesta ou preso na caneca para emocionar logo ao acordar.</p>
+            </div>
+            <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="font-bold text-emerald-300">🛍️ Lojas de Presentes & Personalizados</div>
+              <p class="text-zinc-400 leading-relaxed">Transforme caixas de presente, porta-retratos, chocolates ou canecas em uma experiência digital interativa.</p>
+            </div>
+            <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-3.5 space-y-1">
+              <div class="font-bold text-sky-300">📱 Stories & Direct do Instagram</div>
+              <p class="text-zinc-400 leading-relaxed">Salve o cartão do QR Code na galeria e poste nos Stories ou envie direto no Instagram com a mensagem pronta abaixo.</p>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-pink-950/50 via-zinc-950 to-violet-950/50 border border-white/10 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="text-xs">
+              <div class="font-bold text-white">🤝 Tem Floricultura, Loja de Presentes ou Cestas?</div>
+              <div class="text-zinc-400 mt-0.5">Indique o Código do Amor aos seus clientes como diferencial exclusivo nos seus kits!</div>
+            </div>
+            <button id="btn-copy-partner-pitch" type="button" class="shrink-0 bg-pink-600/25 hover:bg-pink-600/40 border border-pink-500/40 text-pink-200 text-xs font-bold px-3.5 py-2 rounded-xl transition">
+              📋 Copiar Texto de Indicação
+            </button>
+          </div>
+        </div>
+
+        <!-- AVALIAÇÃO DA EXPERIÊNCIA DOS CLIENTES -->
+        <div class="bg-zinc-900/90 border border-white/10 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-pink-400">⭐ Avaliação dos Clientes</h2>
+              <p class="text-xs text-zinc-400 mt-0.5">Conte como foi criar e presentear com o Código do Amor</p>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-extrabold text-amber-300" id="reviews-avg">4,9 ★</div>
+              <div class="text-[11px] text-zinc-400" id="reviews-count">128 avaliações</div>
+            </div>
+          </div>
+
+          <form id="review-form" class="bg-zinc-950/90 border border-white/10 rounded-xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-zinc-300 font-semibold">Sua nota:</span>
+              <div id="star-selector" class="flex gap-1 text-2xl cursor-pointer select-none">
+                <button type="button" data-star="1" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+                <button type="button" data-star="2" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+                <button type="button" data-star="3" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+                <button type="button" data-star="4" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+                <button type="button" data-star="5" class="star-btn text-amber-400 transition hover:scale-110">★</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <input id="review-name" type="text" maxlength="35" placeholder="Seu nome (ex: Lucas M.)" class="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-pink-500" />
+              <select id="review-theme" class="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-pink-500">
+                <option value="Tema Netflix">Tema Netflix</option>
+                <option value="Tema Spotify">Tema Spotify</option>
+                <option value="Tema Stranger Things">Tema Stranger Things</option>
+                <option value="Tema Friends">Tema Friends</option>
+                <option value="Tema Bridgerton">Tema Bridgerton</option>
+                <option value="Tema Disney+">Tema Disney+</option>
+                <option value="Tema Barbie">Tema Barbie</option>
+                <option value="Tema Harry Potter">Tema Harry Potter</option>
+                <option value="Tema Star Wars">Tema Star Wars</option>
+                <option value="Tema Marvel">Tema Marvel / Vingadores</option>
+                <option value="Tema GTA VI">Tema GTA VI</option>
+                <option value="Tema The Last of Us">Tema The Last of Us</option>
+                <option value="Tema Polaroid">Tema Polaroid / Álbum</option>
+                <option value="Tema Céu Estrelado">Tema Céu Estrelado</option>
+                <option value="Tema São Paulo FC">Tema São Paulo FC</option>
+                <option value="Tema Corinthians">Tema Corinthians</option>
+                <option value="Tema Santos FC">Tema Santos FC</option>
+                <option value="Tema Palmeiras">Tema Palmeiras</option>
+                <option value="Tema Clássico">Tema Clássico</option>
+              </select>
+            </div>
+            <textarea id="review-comment" rows="2" maxlength="220" placeholder="Escreva aqui o que achou da experiência ou a reação de quem recebeu..." class="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-pink-500"></textarea>
+            <div class="flex items-center justify-between gap-2">
+              <span id="review-feedback" class="text-xs text-emerald-400 hidden"></span>
+              <button type="submit" class="ml-auto bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition">
+                Publicar Avaliação
+              </button>
+            </div>
+          </form>
+
+          <div id="reviews-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <div class="sticky top-24">
+          <div class="flex items-center justify-between max-w-sm mx-auto mb-2 px-1 gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-zinc-400 truncate">Prévia ao Vivo</span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button id="btn-preview-replay-intro" type="button" title="Ver contagem regressiva de 5s" class="inline-flex items-center gap-1 bg-pink-600/20 hover:bg-pink-600/35 border border-pink-500/40 text-pink-200 text-[11px] font-bold px-2.5 py-1 rounded-full transition">
+                <span>🎬 Abertura 5s</span>
+              </button>
+              <button id="btn-preview-fullscreen" type="button" class="inline-flex items-center gap-1 bg-zinc-900 hover:bg-pink-600/20 border border-white/15 hover:border-pink-500/50 text-zinc-200 hover:text-pink-200 text-[11px] font-bold px-2.5 py-1 rounded-full transition">
+                <span>⛶ Tela Cheia</span>
+              </button>
+            </div>
+          </div>
+          <div id="live-preview" class="w-full max-w-sm mx-auto rounded-3xl overflow-hidden shadow-2xl border border-white/15"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL DE TELA CHEIA (PRÉ-VISUALIZAÇÃO & PROJETO DO CLIENTE) -->
+  <div id="fullscreen-overlay" class="hidden fixed inset-0 z-[70] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-md flex items-center justify-between mb-3">
+      <span id="fullscreen-label" class="text-[11px] font-bold uppercase tracking-wider text-pink-400">Modo Tela Cheia</span>
+      <button id="btn-close-fullscreen" type="button" class="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold px-3.5 py-1.5 rounded-full transition">
+        <span>✕ Sair da Tela Cheia</span>
+      </button>
+    </div>
+    <div id="fullscreen-card-slot" class="w-full max-w-md mx-auto my-auto"></div>
+  </div>
+
+  <!-- MODAL PIX / ENTREGA -->
+  <div id="pix-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-zinc-900 border border-white/15 rounded-3xl max-w-md w-full p-6 relative text-center space-y-3.5 my-auto">
+      <button id="close-modal" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xl">&times;</button>
+      <div id="modal-badge" class="inline-block bg-emerald-500/20 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full">Mercado Pago • Liberação Automática</div>
+      <h3 class="text-xl font-extrabold" id="modal-title">Pague o Pix para Liberar</h3>
+      <div id="pix-loading" class="py-8 text-sm text-zinc-400">Gerando QR Code Pix...</div>
+      <div id="pix-error" class="hidden bg-red-950/60 border border-red-500/40 text-red-200 text-xs p-3 rounded-xl"></div>
+      <div id="pix-content" class="hidden space-y-4">
+        <img id="pix-qr-img" src="" alt="QR Code Pix" class="w-48 h-48 mx-auto rounded-xl bg-white p-2" />
+        <div class="text-left">
+          <label class="text-xs text-zinc-400">Pix Copia e Cola:</label>
+          <div class="flex gap-2 mt-1">
+            <input id="pix-copy-input" type="text" readonly class="w-full bg-zinc-950 border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-300" />
+            <button id="btn-copy-pix" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 rounded-lg">Copiar</button>
+          </div>
+        </div>
+        <div class="text-xs text-amber-300 animate-pulse">Aguardando confirmação automática do Pix...</div>
+        <button id="btn-verify-pix-now" type="button" class="w-full bg-pink-600 hover:bg-pink-500 text-white text-xs font-extrabold py-2.5 rounded-xl shadow transition">
+          ✓ Já paguei o Pix — Verificar e Liberar Agora
+        </button>
+      </div>
+      <div id="pix-success" class="hidden space-y-3">
+        <div class="text-3xl">🎉</div>
+        <h4 id="success-heading" class="text-lg font-extrabold text-emerald-400">Pagamento Aprovado!</h4>
+        <div id="delivery-validity-box" class="bg-emerald-950/60 border border-emerald-500/35 rounded-xl px-3 py-2 text-xs font-bold text-emerald-200"></div>
+        <p class="text-xs text-zinc-300">Salvo automaticamente neste aparelho. Baixe o QR Code ou envie direto no <strong>WhatsApp</strong> ou <strong>Instagram</strong>:</p>
+        <div id="final-qrcode" class="flex justify-center bg-white p-3 rounded-xl w-fit mx-auto shadow-lg"></div>
+        <input id="final-link-input" type="text" readonly class="w-full bg-zinc-950 border border-white/10 rounded-lg px-3 py-2 text-xs text-pink-300" />
+
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-download-qr-png" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition">
+            ⬇ Baixar QR Code
+          </button>
+          <button id="btn-download-qr-card" type="button" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition">
+            🎴 Cartão para Imprimir
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <a id="btn-whatsapp-share" href="#" target="_blank" rel="noopener noreferrer" class="bg-green-600 hover:bg-green-500 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-1">
+            <span>💬 Enviar WhatsApp</span>
+          </a>
+          <button id="btn-instagram-share" type="button" class="bg-gradient-to-r from-fuchsia-600 via-pink-600 to-amber-500 hover:opacity-95 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-1">
+            <span>📸 Enviar Instagram</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-copy-link" type="button" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2.5 rounded-xl">Copiar Link</button>
+          <a id="btn-open-gift" href="#" target="_blank" class="bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center">Abrir Presente</a>
+        </div>
+
+        <p id="ig-share-feedback" class="hidden text-[11px] text-amber-300 bg-amber-950/50 border border-amber-500/30 rounded-xl p-2"></p>
+
+        <div class="bg-zinc-950/90 border border-white/10 rounded-xl p-2.5 text-left text-[11px] text-zinc-400 space-y-1">
+          <div class="font-bold text-pink-300">💡 Dica de ouro para presentear:</div>
+          <p>Baixe o <strong>Cartão para Imprimir</strong> e coloque junto em <strong>flores, cestas de café da manhã, caixas de presente</strong> ou envie no Direct/WhatsApp!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PARA BAIXAR QR CODE / COMPARTILHAR DE HOMENAGEM SALVA -->
+  <div id="saved-qr-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-white/15 rounded-3xl max-w-sm w-full p-6 relative text-center space-y-4">
+      <button id="close-saved-qr-modal" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xl">&times;</button>
+      <div class="text-xs font-bold uppercase tracking-wider text-emerald-400">Homenagem Salva</div>
+      <h3 id="saved-qr-title" class="text-lg font-extrabold text-white">Rafael & Juliana</h3>
+      <div id="saved-qr-box" class="flex justify-center bg-white p-3 rounded-xl w-fit mx-auto"></div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btn-saved-dl-png" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-xl">⬇ Baixar QR Code</button>
+        <button id="btn-saved-dl-card" type="button" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold py-2.5 rounded-xl">🎴 Cartão Imprimir</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <a id="btn-saved-wa" href="#" target="_blank" rel="noopener noreferrer" class="bg-green-600 hover:bg-green-500 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center">💬 WhatsApp</a>
+        <button id="btn-saved-ig" type="button" class="bg-gradient-to-r from-fuchsia-600 via-pink-600 to-amber-500 text-white text-xs font-bold py-2.5 rounded-xl">📸 Instagram</button>
+      </div>
+      <p id="saved-ig-feedback" class="hidden text-[11px] text-amber-300"></p>
+    </div>
+  </div>
+
+  <script>
+    const MAX_PHOTOS = 4;
+    const DEFAULT_PHOTO = 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80';
+    const DEMO_PHOTOS = [
+      'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80', // Casal de mãos dadas
+      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80', // Casamento
+      'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=800&q=80', // Sentados ao pôr do sol
+      'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80'  // Casal sorrindo com filho brincando
+    ];
+    const DEMO_SONGS = [
+      { id: 'csPSV7f8sDg', label: 'Marcos & Belutti – Sonho De Todo Casal' },
+      { id: '7nbgYS6Wi8Y', label: 'Pelé MilFlows – Vem Cá' },
+      { id: 'z4wXqDxdexo', label: 'Pollo – Vagalumes (part. Ivo Mozart)' },
+      { id: '5cWF6Laoewk', label: 'Zé Neto & Cristiano – Plano C' },
+      { id: '2Vv-BfVoq4g', label: 'Ed Sheeran – Perfect' },
+      { id: '450p7goxZqg', label: 'John Legend – All of Me' }
+    ];
+    const DRAFT_STORAGE_KEY = 'codigo_do_amor_draft_v2';
+    const SAVED_GIFTS_KEY = 'codigo_do_amor_saved_gifts_v1';
+
+    let currentTheme = 'netflix';
+    let currentEffect = 'coracoes';
+    let pollInterval = null;
+    let uploadedPhotos = [];
+    let activeSlideIndex = 0;
+    let currentAuditionSong = null;
+    let currentDeliveredData = null;
+    let currentModalSavedGift = null;
+    let isPreviewMuted = false;
+
+    const FALLING_EFFECTS = {
+      coracoes: { chars: ['❤️', '💖', '💕', '💗'], count: 14 },
+      flores: { chars: ['🌸', '🌹', '🌺', '🌷'], count: 14 },
+      estrelas: { chars: ['✨', '⭐', '🌟', '💫'], count: 16 },
+      neve: { chars: ['❄️', '❅', '❆', '🤍'], count: 16 },
+      borboletas: { chars: ['🦋', '✨', '🌸'], count: 12 },
+      notas: { chars: ['🎵', '🎶', '💜', '🎼'], count: 13 },
+      fogos: { chars: ['🎆', '🎇', '✨'], count: 10 },
+      confetes: { chars: ['🎊', '🎉', '✨', '🎈'], count: 12 },
+      luzes: { chars: ['💡', '✨', '🌟'], count: 11, softBlink: true },
+      nenhum: { chars: [], count: 0 }
+    };
+
+    const themesConfig = {
+      netflix: {
+        bg: 'bg-gradient-to-b from-red-950 via-zinc-950 to-black border-2 border-red-600/80 shadow-[0_0_30px_rgba(220,38,38,0.3)]',
+        pattern: 'repeating-linear-gradient(45deg, rgba(229,9,20,0.09) 0px, rgba(229,9,20,0.09) 10px, transparent 10px, transparent 22px)',
+        badge: 'N SÉRIE ORIGINAL',
+        badgeColor: 'text-red-500',
+        titleClass: 'font-netflix text-4xl text-white tracking-wider',
+        frameClass: 'relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-black p-1.5 border-2 border-red-600 shadow-[0_0_22px_rgba(229,9,20,0.45)]',
+        frameBadge: 'TOP 10 • ROMANCE ORIGINAL',
+        stampSVG: `<svg viewBox="0 0 124 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="120" height="40" rx="6" fill="#09090b" stroke="#e50914" stroke-width="2"/><text x="16" y="30" fill="#e50914" font-family="Bebas Neue, sans-serif" font-size="26" font-weight="bold">N</text><text x="36" y="21" fill="#ffffff" font-family="Inter, sans-serif" font-size="9" font-weight="800" letter-spacing="1.5">NETFLIX</text><text x="36" y="32" fill="#f87171" font-family="Inter, sans-serif" font-size="7.5" font-weight="700">NOSSA SÉRIE</text></svg>`
+      },
+      spotify: {
+        bg: 'bg-gradient-to-b from-emerald-950 via-zinc-950 to-black border-2 border-emerald-400/70 shadow-[0_0_30px_rgba(16,185,129,0.28)]',
+        pattern: 'radial-gradient(circle at 20% 20%, rgba(29,185,84,0.18) 0%, transparent 45%), repeating-linear-gradient(-45deg, rgba(29,185,84,0.07) 0px, rgba(29,185,84,0.07) 8px, transparent 8px, transparent 18px)',
+        badge: 'PLAYLIST EXCLUSIVA',
+        badgeColor: 'text-emerald-400',
+        titleClass: 'font-extrabold text-2xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-zinc-900 p-2 border-2 border-emerald-400 shadow-[0_0_22px_rgba(29,185,84,0.4)]',
+        frameBadge: '● SPOTIFY • NOSSA TRILHA',
+        stampSVG: `<svg viewBox="0 0 132 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="128" height="40" rx="20" fill="#09090b" stroke="#1db954" stroke-width="2"/><circle cx="22" cy="22" r="12" fill="#1db954"/><path d="M16 19c4-1.5 9-1.2 12.5.8M17 23c3.2-1.1 7.2-.9 10 .6M18 26.5c2.4-.8 5.4-.6 7.5.5" stroke="#09090b" stroke-width="2" stroke-linecap="round" fill="none"/><text x="40" y="21" fill="#ffffff" font-family="Inter, sans-serif" font-size="9.5" font-weight="800">Spotify</text><text x="40" y="31" fill="#4ade80" font-family="Inter, sans-serif" font-size="7" font-weight="700">MIX DO CASAL</text></svg>`
+      },
+      stranger: {
+        bg: 'bg-gradient-to-b from-red-950 via-slate-950 to-black border-2 border-red-500/90 shadow-[0_0_35px_rgba(239,68,68,0.4)]',
+        pattern: 'radial-gradient(circle at 80% 15%, rgba(239,68,68,0.22) 0%, transparent 45%), repeating-linear-gradient(0deg, rgba(239,68,68,0.07) 0px, rgba(239,68,68,0.07) 2px, transparent 2px, transparent 14px)',
+        badge: 'MUNDO INVERTIDO • HAWKINS 85',
+        badgeColor: 'text-red-400',
+        titleClass: 'font-cinzel text-2xl text-red-100 drop-shadow-[0_0_10px_rgba(239,68,68,0.95)]',
+        frameClass: 'relative aspect-[4/5] w-full rounded-lg overflow-hidden bg-black p-1.5 border-2 border-red-500 shadow-[0_0_25px_rgba(239,68,68,0.7)]',
+        frameBadge: '⚡ STRANGER THINGS • 011',
+        stampSVG: `<svg viewBox="0 0 135 46" class="h-10 w-auto drop-shadow-[0_0_8px_rgba(239,68,68,0.9)]"><rect x="2" y="2" width="131" height="42" rx="6" fill="#09090b" stroke="#ef4444" stroke-width="2"/><line x1="12" y1="8" x2="123" y2="8" stroke="#ef4444" stroke-width="1.5"/><text x="67" y="22" text-anchor="middle" fill="#fca5a5" font-family="Cinzel, serif" font-size="11" font-weight="800" letter-spacing="1.5">STRANGER</text><text x="67" y="35" text-anchor="middle" fill="#ef4444" font-family="Cinzel, serif" font-size="11" font-weight="800" letter-spacing="2">THINGS</text><line x1="22" y1="39" x2="113" y2="39" stroke="#ef4444" stroke-width="1.5"/></svg>`
+      },
+      friends: {
+        bg: 'bg-gradient-to-b from-purple-950 via-indigo-950 to-zinc-950 border-2 border-amber-400/80 shadow-[0_0_30px_rgba(251,191,36,0.3)]',
+        pattern: 'radial-gradient(circle at 15% 85%, rgba(251,191,36,0.16) 0%, transparent 45%), repeating-linear-gradient(45deg, rgba(168,85,247,0.08) 0px, rgba(168,85,247,0.08) 10px, transparent 10px, transparent 22px)',
+        badge: 'CENTRAL PERK • I’LL BE THERE FOR YOU',
+        badgeColor: 'text-amber-300',
+        titleClass: 'font-extrabold text-2xl text-white tracking-wide',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-amber-950/40 p-2.5 border-4 border-double border-amber-400 shadow-[0_0_22px_rgba(251,191,36,0.5)]',
+        frameBadge: '☕ CENTRAL PERK • NYC',
+        stampSVG: `<svg viewBox="0 0 135 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="131" height="40" rx="8" fill="#1e1b4b" stroke="#fbbf24" stroke-width="2"/><text x="67" y="21" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="10.5" font-weight="800" letter-spacing="2">F•R•I•E•N•D•S</text><text x="67" y="33" text-anchor="middle" fill="#fde047" font-family="Inter, sans-serif" font-size="7" font-weight="700">CENTRAL PERK • LOBSTERS</text></svg>`
+      },
+      bridgerton: {
+        bg: 'bg-gradient-to-b from-amber-900/90 via-stone-900 to-zinc-950 border-2 border-amber-300/80 shadow-[0_0_30px_rgba(252,211,77,0.28)]',
+        pattern: 'radial-gradient(circle at 50% 10%, rgba(253,224,71,0.18) 0%, transparent 50%), repeating-linear-gradient(135deg, rgba(252,211,77,0.07) 0px, rgba(252,211,77,0.07) 6px, transparent 6px, transparent 18px)',
+        badge: 'CRÔNICAS DA SOCIEDADE',
+        badgeColor: 'text-amber-300',
+        titleClass: 'font-serif-romance italic text-3xl text-amber-100',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-amber-950/30 p-2.5 border-4 border-double border-amber-300 shadow-[0_0_24px_rgba(252,211,77,0.4)]',
+        frameBadge: '♛ DIAMANTE DA TEMPORADA',
+        stampSVG: `<svg viewBox="0 0 135 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="131" height="40" rx="10" fill="#292524" stroke="#fcd34d" stroke-width="2"/><path d="M22 28 L18 17 L24 22 L28 14 L32 22 L38 17 L34 28 Z" fill="#fcd34d"/><text x="82" y="21" text-anchor="middle" fill="#fef3c7" font-family="Playfair Display, serif" font-size="10.5" font-style="italic" font-weight="700">Bridgerton</text><text x="82" y="32" text-anchor="middle" fill="#fcd34d" font-family="Inter, sans-serif" font-size="6.5" font-weight="700">LADY WHISTLEDOWN</text></svg>`
+      },
+      disney: {
+        bg: 'bg-gradient-to-b from-sky-900 via-blue-950 to-slate-950 border-2 border-sky-400/80 shadow-[0_0_30px_rgba(56,189,248,0.32)]',
+        pattern: 'radial-gradient(circle at 80% 20%, rgba(125,211,252,0.22) 0%, transparent 45%), radial-gradient(circle at 20% 80%, rgba(56,189,248,0.16) 0%, transparent 45%)',
+        badge: 'AVENTURA A DOIS • DISNEY+',
+        badgeColor: 'text-sky-300',
+        titleClass: 'font-extrabold text-2xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-3xl overflow-hidden bg-sky-950/50 p-2 border-2 border-sky-300 shadow-[0_0_24px_rgba(125,211,252,0.5)]',
+        frameBadge: '🎈 UP • ALTAS AVENTURAS',
+        stampSVG: `<svg viewBox="0 0 132 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="128" height="40" rx="12" fill="#0c4a6e" stroke="#7dd3fc" stroke-width="2"/><path d="M16 14 Q45 2 74 14" stroke="#bae6fd" stroke-width="1.8" fill="none"/><text x="66" y="27" text-anchor="middle" fill="#ffffff" font-family="Playfair Display, serif" font-size="14" font-style="italic" font-weight="700">Disney+</text><text x="66" y="36" text-anchor="middle" fill="#7dd3fc" font-family="Inter, sans-serif" font-size="6.5" font-weight="700">NOSSO CONTO DE FADAS</text></svg>`
+      },
+      barbie: {
+        bg: 'bg-gradient-to-b from-pink-500 via-fuchsia-700 to-rose-950 border-2 border-pink-200/90 shadow-[0_0_35px_rgba(244,114,182,0.5)]',
+        pattern: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.13) 0px, rgba(255,255,255,0.13) 10px, transparent 10px, transparent 22px)',
+        badge: '💖 DREAMHOUSE EDITION',
+        badgeColor: 'text-pink-100',
+        titleClass: 'font-pacifico text-3xl text-white drop-shadow',
+        frameClass: 'relative aspect-[4/5] w-full rounded-3xl overflow-hidden bg-pink-200/25 p-2.5 border-4 border-pink-200 shadow-[0_0_25px_rgba(251,207,232,0.75)]',
+        frameBadge: '💖 BARBIE & KEN WORLD',
+        stampSVG: `<svg viewBox="0 0 130 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.7)]"><rect x="2" y="2" width="126" height="40" rx="20" fill="#db2777" stroke="#fbcfe8" stroke-width="2.5"/><text x="65" y="26" text-anchor="middle" fill="#ffffff" font-family="Pacifico, cursive" font-size="16">Barbie</text><text x="65" y="36" text-anchor="middle" fill="#fce7f3" font-family="Inter, sans-serif" font-size="6.5" font-weight="800">DREAM COUPLE</text></svg>`
+      },
+      harrypotter: {
+        bg: 'bg-gradient-to-b from-amber-950 via-stone-950 to-black border-2 border-amber-500/80 shadow-[0_0_30px_rgba(245,158,11,0.3)]',
+        pattern: 'radial-gradient(circle at 20% 25%, rgba(245,158,11,0.18) 0%, transparent 45%), repeating-linear-gradient(135deg, rgba(180,83,9,0.1) 0px, rgba(180,83,9,0.1) 10px, transparent 10px, transparent 22px)',
+        badge: '⚡ EXPRESSO DE HOGWARTS • SEMPRE',
+        badgeColor: 'text-amber-400',
+        titleClass: 'font-cinzel text-2xl text-amber-200',
+        frameClass: 'relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-stone-950 p-2 border-4 border-double border-amber-500 shadow-[0_0_24px_rgba(245,158,11,0.45)]',
+        frameBadge: '⚡ HOGWARTS • ALWAYS',
+        stampSVG: `<svg viewBox="0 0 135 46" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="131" height="42" rx="8" fill="#1c1917" stroke="#f59e0b" stroke-width="2"/><polygon points="24,10 17,24 23,24 19,36 31,21 24,21" fill="#fbbf24"/><text x="80" y="22" text-anchor="middle" fill="#fde68a" font-family="Cinzel, serif" font-size="9.5" font-weight="800">HOGWARTS</text><text x="80" y="34" text-anchor="middle" fill="#f59e0b" font-family="Inter, sans-serif" font-size="7" font-weight="700">AMOR MÁGICO • 9¾</text></svg>`
+      },
+      starwars: {
+        bg: 'bg-gradient-to-b from-zinc-950 via-slate-950 to-black border-2 border-yellow-400/80 shadow-[0_0_30px_rgba(250,204,21,0.28)]',
+        pattern: 'radial-gradient(white 1px, transparent 1px), radial-gradient(rgba(250,204,21,0.5) 1px, transparent 1px)',
+        badge: '✨ NUMA GALÁXIA MUITO DISTANTE',
+        badgeColor: 'text-yellow-400',
+        titleClass: 'font-orbitron text-xl text-yellow-300',
+        frameClass: 'relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-black p-1.5 border-2 border-yellow-400 shadow-[0_0_24px_rgba(250,204,21,0.5)]',
+        frameBadge: '⚔️ STAR WARS • FORÇA',
+        stampSVG: `<svg viewBox="0 0 135 46" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="131" height="42" rx="6" fill="#09090b" stroke="#facc15" stroke-width="2"/><line x1="12" y1="36" x2="42" y2="10" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="36" x2="12" y2="10" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/><text x="86" y="21" text-anchor="middle" fill="#facc15" font-family="Orbitron, sans-serif" font-size="9.5" font-weight="800">STAR WARS</text><text x="86" y="33" text-anchor="middle" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="6.8" font-weight="700">EU TE AMO • EU SEI</text></svg>`
+      },
+      marvel: {
+        bg: 'bg-gradient-to-b from-red-900 via-zinc-900 to-slate-950 border-2 border-red-500/85 shadow-[0_0_30px_rgba(239,68,68,0.35)]',
+        pattern: 'repeating-linear-gradient(-45deg, rgba(239,68,68,0.1) 0px, rgba(239,68,68,0.1) 12px, transparent 12px, transparent 24px)',
+        badge: '🛡️ UNIVERSO MARVEL • MIL MILHÕES',
+        badgeColor: 'text-red-400',
+        titleClass: 'font-netflix text-4xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-zinc-950 p-1.5 border-2 border-red-500 shadow-[0_0_22px_rgba(239,68,68,0.5)]',
+        frameBadge: '🛡️ AVENGERS • LOVE YOU 3000',
+        stampSVG: `<svg viewBox="0 0 135 46" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="131" height="42" rx="6" fill="#991b1b" stroke="#ffffff" stroke-width="2"/><circle cx="24" cy="23" r="13" fill="#dc2626" stroke="#ffffff" stroke-width="2.5"/><circle cx="24" cy="23" r="7" fill="#1d4ed8"/><polygon points="24,18 25.5,22 29.5,22 26.2,24.3 27.4,28 24,25.7 20.6,28 21.8,24.3 18.5,22 22.5,22" fill="#ffffff"/><text x="84" y="23" text-anchor="middle" fill="#ffffff" font-family="Bebas Neue, sans-serif" font-size="16" letter-spacing="1.5">MARVEL</text><text x="84" y="34" text-anchor="middle" fill="#fecaca" font-family="Inter, sans-serif" font-size="6.8" font-weight="800">LOVE YOU 3000</text></svg>`
+      },
+      gta6: {
+        bg: 'bg-gradient-to-b from-fuchsia-900 via-purple-950 to-zinc-950 border-2 border-cyan-400/90 shadow-[0_0_35px_rgba(217,70,239,0.45)]',
+        pattern: 'linear-gradient(180deg, rgba(244,114,182,0.18) 0%, rgba(34,211,238,0.12) 50%, transparent 100%), repeating-linear-gradient(0deg, rgba(34,211,238,0.08) 0px, rgba(34,211,238,0.08) 2px, transparent 2px, transparent 10px)',
+        badge: 'GRAND THEFT AUTO VI • VICE CITY',
+        badgeColor: 'text-amber-300',
+        titleClass: 'font-gta text-lg text-pink-300 leading-relaxed drop-shadow-[0_2px_8px_rgba(236,72,153,0.8)]',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-gradient-to-tr from-fuchsia-600 via-amber-400 to-cyan-400 p-1.5 shadow-[0_0_26px_rgba(34,211,238,0.6)]',
+        frameBadge: '🌴 VICE CITY • MISSION PASSED',
+        stampSVG: `<svg viewBox="0 0 160 56" class="h-12 w-auto drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]"><defs><linearGradient id="vcSunset" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f43f5e"/><stop offset="55%" stop-color="#fb923c"/><stop offset="100%" stop-color="#fde047"/></linearGradient></defs><rect x="2" y="2" width="156" height="52" rx="8" fill="#18092b" stroke="#22d3ee" stroke-width="2"/><circle cx="30" cy="28" r="18" fill="url(#vcSunset)"/><rect x="17" y="27" width="5" height="14" fill="#09090b"/><rect x="24" y="22" width="6" height="19" fill="#09090b"/><rect x="32" y="25" width="5" height="16" fill="#09090b"/><path d="M39 40 L41 24 M41 24 Q35 21 33 25 M41 24 Q46 20 48 25 M41 24 Q37 18 34 20 M41 24 Q45 18 47 20" stroke="#09090b" stroke-width="1.8" fill="none"/><text x="102" y="24" text-anchor="middle" fill="#ffffff" font-family="Bebas Neue, sans-serif" font-size="18" letter-spacing="1.5">GTA VI</text><text x="102" y="39" text-anchor="middle" fill="#f472b6" font-family="Pacifico, cursive" font-size="11.5">Vice City</text></svg>`
+      },
+      lastofus: {
+        bg: 'bg-gradient-to-b from-stone-900 via-emerald-950 to-zinc-950 border-2 border-lime-500/70 shadow-[0_0_30px_rgba(132,204,22,0.25)]',
+        pattern: 'radial-gradient(circle at 80% 80%, rgba(132,204,22,0.16) 0%, transparent 45%)',
+        badge: '🌿 PROCURE A LUZ • THE LAST OF US',
+        badgeColor: 'text-lime-400',
+        titleClass: 'font-netflix text-3xl text-stone-100 tracking-wider',
+        frameClass: 'relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-stone-950 p-2 border-2 border-lime-500/80 shadow-[0_0_20px_rgba(132,204,22,0.4)]',
+        frameBadge: '🔦 VAGALUMES • ENDURE & SURVIVE',
+        stampSVG: `<svg viewBox="0 0 135 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="131" height="40" rx="6" fill="#1c1917" stroke="#84cc16" stroke-width="2"/><path d="M22 32 C16 24, 18 14, 24 11 C30 14, 32 24, 26 32 Z" fill="#84cc16"/><text x="82" y="21" text-anchor="middle" fill="#f5f5f4" font-family="Bebas Neue, sans-serif" font-size="13" letter-spacing="1">THE LAST OF US</text><text x="82" y="33" text-anchor="middle" fill="#a3e635" font-family="Inter, sans-serif" font-size="6.8" font-weight="700">LOOK FOR THE LIGHT</text></svg>`
+      },
+      polaroid: {
+        bg: 'bg-gradient-to-b from-rose-950 via-stone-900 to-zinc-950 border-2 border-rose-300/70 shadow-[0_0_30px_rgba(253,164,175,0.28)]',
+        pattern: 'radial-gradient(circle at 15% 15%, rgba(253,164,175,0.16) 0%, transparent 45%)',
+        badge: '📸 ÁLBUM DE MEMÓRIAS',
+        badgeColor: 'text-rose-300',
+        titleClass: 'font-pacifico text-2xl text-rose-100',
+        frameClass: 'relative aspect-[4/5] w-full rounded-lg overflow-hidden bg-white p-3 pb-10 shadow-2xl -rotate-1',
+        frameBadge: 'Nossa Lembrança ♥',
+        stampSVG: `<svg viewBox="0 0 125 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.85)]"><rect x="2" y="2" width="121" height="40" rx="8" fill="#fff1f2" stroke="#fda4af" stroke-width="2"/><rect x="12" y="11" width="22" height="18" rx="3" fill="#18181b"/><circle cx="23" cy="20" r="5" fill="#f43f5e"/><text x="78" y="22" text-anchor="middle" fill="#881337" font-family="Pacifico, cursive" font-size="12">Polaroid</text><text x="78" y="33" text-anchor="middle" fill="#be123c" font-family="Inter, sans-serif" font-size="6.5" font-weight="800">MOMENTO ETERNO</text></svg>`
+      },
+      ceu: {
+        bg: 'bg-gradient-to-b from-indigo-950 via-slate-950 to-black border-2 border-indigo-400/80 shadow-[0_0_35px_rgba(129,140,248,0.35)]',
+        pattern: 'radial-gradient(white 1px, transparent 1px), radial-gradient(#a5b4fc 1px, transparent 1px)',
+        badge: '🌌 SOB O MESMO CÉU ESTRELADO',
+        badgeColor: 'text-indigo-300',
+        titleClass: 'font-serif-romance italic text-3xl text-indigo-100',
+        frameClass: 'relative aspect-[4/5] w-full rounded-3xl overflow-hidden bg-indigo-950/60 p-2 border-2 border-indigo-300 shadow-[0_0_25px_rgba(165,180,252,0.5)]',
+        frameBadge: '✨ MAPA DAS ESTRELAS',
+        stampSVG: `<svg viewBox="0 0 135 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="131" height="40" rx="12" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/><path d="M25 12 A10 10 0 1 0 33 28 A8 8 0 1 1 25 12 Z" fill="#fde047"/><text x="82" y="21" text-anchor="middle" fill="#e0e7ff" font-family="Playfair Display, serif" font-size="10.5" font-style="italic" font-weight="700">Nosso Céu</text><text x="82" y="33" text-anchor="middle" fill="#a5b4fc" font-family="Inter, sans-serif" font-size="6.5" font-weight="700">ESCRITO NAS ESTRELAS</text></svg>`
+      },
+      classico: {
+        bg: 'bg-gradient-to-b from-pink-950 via-zinc-950 to-black border-2 border-pink-500/80 shadow-[0_0_30px_rgba(236,72,153,0.3)]',
+        pattern: 'radial-gradient(circle at 50% 0%, rgba(236,72,153,0.2) 0%, transparent 55%)',
+        badge: 'NOSSA HISTÓRIA',
+        badgeColor: 'text-pink-400',
+        titleClass: 'font-extrabold text-2xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-zinc-900 p-1.5 border-2 border-pink-500 shadow-[0_0_22px_rgba(236,72,153,0.4)]',
+        frameBadge: '💜 CÓDIGO DO AMOR',
+        stampSVG: `<svg viewBox="0 0 130 44" class="h-10 w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="126" height="40" rx="20" fill="#18181b" stroke="#ec4899" stroke-width="2"/><path d="M23 31 C14 23, 14 15, 20 15 C22 15, 23 17, 23 17 C23 17, 24 15, 26 15 C32 15, 32 23, 23 31 Z" fill="#ec4899"/><text x="78" y="21" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="9.5" font-weight="800">Nosso Amor</text><text x="78" y="32" text-anchor="middle" fill="#f472b6" font-family="Inter, sans-serif" font-size="6.8" font-weight="700">PARA SEMPRE JUNTOS</text></svg>`
+      },
+      saopaulo: {
+        bg: 'bg-gradient-to-b from-red-900 via-zinc-950 to-black border-2 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.35)]',
+        pattern: 'repeating-linear-gradient(135deg, rgba(220,38,38,0.16) 0px, rgba(220,38,38,0.16) 12px, rgba(255,255,255,0.07) 12px, rgba(255,255,255,0.07) 18px, rgba(0,0,0,0.2) 18px, rgba(0,0,0,0.2) 30px)',
+        badge: '🔴⚪⚫ SOBERANO • AMOR TRICOLOR',
+        badgeColor: 'text-red-400',
+        titleClass: 'font-extrabold text-2xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-black p-1.5 border-4 border-red-600 outline outline-2 outline-white shadow-[0_0_24px_rgba(220,38,38,0.55)]',
+        frameBadge: '🔴⚪⚫ TRICOLOR • TRI MUNDIAL',
+        stampSVG: `<svg viewBox="0 0 156 56" class="h-12 w-auto drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="152" height="52" rx="8" fill="#09090b" stroke="#dc2626" stroke-width="2"/><polygon points="14,13 42,13 42,24 28,44 14,24" fill="#ffffff" stroke="#dc2626" stroke-width="1.5"/><rect x="16" y="15" width="24" height="7" fill="#dc2626"/><polygon points="17,24 27,24 27,40" fill="#dc2626"/><polygon points="29,24 39,24 29,40" fill="#09090b"/><text x="28" y="21" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="6.5" font-weight="900">SPFC</text><text x="98" y="20" text-anchor="middle" fill="#facc15" font-size="9">★★★</text><text x="98" y="32" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="9.5" font-weight="900">SÃO PAULO FC</text><text x="98" y="43" text-anchor="middle" fill="#f87171" font-family="Inter, sans-serif" font-size="7" font-weight="700">TRI MUNDIAL • 1930</text></svg>`
+      },
+      corinthians: {
+        bg: 'bg-gradient-to-b from-zinc-900 via-neutral-950 to-black border-2 border-white/85 shadow-[0_0_30px_rgba(255,255,255,0.25)]',
+        pattern: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.07) 0px, rgba(255,255,255,0.07) 14px, rgba(0,0,0,0.25) 14px, rgba(0,0,0,0.25) 28px)',
+        badge: '⚫⚪ BANDO DE LOUCOS • FIEL TORCEDOR',
+        badgeColor: 'text-zinc-200',
+        titleClass: 'font-extrabold text-2xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-black p-1.5 border-4 border-white outline outline-2 outline-zinc-700 shadow-[0_0_24px_rgba(255,255,255,0.4)]',
+        frameBadge: '⚫⚪ TIMÃO • BI MUNDIAL FIFA',
+        stampSVG: `<svg viewBox="0 0 166 56" class="h-12 w-auto drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="162" height="52" rx="8" fill="#09090b" stroke="#ffffff" stroke-width="2"/><line x1="14" y1="13" x2="40" y2="41" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/><line x1="40" y1="13" x2="14" y2="41" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/><circle cx="27" cy="27" r="12" fill="#09090b" stroke="#ffffff" stroke-width="2.5"/><text x="27" y="30" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="8" font-weight="900">CP</text><path d="M51 16 H61 L59 26 C59 29 53 29 53 26 Z M56 28 V35 M52 35 H60" stroke="#facc15" stroke-width="2" fill="none"/><circle cx="56" cy="14" r="3" fill="#facc15"/><text x="112" y="24" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="9.5" font-weight="900">CORINTHIANS</text><text x="112" y="35" text-anchor="middle" fill="#facc15" font-family="Inter, sans-serif" font-size="7" font-weight="800">🏆 BI MUNDIAL • 1910</text><text x="112" y="45" text-anchor="middle" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="6.5" font-weight="700">VAI CORINTHIANS</text></svg>`
+      },
+      santos: {
+        bg: 'bg-gradient-to-b from-slate-800 via-zinc-950 to-black border-2 border-amber-300/85 shadow-[0_0_30px_rgba(252,211,77,0.28)]',
+        pattern: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 14px, rgba(0,0,0,0.2) 14px, rgba(0,0,0,0.2) 28px)',
+        badge: '⚪⚫ ALVINEGRO PRAIANO • MENINOS DA VILA',
+        badgeColor: 'text-amber-300',
+        titleClass: 'font-extrabold text-2xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-zinc-950 p-1.5 border-4 border-white outline outline-2 outline-amber-300 shadow-[0_0_24px_rgba(252,211,77,0.4)]',
+        frameBadge: '👑 SANTOS FC • BI MUNDIAL',
+        stampSVG: `<svg viewBox="0 0 156 56" class="h-12 w-auto drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="152" height="52" rx="8" fill="#09090b" stroke="#fcd34d" stroke-width="2"/><polygon points="15,14 41,14 41,28 28,43 15,28" fill="#ffffff" stroke="#a1a1aa" stroke-width="1.5"/><line x1="16" y1="36" x2="40" y2="16" stroke="#09090b" stroke-width="4"/><text x="28" y="25" text-anchor="middle" fill="#09090b" font-family="Inter, sans-serif" font-size="7" font-weight="900">SFC</text><text x="98" y="20" text-anchor="middle" fill="#facc15" font-size="10">👑 ★★</text><text x="98" y="32" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="10" font-weight="900">SANTOS FC</text><text x="98" y="43" text-anchor="middle" fill="#fde047" font-family="Inter, sans-serif" font-size="7" font-weight="700">BI MUNDIAL • 1912</text></svg>`
+      },
+      palmeiras: {
+        bg: 'bg-gradient-to-b from-emerald-900 via-green-950 to-black border-2 border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.35)]',
+        pattern: 'repeating-linear-gradient(45deg, rgba(16,185,129,0.14) 0px, rgba(16,185,129,0.14) 12px, rgba(255,255,255,0.06) 12px, rgba(255,255,255,0.06) 24px)',
+        badge: '🟢⚪ MAIOR CAMPEÃO DO BRASIL • AVANTI',
+        badgeColor: 'text-emerald-300',
+        titleClass: 'font-extrabold text-2xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-green-950 p-1.5 border-4 border-emerald-400 outline outline-2 outline-white shadow-[0_0_24px_rgba(52,211,153,0.55)]',
+        frameBadge: '🟢⚪ VERDÃO • AVANTI PALESTRA',
+        stampSVG: `<svg viewBox="0 0 156 56" class="h-12 w-auto drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="152" height="52" rx="8" fill="#052e16" stroke="#34d399" stroke-width="2"/><circle cx="28" cy="28" r="15" fill="#15803d" stroke="#ffffff" stroke-width="2"/><circle cx="28" cy="28" r="10" fill="#ffffff"/><text x="28" y="32" text-anchor="middle" fill="#15803d" font-family="Inter, sans-serif" font-size="11" font-weight="900">P</text><text x="98" y="20" text-anchor="middle" fill="#facc15" font-size="9">🏆 ★</text><text x="98" y="32" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="10" font-weight="900">PALMEIRAS</text><text x="98" y="43" text-anchor="middle" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="7" font-weight="700">VERDÃO • 1914</text></svg>`
+      },
+      bday_festa: {
+        isBirthday: true,
+        bg: 'bg-gradient-to-b from-rose-950 via-amber-950/60 to-zinc-950 border-2 border-amber-400/85 shadow-[0_0_32px_rgba(251,191,36,0.32)]',
+        pattern: 'radial-gradient(circle at 20% 15%, rgba(251,191,36,0.18) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(244,114,182,0.16) 0%, transparent 45%)',
+        badge: '🎂 FELIZ ANIVERSÁRIO • CELEBRAÇÃO',
+        badgeColor: 'text-amber-300',
+        titleClass: 'font-extrabold text-2xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-zinc-950 p-2 border-4 border-double border-amber-400 shadow-[0_0_24px_rgba(251,191,36,0.45)]',
+        frameBadge: '🎂 PARABÉNS • DIA ESPECIAL',
+        stampSVG: `<svg viewBox="0 0 156 56" class="h-12 w-auto drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="152" height="52" rx="10" fill="#18181b" stroke="#fbbf24" stroke-width="2"/><rect x="16" y="26" width="26" height="16" rx="4" fill="#ec4899"/><rect x="20" y="20" width="18" height="7" rx="3" fill="#fbcfe8"/><line x1="29" y1="12" x2="29" y2="20" stroke="#fde047" stroke-width="2.5"/><circle cx="29" cy="10" r="3" fill="#f59e0b"/><text x="98" y="25" text-anchor="middle" fill="#fde047" font-family="Inter, sans-serif" font-size="10" font-weight="900">HAPPY B-DAY</text><text x="98" y="38" text-anchor="middle" fill="#f9a8d4" font-family="Inter, sans-serif" font-size="7.5" font-weight="700">NOVO CICLO</text></svg>`
+      },
+      bday_neon: {
+        isBirthday: true,
+        bg: 'bg-gradient-to-b from-fuchsia-950 via-indigo-950 to-black border-2 border-cyan-400/85 shadow-[0_0_34px_rgba(34,211,238,0.35)]',
+        pattern: 'repeating-linear-gradient(45deg, rgba(34,211,238,0.07) 0px, rgba(34,211,238,0.07) 10px, transparent 10px, transparent 22px)',
+        badge: '🎉 BIRTHDAY NEON • VIBE DE FESTA',
+        badgeColor: 'text-cyan-300',
+        titleClass: 'font-orbitron text-xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-black p-1.5 border-2 border-cyan-400 outline outline-2 outline-fuchsia-500/70 shadow-[0_0_24px_rgba(34,211,238,0.5)]',
+        frameBadge: '🎉 NEON PARTY • PARABÉNS',
+        stampSVG: `<svg viewBox="0 0 156 56" class="h-12 w-auto drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="152" height="52" rx="10" fill="#09090b" stroke="#22d3ee" stroke-width="2"/><circle cx="28" cy="28" r="14" fill="none" stroke="#f472b6" stroke-width="2.5"/><text x="28" y="32" text-anchor="middle" fill="#22d3ee" font-family="Orbitron, sans-serif" font-size="10" font-weight="900">24/7</text><text x="98" y="25" text-anchor="middle" fill="#f472b6" font-family="Orbitron, sans-serif" font-size="9.5" font-weight="800">NEON B-DAY</text><text x="98" y="38" text-anchor="middle" fill="#a5f3fc" font-family="Inter, sans-serif" font-size="7.5" font-weight="700">CELEBRANDO A VIDA</text></svg>`
+      },
+      bday_dourado: {
+        isBirthday: true,
+        bg: 'bg-gradient-to-b from-amber-900/80 via-zinc-950 to-black border-2 border-yellow-300/85 shadow-[0_0_32px_rgba(250,204,21,0.3)]',
+        pattern: 'radial-gradient(circle at 50% 0%, rgba(250,204,21,0.16) 0%, transparent 55%)',
+        badge: '👑 GOLD CELEBRATION • EDIÇÃO ESPECIAL',
+        badgeColor: 'text-yellow-300',
+        titleClass: 'font-cinzel text-2xl text-yellow-100',
+        frameClass: 'relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-zinc-950 p-2 border-4 border-double border-yellow-300 shadow-[0_0_24px_rgba(250,204,21,0.45)]',
+        frameBadge: '👑 GOLD EDITION • ANIVERSÁRIO',
+        stampSVG: `<svg viewBox="0 0 156 56" class="h-12 w-auto drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="152" height="52" rx="10" fill="#18181b" stroke="#facc15" stroke-width="2"/><path d="M16 35 L13 21 L22 28 L28 17 L34 28 L43 21 L40 35 Z" fill="#facc15"/><text x="102" y="25" text-anchor="middle" fill="#fef08a" font-family="Cinzel, serif" font-size="9.5" font-weight="800">GOLD B-DAY</text><text x="102" y="38" text-anchor="middle" fill="#facc15" font-family="Inter, sans-serif" font-size="7.5" font-weight="700">ANOS DE HISTÓRIA</text></svg>`
+      },
+      bday_infantil: {
+        isBirthday: true,
+        bg: 'bg-gradient-to-b from-sky-900 via-pink-950/60 to-zinc-950 border-2 border-pink-300/85 shadow-[0_0_32px_rgba(244,114,182,0.32)]',
+        pattern: 'radial-gradient(circle at 15% 20%, rgba(125,211,252,0.18) 0%, transparent 45%), radial-gradient(circle at 85% 25%, rgba(249,168,212,0.18) 0%, transparent 45%)',
+        badge: '🎈 SONHO & BALÕES • DIA FELIZ',
+        badgeColor: 'text-pink-200',
+        titleClass: 'font-pacifico text-3xl text-white',
+        frameClass: 'relative aspect-[4/5] w-full rounded-3xl overflow-hidden bg-zinc-950 p-2 border-4 border-pink-300 shadow-[0_0_24px_rgba(249,168,212,0.5)]',
+        frameBadge: '🎈 BALÕES & ALEGRIA',
+        stampSVG: `<svg viewBox="0 0 156 56" class="h-12 w-auto drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]"><rect x="2" y="2" width="152" height="52" rx="12" fill="#18181b" stroke="#f9a8d4" stroke-width="2"/><ellipse cx="22" cy="25" rx="7" ry="9" fill="#f472b6"/><ellipse cx="35" cy="27" rx="7" ry="9" fill="#38bdf8"/><line x1="22" y1="34" x2="28" y2="43" stroke="#e4e4e7" stroke-width="1.5"/><line x1="35" y1="36" x2="28" y2="43" stroke="#e4e4e7" stroke-width="1.5"/><text x="102" y="25" text-anchor="middle" fill="#fbcfe8" font-family="Pacifico, cursive" font-size="11.5">Parabéns!</text><text x="102" y="38" text-anchor="middle" fill="#7dd3fc" font-family="Inter, sans-serif" font-size="7.5" font-weight="700">MUITA ALEGRIA</text></svg>`
+      }
+    };
+
+    function buildFallingParticlesHTML(effectKey) {
+      const eff = FALLING_EFFECTS[effectKey] || FALLING_EFFECTS.coracoes;
+      if (!eff || eff.count === 0 || !eff.chars.length) return '';
+      let items = '';
+      for (let i = 0; i < eff.count; i++) {
+        const ch = eff.chars[i % eff.chars.length];
+        const left = ((i * 7 + (i % 3) * 5) % 92) + 3;
+        if (eff.softBlink) {
+          const top = ((i * 13 + 8) % 82) + 6;
+          const duration = (2.8 + (i % 4) * 0.7).toFixed(1);
+          const delay = ((i * 0.5) % 3.0).toFixed(2);
+          const size = 11 + (i % 3) * 2;
+          items += `<span class="soft-blink-light opacity-30" style="left:${left}%;top:${top}%;animation-duration:${duration}s;animation-delay:-${delay}s;font-size:${size}px;">${ch}</span>`;
+        } else {
+          const duration = (4.5 + (i % 5) * 0.9).toFixed(1);
+          const delay = ((i * 0.65) % 4.5).toFixed(2);
+          const size = effectKey === 'confetes' ? (11 + (i % 3) * 2) : (13 + (i % 4) * 3);
+          const extraOpacity = effectKey === 'confetes' ? 'opacity-75' : '';
+          items += `<span class="falling-particle ${extraOpacity}" style="left:${left}%;animation-duration:${duration}s;animation-delay:-${delay}s;font-size:${size}px;">${ch}</span>`;
+        }
+      }
+      return `<div class="absolute inset-0 overflow-hidden pointer-events-none z-20">${items}</div>`;
+    }
+
+    function buildMarketingShareText(coupleName, finalUrl) {
+      return `💜 Olha que surpresa especial criei para ${coupleName || 'nós'} no Código do Amor!
+
+✨ Abra aqui para ver nossas fotos, música e contador ao vivo:
+${finalUrl}
+
+🎁 Dica: Dá para imprimir o QR Code e colocar em flores, cestas de café da manhã ou presentes! Crie o seu em: https://codigodoamoroficial.vercel.app`;
+    }
+
+    function openInstagramDirectWithCopy(coupleName, finalUrl, feedbackEl) {
+      const shareText = buildMarketingShareText(coupleName, finalUrl);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareText).catch(() => {});
+      }
+      if (feedbackEl) {
+        feedbackEl.textContent = '✓ Mensagem + link copiados! Abrindo o Instagram Direct — é só colar e enviar 💜';
+        feedbackEl.classList.remove('hidden');
+      }
+      setTimeout(() => {
+        window.open('https://www.instagram.com/direct/inbox/', '_blank', 'noopener,noreferrer');
+      }, 350);
+    }
+
+    function extractYouTubeId(url) {
+      if (!url || typeof url !== 'string') return '';
+      const clean = url.trim();
+      if (/^[a-zA-Z0-9_-]{11}$/.test(clean)) return clean;
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|music\.youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+        /[?&]v=([a-zA-Z0-9_-]{11})/
+      ];
+      for (const p of patterns) {
+        const match = clean.match(p);
+        if (match && match[1]) return match[1];
+      }
+      return '';
+    }
+
+    function calcElapsed(dateStr) {
+      const start = new Date(dateStr);
+      const now = new Date();
+      const diff = Math.max(0, now - start);
+      return {
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff / 3600000) % 24),
+        mins: Math.floor((diff / 60000) % 60),
+        secs: Math.floor((diff / 1000) % 60)
+      };
+    }
+
+    function calcAgeFromDate(dateStr) {
+      const birth = new Date(dateStr);
+      if (isNaN(birth.getTime())) return 0;
+      const now = new Date();
+      let age = now.getFullYear() - birth.getFullYear();
+      const m = now.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) {
+        age--;
+      }
+      return Math.max(0, age);
+    }
+
+    function getPhotosList(data, useDemoFallback = false) {
+      if (Array.isArray(data.ps) && data.ps.length > 0) return data.ps;
+      if (data.p) return [data.p];
+      return useDemoFallback ? DEMO_PHOTOS : [DEFAULT_PHOTO];
+    }
+
+    function downloadQRCodeImage(targetUrl, coupleName, mode = 'qr') {
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.left = '-9999px';
+      document.body.appendChild(tempDiv);
+
+      const qrSize = mode === 'card' ? 380 : 512;
+      new QRCode(tempDiv, {
+        text: targetUrl,
+        width: qrSize,
+        height: qrSize,
+        colorDark: '#09090b',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      setTimeout(() => {
+        const qrCanvas = tempDiv.querySelector('canvas');
+        const qrImg = tempDiv.querySelector('img');
+        const source = qrCanvas || qrImg;
+        if (!source) {
+          document.body.removeChild(tempDiv);
+          return;
+        }
+
+        const outCanvas = document.createElement('canvas');
+        const ctx = outCanvas.getContext('2d');
+        const safeSlug = (coupleName || 'homenagem').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'homenagem';
+
+        if (mode === 'qr') {
+          const pad = 44;
+          outCanvas.width = qrSize + pad * 2;
+          outCanvas.height = qrSize + pad * 2;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+          ctx.drawImage(source, pad, pad, qrSize, qrSize);
+        } else {
+          outCanvas.width = 640;
+          outCanvas.height = 860;
+          const grad = ctx.createLinearGradient(0, 0, 0, 860);
+          grad.addColorStop(0, '#18181b');
+          grad.addColorStop(1, '#09090b');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 640, 860);
+
+          ctx.strokeStyle = '#ec4899';
+          ctx.lineWidth = 6;
+          ctx.strokeRect(24, 24, 592, 812);
+
+          ctx.fillStyle = '#f472b6';
+          ctx.font = 'bold 22px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('CÓDIGO DO AMOR', 320, 88);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 34px Inter, sans-serif';
+          const displayTitle = (coupleName || 'Nossa História').slice(0, 28);
+          ctx.fillText(displayTitle, 320, 142);
+
+          const boxSize = 420;
+          const boxX = (640 - boxSize) / 2;
+          const boxY = 185;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(boxX, boxY, boxSize, boxSize);
+          ctx.drawImage(source, boxX + 20, boxY + 20, 380, 380);
+
+          ctx.fillStyle = '#e4e4e7';
+          ctx.font = 'bold 24px Inter, sans-serif';
+          ctx.fillText('Aponte a câmera do celular', 320, 675);
+          ctx.fillStyle = '#a1a1aa';
+          ctx.font = '20px Inter, sans-serif';
+          ctx.fillText('para abrir sua surpresa especial 💜', 320, 712);
+
+          ctx.fillStyle = '#71717a';
+          ctx.font = '16px Inter, sans-serif';
+          ctx.fillText('codigodoamoroficial.vercel.app', 320, 795);
+        }
+
+        const link = document.createElement('a');
+        link.download = mode === 'card' ? `cartao-qrcode-${safeSlug}.png` : `qrcode-${safeSlug}.png`;
+        link.href = outCanvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        document.body.removeChild(tempDiv);
+      }, 120);
+    }
+
+    function saveDraftAuto() {
+      try {
+        const draft = {
+          t: currentTheme,
+          ef: currentEffect,
+          n: document.getElementById('input-names').value,
+          d: document.getElementById('input-date').value,
+          p: document.getElementById('input-photo').value,
+          yt: document.getElementById('input-youtube').value,
+          m: document.getElementById('input-message').value,
+          ps: uploadedPhotos
+        };
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+        const badge = document.getElementById('draft-autosave-badge');
+        if (badge) {
+          badge.textContent = '✓ Rascunho salvo';
+          badge.className = 'text-[11px] text-emerald-400';
+        }
+      } catch (e) {}
+    }
+
+    function restoreDraftAuto() {
+      try {
+        const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (draft.t && themesConfig[draft.t]) {
+          currentTheme = draft.t;
+          document.querySelectorAll('.theme-btn').forEach(b => {
+            b.classList.toggle('ring-2', b.dataset.theme === currentTheme);
+            b.classList.toggle('ring-pink-500', b.dataset.theme === currentTheme);
+          });
+        }
+        if (draft.ef && FALLING_EFFECTS[draft.ef]) {
+          currentEffect = draft.ef;
+          document.querySelectorAll('.effect-btn').forEach(b => {
+            const active = b.dataset.effect === currentEffect;
+            b.classList.toggle('ring-2', active);
+            b.classList.toggle('ring-pink-500', active);
+            b.classList.toggle('bg-pink-600/20', active);
+            b.classList.toggle('bg-zinc-900', !active);
+          });
+        }
+        if (typeof draft.n === 'string') document.getElementById('input-names').value = draft.n;
+        if (typeof draft.d === 'string') document.getElementById('input-date').value = draft.d;
+        if (typeof draft.p === 'string') document.getElementById('input-photo').value = draft.p;
+        if (typeof draft.yt === 'string') document.getElementById('input-youtube').value = draft.yt;
+        if (typeof draft.m === 'string') document.getElementById('input-message').value = draft.m;
+        if (Array.isArray(draft.ps)) {
+          uploadedPhotos = draft.ps.slice(0, MAX_PHOTOS);
+          updatePhotoThumbsUI();
+        }
+      } catch (e) {}
+    }
+
+    function getSavedGifts() {
+      try {
+        const list = JSON.parse(localStorage.getItem(SAVED_GIFTS_KEY) || '[]');
+        return Array.isArray(list) ? list : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function formatDateBR(ts) {
+      try {
+        return new Date(ts).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function formatValidityInfo(plan, expTs) {
+      if (plan === 'vitalicio' || plan === 'Vitalício') {
+        return {
+          isLifetime: true,
+          badgeText: '♾️ Projeto Vitalício',
+          detailText: '♾️ Projeto Vitalício — Acesso liberado para sempre (nunca expira)'
+        };
+      }
+      const expDateStr = expTs ? formatDateBR(expTs) : '';
+      const daysLeft = expTs ? Math.max(0, Math.ceil((expTs - Date.now()) / 86400000)) : 0;
+      const planLabel = (plan === '1_ano' || plan === '1 Ano')
+        ? 'Plano 1 Ano'
+        : (plan === 'brinde_15_dias' || plan === 'Brinde 15 dias')
+          ? 'Brinde 15 Dias'
+          : 'Plano 15 Dias';
+      const daysText = daysLeft === 1 ? 'falta 1 dia' : `faltam ${daysLeft} dias`;
+      return {
+        isLifetime: false,
+        badgeText: expDateStr ? `Expira em ${expDateStr}` : planLabel,
+        detailText: expDateStr
+          ? `⏳ ${planLabel} • Projeto expira em ${expDateStr} (${daysText})`
+          : `⏳ ${planLabel}`
+      };
+    }
+
+    function saveDeliveredGiftAuto(data, finalUrl, isGift = false) {
+      try {
+        const list = getSavedGifts().filter(item => item.url !== finalUrl);
+        list.unshift({
+          id: Date.now(),
+          name: data.n || 'Nosso Amor',
+          theme: data.t || 'netflix',
+          plan: isGift ? 'Brinde 15 dias' : (data.pl === 'vitalicio' ? 'Vitalício' : data.pl === '1_ano' ? '1 Ano' : '15 Dias'),
+          exp: data.exp,
+          url: finalUrl,
+          createdAt: new Date().toLocaleDateString('pt-BR')
+        });
+        localStorage.setItem(SAVED_GIFTS_KEY, JSON.stringify(list.slice(0, 10)));
+        renderSavedGifts();
+      watchPendingPixAutomatically();
+      } catch (e) {}
+    }
+
+    function renderSavedGifts() {
+      const section = document.getElementById('saved-gifts-section');
+      const listEl = document.getElementById('saved-gifts-list');
+      const headerBtn = document.getElementById('btn-open-saved-drawer');
+      const countSpan = document.getElementById('saved-gifts-badge-count');
+      if (!section || !listEl) return;
+
+      const paidItems = getSavedGifts().filter(item => !item.exp || Date.now() < item.exp);
+      const draftData = getFormData();
+      const totalCount = paidItems.length + 1;
+
+      section.classList.remove('hidden');
+      if (headerBtn) {
+        headerBtn.classList.remove('hidden');
+        countSpan.textContent = paidItems.length > 0 ? `${paidItems.length} pago(s)` : 'Rascunho';
+      }
+
+      const paidCardsHTML = paidItems.map((item, idx) => {
+        const valInfo = formatValidityInfo(item.plan, item.exp);
+        return `
+        <div class="bg-zinc-950/95 border border-emerald-500/40 rounded-xl p-3.5 flex flex-col justify-between gap-2.5 shadow-lg">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-sm font-extrabold text-white truncate">${item.name}</div>
+              <div class="text-[11px] ${valInfo.isLifetime ? 'text-amber-300 font-semibold' : 'text-zinc-300'} mt-0.5">${valInfo.detailText}</div>
+            </div>
+            <span class="text-[10px] bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 px-2.5 py-0.5 rounded-full font-extrabold shrink-0">✓ ATIVO</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+            <button type="button" data-saved-dl-direct-idx="${idx}" class="btn-saved-dl-direct bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-2 px-2 rounded-lg transition">⬇ Baixar QR</button>
+            <button type="button" data-saved-wa-direct-idx="${idx}" class="btn-saved-wa-direct bg-green-600 hover:bg-green-500 text-white text-[11px] font-bold py-2 px-2 rounded-lg transition">💬 WhatsApp</button>
+            <button type="button" data-saved-ig-direct-idx="${idx}" class="btn-saved-ig-direct bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white text-[11px] font-bold py-2 px-2 rounded-lg transition">📸 Instagram</button>
+            <a href="${item.url}" target="_blank" class="bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-bold py-2 px-2 rounded-lg text-center transition">🔗 Abrir</a>
+          </div>
+          <button type="button" data-saved-qr-idx="${idx}" class="btn-saved-qr w-full bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 text-[11px] font-semibold py-1.5 rounded-lg transition">
+            🎴 Ver QR Code na Tela & Cartão para Imprimir
+          </button>
+        </div>
+      `;
+      }).join('');
+
+      const draftValidity = formatValidityInfo(draftData.pl, draftData.exp);
+      const hasPendingPix = Boolean(getPendingPix());
+      const draftBadgeText = hasPendingPix ? 'PIX GERADO • VERIFICANDO' : 'NÃO PAGO';
+      const draftActionButtonHTML = hasPendingPix
+        ? `<button type="button" id="btn-confirm-pending-from-card" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-extrabold py-2 rounded-lg transition">✓ Já Paguei — Liberar</button>`
+        : `<button type="button" id="btn-pay-from-saved-card" class="bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white text-[11px] font-extrabold py-2 rounded-lg transition">💳 Ativar & Gerar QR</button>`;
+
+      const draftCardHTML = `
+        <div class="bg-zinc-950/90 border ${hasPendingPix ? 'border-amber-400/60' : 'border-amber-500/35'} rounded-xl p-3.5 flex flex-col justify-between gap-2.5">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-sm font-extrabold text-white truncate">${draftData.n || 'Meu Projeto Atual'}</div>
+              <div class="text-[11px] text-zinc-400">${hasPendingPix ? 'Pix gerado neste aparelho • Se já pagou, toque em "Já Paguei — Liberar"' : "Em edição neste aparelho • Prévia com marca d'água"}</div>
+              <div class="text-[11px] text-amber-200/90 mt-0.5">${draftValidity.isLifetime ? '♾️ Plano selecionado: Vitalício (para sempre)' : `📅 Se ativar hoje: expira em ${formatDateBR(draftData.exp)}`}</div>
+            </div>
+            <span class="text-[10px] bg-amber-500/15 border border-amber-500/35 text-amber-300 px-2.5 py-0.5 rounded-full font-bold shrink-0">${draftBadgeText}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-1.5">
+            <a href="#sec-tema" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[11px] font-bold py-2 rounded-lg text-center transition">✏️ Editar Projeto</a>
+            ${draftActionButtonHTML}
+          </div>
+        </div>
+      `;
+
+      listEl.innerHTML = paidCardsHTML + draftCardHTML;
+      const items = paidItems;
+
+      const payFromSavedBtn = document.getElementById('btn-pay-from-saved-card');
+      if (payFromSavedBtn) {
+        payFromSavedBtn.onclick = () => document.getElementById('btn-checkout').click();
+      }
+
+      const confirmPendingFromCardBtn = document.getElementById('btn-confirm-pending-from-card');
+      if (confirmPendingFromCardBtn) {
+        confirmPendingFromCardBtn.onclick = async () => {
+          confirmPendingFromCardBtn.textContent = '⏳ Verificando...';
+          await verifyPendingPixOnce(true);
+          confirmPendingFromCardBtn.textContent = '✓ Já Paguei — Liberar';
+        };
+      }
+
+      listEl.querySelectorAll('.btn-saved-dl-direct').forEach(btn => {
+        btn.onclick = () => {
+          const item = items[Number(btn.dataset.savedDlDirectIdx)];
+          if (item) downloadQRCodeImage(item.url, item.name, 'qr');
+        };
+      });
+
+      listEl.querySelectorAll('.btn-saved-wa-direct').forEach(btn => {
+        btn.onclick = () => {
+          const item = items[Number(btn.dataset.savedWaDirectIdx)];
+          if (!item) return;
+          const waText = encodeURIComponent(buildMarketingShareText(item.name, item.url));
+          window.open(`https://wa.me/?text=${waText}`, '_blank', 'noopener,noreferrer');
+        };
+      });
+
+      listEl.querySelectorAll('.btn-saved-ig-direct').forEach(btn => {
+        btn.onclick = () => {
+          const item = items[Number(btn.dataset.savedIgDirectIdx)];
+          if (!item) return;
+          openInstagramDirectWithCopy(item.name, item.url, null);
+          btn.textContent = '✓ Copiado!';
+          setTimeout(() => { btn.textContent = '📸 Instagram'; }, 2200);
+        };
+      });
+
+      listEl.querySelectorAll('.btn-saved-copy').forEach(btn => {
+        btn.onclick = () => {
+          const item = items[Number(btn.dataset.savedCopyIdx)];
+          if (!item) return;
+          navigator.clipboard.writeText(item.url);
+          btn.textContent = '✓ Copiado!';
+          setTimeout(() => { btn.textContent = 'Copiar Link'; }, 2000);
+        };
+      });
+
+      listEl.querySelectorAll('.btn-saved-qr').forEach(btn => {
+        btn.onclick = () => {
+          const item = items[Number(btn.dataset.savedQrIdx)];
+          if (!item) return;
+          currentModalSavedGift = item;
+          document.getElementById('saved-qr-title').textContent = item.name;
+          document.getElementById('saved-ig-feedback').classList.add('hidden');
+          const waText = encodeURIComponent(buildMarketingShareText(item.name, item.url));
+          document.getElementById('btn-saved-wa').href = `https://wa.me/?text=${waText}`;
+          const box = document.getElementById('saved-qr-box');
+          box.innerHTML = '';
+          new QRCode(box, { text: item.url, width: 170, height: 170 });
+          document.getElementById('saved-qr-modal').classList.remove('hidden');
+        };
+      });
+    }
+
+    function updateClockOnly(container, dateStr) {
+      const e = calcElapsed(dateStr);
+      const dEl = container.querySelector('[data-clock="days"]');
+      if (!dEl) return;
+      dEl.textContent = e.days;
+      container.querySelector('[data-clock="hours"]').textContent = e.hours;
+      container.querySelector('[data-clock="mins"]').textContent = e.mins;
+      container.querySelector('[data-clock="secs"]').textContent = e.secs;
+    }
+
+    function updatePhotoSlideOnly(container, data, useDemoFallback = false) {
+      const photos = getPhotosList(data, useDemoFallback);
+      const imgEl = container.querySelector('[data-card-photo]');
+      if (!imgEl || photos.length <= 1) return;
+      if (activeSlideIndex >= photos.length) activeSlideIndex = 0;
+      imgEl.src = photos[activeSlideIndex];
+      const counterEl = container.querySelector('[data-slide-counter]');
+      if (counterEl) counterEl.textContent = `${activeSlideIndex + 1} / ${photos.length}`;
+      container.querySelectorAll('[data-slide-dot]').forEach((dot, idx) => {
+        dot.className = `w-2 h-2 rounded-full transition-all ${idx === activeSlideIndex ? 'bg-pink-500 w-4' : 'bg-white/50'}`;
+      });
+    }
+
+    // PLAYER DE ÁUDIO PERSISTENTE + RÁDIO ROMÂNTICA + CONTROLE DE CONCLUSÃO DE VÍDEO
+    const persistentPlayers = new WeakMap();
+    const introControllers = new WeakMap();
+    let isAuditionActive = false;
+    let demoSongIndex = 0;
+
+    const INTRO_QUOTES = [
+      'Algumas histórias não se explicam… se sentem em cada batida do coração.',
+      'Entre milhões de pessoas no mundo, o destino escolheu unir vocês dois.',
+      'Prepare o coração… uma declaração feita especialmente para vocês vai começar.'
+    ];
+
+    function stopCardIntro(container) {
+      const ctrl = introControllers.get(container);
+      if (ctrl && ctrl.timer) {
+        clearInterval(ctrl.timer);
+        ctrl.timer = null;
+      }
+    }
+
+    function startCardIntro(container, data) {
+      stopCardIntro(container);
+      const overlay = container.querySelector('[data-intro-overlay]');
+      const particlesLayer = container.querySelector('[data-particles-layer]');
+      const photoEl = container.querySelector('[data-card-photo]');
+      const coupleRevealEl = container.querySelector('[data-couple-reveal]');
+      if (!overlay) return;
+
+      let count = 5;
+      const quote = INTRO_QUOTES[(data.n || '').length % INTRO_QUOTES.length];
+
+      if (particlesLayer) particlesLayer.classList.add('opacity-0');
+      if (photoEl) photoEl.classList.add('scale-110', 'blur-md', 'opacity-30');
+      if (coupleRevealEl) coupleRevealEl.classList.add('opacity-0', 'translate-y-2');
+
+      overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+      overlay.classList.add('flex', 'opacity-100');
+
+      const finishIntro = () => {
+        stopCardIntro(container);
+        overlay.classList.remove('opacity-100');
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        if (particlesLayer) particlesLayer.classList.remove('opacity-0');
+        if (photoEl) photoEl.classList.remove('scale-110', 'blur-md', 'opacity-30');
+        if (coupleRevealEl) coupleRevealEl.classList.remove('opacity-0', 'translate-y-2');
+        setTimeout(() => {
+          if (overlay.classList.contains('opacity-0')) {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+          }
+        }, 650);
+      };
+
+      const renderStep = () => {
+        overlay.innerHTML = `
+          <div class="text-center px-5 space-y-4 max-w-xs mx-auto">
+            <div class="inline-flex items-center gap-1.5 bg-pink-500/20 border border-pink-400/40 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-pink-300">
+              <span>💜 Código do Amor</span>
+            </div>
+            <p class="font-serif-romance italic text-base sm:text-lg text-white leading-relaxed drop-shadow">
+              “${quote}”
+            </p>
+            <div class="py-1">
+              <div class="countdown-num-anim w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-pink-600 to-violet-600 border-2 border-white/40 shadow-[0_0_25px_rgba(236,72,153,0.75)] flex items-center justify-center text-3xl font-black text-white">
+                ${count}
+              </div>
+              <div class="text-[10px] uppercase tracking-widest text-zinc-300 mt-2">
+                🎵 Aumente o som • Começando em ${count}s
+              </div>
+            </div>
+            <button type="button" data-skip-intro class="text-[11px] text-zinc-400 hover:text-white underline pt-1">
+              Pular abertura ›
+            </button>
+          </div>
+        `;
+        const skipBtn = overlay.querySelector('[data-skip-intro]');
+        if (skipBtn) skipBtn.onclick = (e) => { e.stopPropagation(); finishIntro(); };
+      };
+
+      renderStep();
+      const timer = setInterval(() => {
+        count -= 1;
+        if (count <= 0) {
+          finishIntro();
+        } else {
+          renderStep();
+        }
+      }, 1000);
+
+      introControllers.set(container, { timer });
+    }
+
+    function attachYTStateWatcher(iframeEl, container, isDemoPlaylist, chosenYtId, data, opts) {
+      if (!window.YT || !window.YT.Player || !iframeEl) return;
+      try {
+        if (!iframeEl.id) {
+          iframeEl.id = 'yt_frame_' + Math.random().toString(36).slice(2, 9);
+        }
+        new window.YT.Player(iframeEl.id, {
+          events: {
+            onStateChange: (ev) => {
+              if (window.YT && window.YT.PlayerState && ev.data === window.YT.PlayerState.ENDED) {
+                const statusLabel = container.querySelector('[data-music-status-text]');
+                if (isDemoPlaylist) {
+                  demoSongIndex = (demoSongIndex + 1) % DEMO_SONGS.length;
+                  if (statusLabel) {
+                    statusLabel.textContent = `✓ Concluído! Tocando agora: ${DEMO_SONGS[demoSongIndex].label}`;
+                  }
+                  const st = persistentPlayers.get(container);
+                  if (st) st.signature = '';
+                  renderCard(container, data, { ...opts, forceIntro: true });
+                } else if (chosenYtId) {
+                  if (statusLabel) {
+                    statusLabel.textContent = '✓ Concluído! Repetindo em loop infinito...';
+                  }
+                  try {
+                    ev.target.seekTo(0);
+                    ev.target.playVideo();
+                  } catch (e) {
+                    const st = persistentPlayers.get(container);
+                    if (st) st.signature = '';
+                    renderCard(container, data, opts);
+                  }
+                }
+              }
+            }
+          }
+        });
+      } catch (e) {}
+    }
+
+    function getOrUpdatePersistentIframe(container, activeYtId, isDemoPlaylist, suspendAudio, embedParams, chosenYtId, data, opts) {
+      let state = persistentPlayers.get(container);
+      const signature = `${activeYtId}|${isDemoPlaylist ? 'demo' : 'custom'}|${suspendAudio ? 'susp' : 'play'}|${isPreviewMuted ? 'muted' : 'sound'}`;
+      let musicJustStarted = false;
+
+      if (!state) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'w-full h-full flex items-center justify-center';
+        state = { wrapper, signature: '', lastActiveTrack: '' };
+        persistentPlayers.set(container, state);
+      }
+
+      if (state.signature !== signature) {
+        const prevSignature = state.signature;
+        state.signature = signature;
+
+        if (suspendAudio) {
+          state.wrapper.innerHTML = '<div class="text-xs text-zinc-400 font-semibold">⏸ Música pausada durante prévia / tela cheia</div>';
+        } else {
+          state.wrapper.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${activeYtId}?${embedParams}&enablejsapi=1" title="Música do Casal" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+          const iframeEl = state.wrapper.querySelector('iframe');
+          attachYTStateWatcher(iframeEl, container, isDemoPlaylist, chosenYtId, data, opts);
+
+          const currentTrack = `${activeYtId}|${isDemoPlaylist ? 'demo' : 'custom'}`;
+          if (!prevSignature || prevSignature.startsWith('susp') || state.lastActiveTrack !== currentTrack) {
+            musicJustStarted = true;
+          }
+          state.lastActiveTrack = currentTrack;
+        }
+      }
+      return { wrapper: state.wrapper, musicJustStarted };
+    }
+
+    function renderCard(container, data, opts = {}) {
+      const isPreview = Boolean(opts.isPreview);
+      const suspendAudio = Boolean(opts.suspendAudio) || (isPreview && isAuditionActive);
+      const cfg = themesConfig[data.t] || themesConfig.netflix;
+      const isBirthday = Boolean(cfg.isBirthday);
+      const elapsed = calcElapsed(data.d);
+      const ageYears = calcAgeFromDate(data.d);
+      const counterTitle = isBirthday ? `Em vida há • ${ageYears} ${ageYears === 1 ? 'ano' : 'anos'}` : 'Juntos há';
+      const headerBadgeText = isBirthday ? `🎂 ${ageYears} ${ageYears === 1 ? 'ANO' : 'ANOS'} • ${cfg.badge.replace(/^🎂\s*/, '')}` : cfg.badge;
+      const photos = getPhotosList(data, isPreview);
+      if (activeSlideIndex >= photos.length) activeSlideIndex = 0;
+
+      const currentPhoto = photos[activeSlideIndex];
+      const hasMultiple = photos.length > 1;
+      const isPolaroid = data.t === 'polaroid';
+      const effectKey = data.ef !== undefined ? data.ef : 'coracoes';
+
+      const chosenYtId = data.yt || '';
+      const isDemoPlaylist = isPreview && !chosenYtId;
+      const activeDemoSong = DEMO_SONGS[demoSongIndex % DEMO_SONGS.length];
+      const activeYtId = chosenYtId || (isPreview ? activeDemoSong.id : '');
+      const playlistOrder = isDemoPlaylist
+        ? [
+            ...DEMO_SONGS.slice(demoSongIndex % DEMO_SONGS.length),
+            ...DEMO_SONGS.slice(0, demoSongIndex % DEMO_SONGS.length)
+          ].map(s => s.id).join(',')
+        : activeYtId;
+      const playlistParam = activeYtId ? `&playlist=${playlistOrder}&loop=1` : '';
+      const embedParams = `autoplay=1&rel=0&playsinline=1&mute=${isPreviewMuted ? 1 : 0}${playlistParam}`;
+
+      const existingPlayerState = persistentPlayers.get(container);
+      const hadActiveIntro = Boolean(container.querySelector('[data-intro-overlay]:not(.hidden)'));
+      if (existingPlayerState && existingPlayerState.wrapper.parentNode) {
+        existingPlayerState.wrapper.parentNode.removeChild(existingPlayerState.wrapper);
+      }
+
+      const navButtons = hasMultiple ? `
+        <button type="button" data-slide-dir="-1" class="slide-nav-btn absolute left-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-black/65 text-white flex items-center justify-center text-lg font-bold">‹</button>
+        <button type="button" data-slide-dir="1" class="slide-nav-btn absolute right-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-black/65 text-white flex items-center justify-center text-lg font-bold">›</button>
+        <div class="absolute ${isPolaroid ? 'bottom-9' : 'bottom-2.5'} left-1/2 -translate-x-1/2 z-30 flex gap-1.5 bg-black/55 px-2.5 py-1 rounded-full">
+          ${photos.map((_, idx) => `<span data-slide-dot="${idx}" class="w-2 h-2 rounded-full transition-all ${idx === activeSlideIndex ? 'bg-pink-500 w-4' : 'bg-white/50'}"></span>`).join('')}
+        </div>
+      ` : '';
+
+      const frameCaption = isPolaroid
+        ? `<div class="absolute bottom-2 left-0 right-0 text-center font-pacifico text-sm text-zinc-800 pointer-events-none">${cfg.frameBadge}</div>`
+        : `<div class="absolute top-2.5 left-2.5 z-10 bg-black/70 backdrop-blur-sm border border-white/15 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold tracking-wider text-white/90 pointer-events-none">${cfg.frameBadge}</div>`;
+
+      const modeBadgeLabel = isDemoPlaylist ? '📻 Rádio Romântica' : '🎵 Nossa Música • Loop ∞';
+      const subStatusText = isDemoPlaylist
+        ? `Rádio Romântica • ${activeDemoSong.label}`
+        : 'Música selecionada em Loop Infinito (repete ao concluir)';
+
+      const musicBlock = activeYtId ? `
+        <div class="relative z-30 bg-black/60 border border-white/15 rounded-2xl p-2.5 space-y-2">
+          <div class="flex items-center justify-between gap-2 px-1">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-pink-400 shrink-0">${modeBadgeLabel}</span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              ${isDemoPlaylist ? `<button type="button" class="btn-next-radio bg-pink-600/25 hover:bg-pink-600/40 border border-pink-500/40 text-pink-200 text-[10px] font-bold px-2 py-0.5 rounded-full transition">⏭ Próxima</button>` : ''}
+              <button type="button" class="btn-toggle-card-mute inline-flex items-center gap-1 ${isPreviewMuted ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-white/10 text-zinc-200 border-white/15'} border text-[10px] font-bold px-2 py-0.5 rounded-full transition">
+                ${isPreviewMuted ? '🔇 Ativar Som' : '🔊 Silenciar'}
+              </button>
+              <a href="https://www.youtube.com/watch?v=${activeYtId}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-zinc-400 hover:text-white underline">YouTube</a>
+            </div>
+          </div>
+          <div data-music-slot class="rounded-xl overflow-hidden bg-black aspect-video max-h-36 w-full flex items-center justify-center"></div>
+          <div data-music-status-text class="text-[10px] text-zinc-300 font-medium px-1 truncate">
+            ${subStatusText}
+          </div>
+        </div>
+      ` : '';
+
+      const themeStampHTML = cfg.stampSVG
+        ? `<div class="absolute ${isPolaroid ? 'top-3 right-3' : 'bottom-3 right-3'} z-20 pointer-events-none">${cfg.stampSVG}</div>`
+        : '';
+
+      const particlesHTML = buildFallingParticlesHTML(effectKey).replace(
+        '<div class="absolute inset-0 overflow-hidden pointer-events-none z-20">',
+        `<div data-particles-layer class="absolute inset-0 overflow-hidden pointer-events-none z-20 transition-opacity duration-700 ${hadActiveIntro ? 'opacity-0' : ''}">`
+      );
+
+      container.className = `relative w-full max-w-sm mx-auto rounded-3xl overflow-hidden shadow-2xl p-5 space-y-4 ${cfg.bg}`;
+      container.innerHTML = `
+        <div class="absolute inset-0 pointer-events-none opacity-90" style="background-image:${cfg.pattern || 'none'};background-size:${data.t === 'starwars' || data.t === 'ceu' ? '26px 26px' : 'auto'};"></div>
+        ${particlesHTML}
+        <!-- CORTINA DE CONTAGEM REGRESSIVA DE 5 SEGUNDOS -->
+        <div data-intro-overlay class="hidden absolute inset-0 z-40 bg-zinc-950/92 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-700"></div>
+        <div class="relative z-10 flex items-center justify-between gap-2">
+          <div class="text-[11px] font-extrabold tracking-widest ${cfg.badgeColor}">${headerBadgeText}</div>
+          ${hasMultiple ? `<div data-slide-counter class="text-[10px] text-zinc-300 font-semibold shrink-0">${activeSlideIndex + 1} / ${photos.length}</div>` : ''}
+        </div>
+        <div class="relative z-10 ${cfg.frameClass}">
+          <img data-card-photo src="${currentPhoto}" alt="Foto do casal" class="w-full h-full object-cover transition-all duration-700 ${isPolaroid ? 'rounded-sm' : 'rounded-lg'}" onerror="this.src='${DEFAULT_PHOTO}'" />
+          ${isPreview ? `
+            <div class="preview-watermark-overlay absolute inset-0 z-15 pointer-events-none flex flex-col items-center justify-center select-none">
+              <div class="-rotate-12 bg-black/45 border border-white/25 backdrop-blur-[1px] px-3.5 py-1.5 rounded-xl text-center shadow-lg">
+                <div class="text-[11px] font-black uppercase tracking-widest text-white/90">PRÉVIA • CÓDIGO DO AMOR</div>
+                <div class="text-[9px] font-semibold text-pink-200/90">Marca d'água removida após ativar</div>
+              </div>
+            </div>
+          ` : ''}
+          ${frameCaption}
+          ${themeStampHTML}
+          ${navButtons}
+        </div>
+        <div data-couple-reveal class="relative z-10 text-center transition-all duration-700">
+          <h3 class="${cfg.titleClass} text-center">${data.n}</h3>
+          <p class="text-xs text-zinc-200 mt-2 leading-relaxed text-center">${data.m}</p>
+        </div>
+        ${musicBlock}
+        <div class="relative z-10 bg-black/50 border border-white/10 rounded-2xl p-3">
+          <div class="text-[10px] uppercase tracking-wider text-zinc-400 text-center mb-2">${counterTitle}</div>
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="days" class="text-base font-extrabold">${elapsed.days}</div><div class="text-[10px] text-zinc-400">Dias</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="hours" class="text-base font-extrabold">${elapsed.hours}</div><div class="text-[10px] text-zinc-400">Horas</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="mins" class="text-base font-extrabold">${elapsed.mins}</div><div class="text-[10px] text-zinc-400">Min</div></div>
+            <div class="bg-white/5 rounded-xl py-2"><div data-clock="secs" class="text-base font-extrabold text-pink-400">${elapsed.secs}</div><div class="text-[10px] text-zinc-400">Seg</div></div>
+          </div>
+        </div>
+      `;
+
+      let shouldRunIntro = Boolean(opts.forceIntro);
+      if (activeYtId) {
+        const musicSlot = container.querySelector('[data-music-slot]');
+        if (musicSlot) {
+          const { wrapper, musicJustStarted } = getOrUpdatePersistentIframe(container, activeYtId, isDemoPlaylist, suspendAudio, embedParams, chosenYtId, data, opts);
+          musicSlot.appendChild(wrapper);
+          if (musicJustStarted && !suspendAudio) {
+            shouldRunIntro = true;
+          }
+        }
+      }
+
+      if (shouldRunIntro && !suspendAudio) {
+        startCardIntro(container, data);
+      }
+
+      const nextRadioBtn = container.querySelector('.btn-next-radio');
+      if (nextRadioBtn) {
+        nextRadioBtn.onclick = (e) => {
+          e.stopPropagation();
+          demoSongIndex = (demoSongIndex + 1) % DEMO_SONGS.length;
+          const st = persistentPlayers.get(container);
+          if (st) st.signature = '';
+          renderCard(container, data, { ...opts, forceIntro: true });
+        };
+      }
+
+      container.querySelectorAll('.slide-nav-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          activeSlideIndex = (activeSlideIndex + Number(btn.dataset.slideDir) + photos.length) % photos.length;
+          updatePhotoSlideOnly(container, data, isPreview);
+        };
+      });
+
+      const muteBtn = container.querySelector('.btn-toggle-card-mute');
+      if (muteBtn) {
+        muteBtn.onclick = (e) => {
+          e.stopPropagation();
+          isPreviewMuted = !isPreviewMuted;
+          renderCard(container, data, opts);
+        };
+      }
+    }
+
+    function updatePhotoThumbsUI() {
+      const thumbsEl = document.getElementById('photo-thumbs');
+      const counterEl = document.getElementById('photo-counter');
+      const statusEl = document.getElementById('photo-file-status');
+      const uploadLabel = document.getElementById('photo-upload-label');
+
+      counterEl.textContent = `${uploadedPhotos.length}/${MAX_PHOTOS} fotos`;
+
+      if (uploadedPhotos.length === 0) {
+        thumbsEl.classList.add('hidden');
+        thumbsEl.innerHTML = '';
+        statusEl.classList.add('hidden');
+      } else {
+        thumbsEl.classList.remove('hidden');
+        thumbsEl.innerHTML = uploadedPhotos.map((src, idx) => `
+          <div class="relative aspect-square rounded-xl overflow-hidden border border-white/15 bg-zinc-950">
+            <img src="${src}" class="w-full h-full object-cover" />
+            <button type="button" data-remove-idx="${idx}" class="remove-photo-btn absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 text-white text-xs font-bold flex items-center justify-center">&times;</button>
+          </div>
+        `).join('');
+
+        thumbsEl.querySelectorAll('.remove-photo-btn').forEach(btn => {
+          btn.onclick = () => {
+            uploadedPhotos.splice(Number(btn.dataset.removeIdx), 1);
+            activeSlideIndex = 0;
+            updatePhotoThumbsUI();
+            saveDraftAuto();
+            renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+          };
+        });
+
+        statusEl.textContent = uploadedPhotos.length >= MAX_PHOTOS
+          ? '✓ Limite máximo de 4 fotos atingido!'
+          : `✓ ${uploadedPhotos.length} foto(s) carregada(s). Pode adicionar mais ${MAX_PHOTOS - uploadedPhotos.length}.`;
+        statusEl.classList.remove('hidden');
+      }
+
+      uploadLabel.style.opacity = uploadedPhotos.length >= MAX_PHOTOS ? '0.5' : '1';
+      uploadLabel.style.pointerEvents = uploadedPhotos.length >= MAX_PHOTOS ? 'none' : 'auto';
+    }
+
+    function compressOne(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxDim = 340;
+            let w = img.width || 340, h = img.height || 340;
+            if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.58));
+          };
+          img.onerror = () => resolve(null);
+          img.src = ev.target.result;
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.getElementById('input-photo-file').addEventListener('change', async function() {
+      const files = this.files;
+      if (!files || !files.length) return;
+      const statusEl = document.getElementById('photo-file-status');
+      statusEl.textContent = '⏳ Carregando fotos...';
+      statusEl.classList.remove('hidden');
+
+      const limit = Math.min(files.length, MAX_PHOTOS - uploadedPhotos.length);
+      for (let i = 0; i < limit; i++) {
+        const dataUrl = await compressOne(files[i]);
+        if (dataUrl) uploadedPhotos.push(dataUrl);
+      }
+      this.value = '';
+      activeSlideIndex = Math.max(0, uploadedPhotos.length - 1);
+      updatePhotoThumbsUI();
+      saveDraftAuto();
+      renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+    });
+
+    function closeSongAudition() {
+      const box = document.getElementById('song-audition-box');
+      const wrap = document.getElementById('audition-iframe-wrap');
+      box.classList.add('hidden');
+      wrap.innerHTML = '';
+      currentAuditionSong = null;
+      isAuditionActive = false;
+      document.querySelectorAll('.btn-preview-song').forEach(b => {
+        b.textContent = '▶ Ouvir';
+      });
+      const previewEl = document.getElementById('live-preview');
+      if (previewEl && !previewEl.closest('#creator-view')?.classList.contains('hidden')) {
+        renderCard(previewEl, getFormData(), { isPreview: true });
+      }
+    }
+
+    function openSongAudition(ytId, ytUrl, ytLabel, clickedBtn) {
+      if (currentAuditionSong && currentAuditionSong.ytId === ytId) {
+        closeSongAudition();
+        return;
+      }
+      currentAuditionSong = { ytId, ytUrl, ytLabel };
+      isAuditionActive = true;
+      const previewEl = document.getElementById('live-preview');
+      if (previewEl) {
+        renderCard(previewEl, getFormData(), { isPreview: true, suspendAudio: true });
+      }
+      document.querySelectorAll('.btn-preview-song').forEach(b => {
+        b.textContent = '▶ Ouvir';
+      });
+      if (clickedBtn) clickedBtn.textContent = '⏹ Parar';
+
+      document.getElementById('audition-title').textContent = `🎧 Ouvindo: ${ytLabel}`;
+      document.getElementById('audition-yt-fallback').href = ytUrl;
+      document.getElementById('audition-iframe-wrap').innerHTML = `
+        <iframe class="w-full h-full" src="https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0" title="${ytLabel}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      `;
+      document.getElementById('song-audition-box').classList.remove('hidden');
+    }
+
+    function syncYouTubeUI(customLabel = null) {
+      const ytInput = document.getElementById('input-youtube');
+      const clearBtn = document.getElementById('btn-clear-yt');
+      const statusEl = document.getElementById('yt-status');
+      const raw = ytInput.value.trim();
+      const ytId = extractYouTubeId(raw);
+
+      document.querySelectorAll('.music-preset-row').forEach(row => {
+        const isMatch = row.dataset.ytUrl === raw;
+        row.className = isMatch
+          ? 'music-preset-row flex items-center justify-between gap-1.5 bg-pink-600/20 border border-pink-500 rounded-lg px-2.5 py-1.5 transition'
+          : 'music-preset-row flex items-center justify-between gap-1.5 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 transition';
+        const useBtn = row.querySelector('.btn-select-song');
+        if (useBtn) useBtn.textContent = isMatch ? '✓ Em uso' : 'Usar';
+      });
+
+      if (!raw) {
+        clearBtn.classList.add('hidden');
+        statusEl.textContent = 'Toque em "Ouvir" para escutar ou em "Usar" para aplicar no cartão.';
+        statusEl.className = 'text-[11px] text-zinc-400';
+      } else if (ytId) {
+        clearBtn.classList.remove('hidden');
+        statusEl.textContent = customLabel
+          ? `✓ "${customLabel}" selecionada (tocará em loop infinito no presente)!`
+          : '✓ Música vinculada (tocará em loop infinito no presente)!';
+        statusEl.className = 'text-[11px] text-emerald-400 font-semibold';
+      } else {
+        clearBtn.classList.remove('hidden');
+        statusEl.textContent = '⚠ Link não reconhecido. Copie o link de compartilhar do vídeo no YouTube.';
+        statusEl.className = 'text-[11px] text-amber-400';
+      }
+      saveDraftAuto();
+      renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+    }
+
+    document.querySelectorAll('.music-preset-row').forEach(row => {
+      const previewBtn = row.querySelector('.btn-preview-song');
+      const selectBtn = row.querySelector('.btn-select-song');
+
+      previewBtn.addEventListener('click', () => {
+        openSongAudition(row.dataset.ytId, row.dataset.ytUrl, row.dataset.ytLabel, previewBtn);
+      });
+
+      selectBtn.addEventListener('click', () => {
+        closeSongAudition();
+        document.getElementById('input-youtube').value = row.dataset.ytUrl;
+        syncYouTubeUI(row.dataset.ytLabel);
+      });
+    });
+
+    document.getElementById('btn-apply-audition').addEventListener('click', () => {
+      if (!currentAuditionSong) return;
+      const { ytUrl, ytLabel } = currentAuditionSong;
+      closeSongAudition();
+      document.getElementById('input-youtube').value = ytUrl;
+      syncYouTubeUI(ytLabel);
+    });
+
+    document.getElementById('btn-close-audition').addEventListener('click', closeSongAudition);
+
+    document.getElementById('btn-clear-yt').addEventListener('click', () => {
+      document.getElementById('input-youtube').value = '';
+      syncYouTubeUI();
+    });
+
+    document.getElementById('btn-go-yt-search').addEventListener('click', () => {
+      const q = document.getElementById('input-yt-search').value.trim() || 'musica romantica';
+      window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, '_blank', 'noopener,noreferrer');
+    });
+
+    document.getElementById('input-yt-search').addEventListener('input', (e) => {
+      const q = e.target.value.trim() || 'musica romantica';
+      document.getElementById('btn-search-yt').href = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+    });
+
+    document.getElementById('input-youtube').addEventListener('input', () => syncYouTubeUI());
+
+    function getFormData(overrideDays = null) {
+      const planEl = document.querySelector('input[name="plan"]:checked');
+      const plan = overrideDays ? 'brinde_15_dias' : (planEl ? planEl.value : '15_dias');
+      const manualUrl = document.getElementById('input-photo').value.trim();
+      const photos = [...uploadedPhotos];
+      if (manualUrl && photos.length < MAX_PHOTOS) photos.push(manualUrl);
+      const ytId = extractYouTubeId(document.getElementById('input-youtube').value);
+      const daysMap = { '15_dias': 15, '1_ano': 365, 'vitalicio': 36500 };
+      const validDays = overrideDays || daysMap[plan] || 15;
+      return {
+        t: currentTheme,
+        ef: currentEffect,
+        n: document.getElementById('input-names').value.trim() || 'Nosso Amor',
+        d: document.getElementById('input-date').value || '2024-01-01T00:00',
+        ps: photos,
+        yt: ytId,
+        m: document.getElementById('input-message').value.trim(),
+        pl: plan,
+        exp: Date.now() + validDays * 86400000
+      };
+    }
+
+    function encodePayload(obj) {
+      return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+    }
+
+    function decodePayload(str) {
+      return JSON.parse(decodeURIComponent(escape(atob(str))));
+    }
+
+    const PENDING_PIX_KEY = 'codigo_do_amor_pending_pix_v1';
+
+    function savePendingPix(pixId, data, token) {
+      try {
+        localStorage.setItem(PENDING_PIX_KEY, JSON.stringify({
+          pixId,
+          token,
+          data,
+          createdAt: Date.now()
+        }));
+        const wrap = document.getElementById('pending-pix-banner-btn-wrap');
+        if (wrap) wrap.classList.remove('hidden');
+        renderSavedGifts();
+      } catch (e) {}
+    }
+
+    function clearPendingPix() {
+      try {
+        localStorage.removeItem(PENDING_PIX_KEY);
+        const wrap = document.getElementById('pending-pix-banner-btn-wrap');
+        if (wrap) wrap.classList.add('hidden');
+      } catch (e) {}
+    }
+
+    function getPendingPix() {
+      try {
+        const raw = localStorage.getItem(PENDING_PIX_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        // Expira tentativa pendente após 24 horas
+        if (!parsed || !parsed.pixId || (Date.now() - parsed.createdAt > 86400000)) {
+          clearPendingPix();
+          return null;
+        }
+        return parsed;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    let isVerifyingPendingPix = false;
+
+    async function verifyPendingPixOnce(showFeedbackIfPending = false) {
+      const pending = getPendingPix();
+      if (!pending) return false;
+      const wrap = document.getElementById('pending-pix-banner-btn-wrap');
+      if (wrap) wrap.classList.remove('hidden');
+
+      if (isVerifyingPendingPix) return false;
+      isVerifyingPendingPix = true;
+
+      try {
+        const check = await fetch(`/api/verificar-pix?id=${encodeURIComponent(pending.pixId)}&token=${encodeURIComponent(pending.token || '')}&t=${Date.now()}`, {
+          cache: 'no-store'
+        });
+        const statusData = await check.json();
+        if (statusData && statusData.status === 'approved') {
+          clearInterval(pollInterval);
+          clearPendingPix();
+          renderSavedGifts();
+          showDeliveryModal(pending.data, false);
+          return true;
+        } else if (statusData && statusData.status === 'already_used') {
+          clearInterval(pollInterval);
+          clearPendingPix();
+          renderSavedGifts();
+          alert('Este pagamento já foi usado para liberar outro projeto.');
+          return false;
+        } else if (showFeedbackIfPending) {
+          const modal = document.getElementById('pix-modal');
+          if (modal) {
+            modal.classList.remove('hidden');
+            document.getElementById('pix-loading').classList.add('hidden');
+            document.getElementById('pix-success').classList.add('hidden');
+            document.getElementById('pix-content').classList.remove('hidden');
+            let pendingMsg = document.getElementById('pix-pending-msg');
+            if (!pendingMsg) {
+              pendingMsg = document.createElement('div');
+              pendingMsg.id = 'pix-pending-msg';
+              pendingMsg.className = 'text-xs text-amber-300 text-center mt-2';
+              document.getElementById('pix-content').appendChild(pendingMsg);
+            }
+            pendingMsg.textContent = 'Pagamento ainda não confirmado. Se você já pagou, aguarde alguns segundos e toque em verificar novamente.';
+          }
+        }
+      } catch (e) {
+        if (showFeedbackIfPending) {
+          alert('Não foi possível consultar o status do Pix agora. Verifique sua conexão e tente novamente.');
+        }
+      } finally {
+        isVerifyingPendingPix = false;
+      }
+      return false;
+    }
+
+    function watchPendingPixAutomatically() {
+      const pending = getPendingPix();
+      if (!pending) return;
+      verifyPendingPixOnce(false);
+      setTimeout(() => verifyPendingPixOnce(false), 1500);
+      setTimeout(() => verifyPendingPixOnce(false), 4500);
+      clearInterval(pollInterval);
+      pollInterval = setInterval(() => {
+        if (!getPendingPix()) {
+          clearInterval(pollInterval);
+          return;
+        }
+        verifyPendingPixOnce(false);
+      }, 5000);
+    }
+
+    function startPixPolling(pixId, data, token) {
+      clearInterval(pollInterval);
+      pollInterval = setInterval(async () => {
+        try {
+          const check = await fetch(`/api/verificar-pix?id=${encodeURIComponent(pixId)}&token=${encodeURIComponent(token || '')}`);
+          const statusData = await check.json();
+          if (statusData && statusData.status === 'approved') {
+            clearInterval(pollInterval);
+            clearPendingPix();
+            showDeliveryModal(data, false);
+          } else if (statusData && statusData.status === 'already_used') {
+            clearInterval(pollInterval);
+            clearPendingPix();
+            alert('Este pagamento já foi usado para liberar outro projeto.');
+          }
+        } catch (e) {}
+      }, 3000);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        verifyPendingPixOnce(false);
+      }
+    });
+    window.addEventListener('focus', () => verifyPendingPixOnce(false));
+
+    const btnVerifyPixNow = document.getElementById('btn-verify-pix-now');
+    if (btnVerifyPixNow) {
+      btnVerifyPixNow.addEventListener('click', async () => {
+        btnVerifyPixNow.textContent = '⏳ Verificando pagamento...';
+        await verifyPendingPixOnce(true);
+        btnVerifyPixNow.textContent = '✓ Já paguei o Pix — Verificar e Liberar Agora';
+      });
+    }
+
+    const btnCheckPendingTop = document.getElementById('btn-check-pending-pix-top');
+    if (btnCheckPendingTop) {
+      btnCheckPendingTop.addEventListener('click', async () => {
+        btnCheckPendingTop.textContent = '⏳ Verificando...';
+        await verifyPendingPixOnce(true);
+        btnCheckPendingTop.textContent = '🔄 Verificar Pix Pendente';
+      });
+    }
+
+    function generateShortGiftId() {
+      const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+      let id = 'cda-';
+      for (let i = 0; i < 6; i++) {
+        id += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return id;
+    }
+
+
+
+    function loadGiftById(giftId) {
+      if (!giftId) return null;
+      try {
+        const raw = localStorage.getItem(`codigo_do_amor_gift_${giftId}`);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function safeSetStorage(key, valueStr) {
+      try {
+        localStorage.setItem(key, valueStr);
+        return true;
+      } catch (e) {
+        try {
+          // Em caso de limite de espaço no aparelho, remove chaves antigas de rascunho/presente e tenta novamente
+          const keysToClean = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && (k.startsWith('codigo_do_amor_gift_cda-') || k === DRAFT_STORAGE_KEY)) {
+              keysToClean.push(k);
+            }
+          }
+          keysToClean.slice(0, 3).forEach(k => localStorage.removeItem(k));
+          localStorage.setItem(key, valueStr);
+          return true;
+        } catch (err2) {
+          return false;
+        }
+      }
+    }
+
+    function storeGiftById(giftId, data) {
+      if (!giftId) return;
+      safeSetStorage(`codigo_do_amor_gift_${giftId}`, JSON.stringify(data));
+    }
+
+    function showDeliveryModal(data, isGift = false) {
+      const shortId = data.gid || generateShortGiftId();
+      const fullData = { ...data, gid: shortId };
+      storeGiftById(shortId, fullData);
+      let compactHash = '';
+      try {
+        const encoded = encodePayload(fullData);
+        // Só anexa no hash se o payload for leve para evitar links excessivamente longos em celulares
+        if (encoded.length <= 24000) {
+          compactHash = `#p=${encoded}`;
+        }
+      } catch (e) {}
+      const finalUrl = `${window.location.origin}/?g=${encodeURIComponent(shortId)}${compactHash}`;
+      currentDeliveredData = { data, finalUrl };
+      saveDeliveredGiftAuto(fullData, finalUrl, isGift);
+
+      const modal = document.getElementById('pix-modal');
+      modal.classList.remove('hidden');
+      document.getElementById('pix-loading').classList.add('hidden');
+      document.getElementById('pix-content').classList.add('hidden');
+      document.getElementById('pix-error').classList.add('hidden');
+      document.getElementById('pix-success').classList.remove('hidden');
+      document.getElementById('ig-share-feedback').classList.add('hidden');
+      document.getElementById('modal-badge').textContent = isGift ? '🎁 Brinde Exclusivo • Ativo por 15 Dias' : 'Mercado Pago • Liberação Automática';
+      const valInfo = formatValidityInfo(data.pl, data.exp);
+      document.getElementById('modal-title').textContent = isGift ? 'Seu Presente de 15 Dias está Pronto!' : 'Homenagem Liberada!';
+      document.getElementById('success-heading').textContent = isGift ? 'Código Resgatado com Sucesso!' : 'Pagamento Aprovado!';
+      const valBox = document.getElementById('delivery-validity-box');
+      if (valBox) valBox.textContent = valInfo.detailText;
+      document.getElementById('final-link-input').value = finalUrl;
+      document.getElementById('btn-open-gift').href = finalUrl;
+      const waText = encodeURIComponent(buildMarketingShareText(data.n, finalUrl));
+      document.getElementById('btn-whatsapp-share').href = `https://wa.me/?text=${waText}`;
+
+      const qrDiv = document.getElementById('final-qrcode');
+      qrDiv.innerHTML = '';
+      new QRCode(qrDiv, { text: finalUrl, width: 150, height: 150 });
+    }
+
+    // MODO TELA CHEIA (PRÉ-VISUALIZAÇÃO & CARTÃO DO CLIENTE)
+    let fullscreenClockTimer = null;
+    let fullscreenSlideTimer = null;
+
+    let fullscreenPausedSource = null;
+
+    function openCardFullscreen(data, opts = {}, labelText = 'Modo Tela Cheia', sourceContainerId = null) {
+      const overlay = document.getElementById('fullscreen-overlay');
+      const slot = document.getElementById('fullscreen-card-slot');
+      const labelEl = document.getElementById('fullscreen-label');
+      if (!overlay || !slot) return;
+
+      // Remove o player de áudio do cartão de trás enquanto a tela cheia estiver aberta (evita 2 músicas ao mesmo tempo)
+      if (sourceContainerId) {
+        const srcEl = document.getElementById(sourceContainerId);
+        if (srcEl) {
+          fullscreenPausedSource = { id: sourceContainerId, data, opts };
+          renderCard(srcEl, data, { ...opts, suspendAudio: true });
+        }
+      }
+
+      labelEl.textContent = labelText;
+      overlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      renderCard(slot, data, { ...opts, suspendAudio: false });
+
+      clearInterval(fullscreenClockTimer);
+      clearInterval(fullscreenSlideTimer);
+
+      fullscreenClockTimer = setInterval(() => {
+        updateClockOnly(slot, data.d);
+      }, 1000);
+
+      const photos = getPhotosList(data, Boolean(opts.isPreview));
+      if (photos.length > 1) {
+        fullscreenSlideTimer = setInterval(() => {
+          activeSlideIndex = (activeSlideIndex + 1) % photos.length;
+          updatePhotoSlideOnly(slot, data, Boolean(opts.isPreview));
+        }, 3500);
+      }
+
+      if (overlay.requestFullscreen && window.innerWidth >= 768) {
+        overlay.requestFullscreen().catch(() => {});
+      }
+    }
+
+    function closeCardFullscreen() {
+      const overlay = document.getElementById('fullscreen-overlay');
+      const slot = document.getElementById('fullscreen-card-slot');
+      clearInterval(fullscreenClockTimer);
+      clearInterval(fullscreenSlideTimer);
+      if (slot) {
+        persistentPlayers.delete(slot);
+        slot.innerHTML = '';
+      }
+      if (overlay) overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+      if (fullscreenPausedSource) {
+        const srcEl = document.getElementById(fullscreenPausedSource.id);
+        if (srcEl) {
+          const freshData = fullscreenPausedSource.id === 'live-preview' ? getFormData() : fullscreenPausedSource.data;
+          renderCard(srcEl, freshData, { ...fullscreenPausedSource.opts, suspendAudio: false });
+        }
+        fullscreenPausedSource = null;
+      }
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    document.getElementById('btn-close-fullscreen').addEventListener('click', closeCardFullscreen);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !document.getElementById('fullscreen-overlay').classList.contains('hidden')) {
+        closeCardFullscreen();
+      }
+    });
+
+    const btnPreviewReplay = document.getElementById('btn-preview-replay-intro');
+    if (btnPreviewReplay) {
+      btnPreviewReplay.addEventListener('click', () => {
+        startCardIntro(document.getElementById('live-preview'), getFormData());
+      });
+    }
+
+    const btnPreviewFs = document.getElementById('btn-preview-fullscreen');
+    if (btnPreviewFs) {
+      btnPreviewFs.addEventListener('click', () => {
+        openCardFullscreen(getFormData(), { isPreview: true, forceIntro: true }, 'Pré-visualização em Tela Cheia', 'live-preview');
+      });
+    }
+
+    const hash = window.location.hash;
+    const urlParams = new URLSearchParams(window.location.search);
+    const shortGiftId = urlParams.get('g');
+    const queryPayload = urlParams.get('d');
+    const hashPayload = hash.startsWith('#d=')
+      ? hash.slice(3)
+      : (hash.startsWith('#p=') ? hash.slice(3) : '');
+    const activeGiftPayload = queryPayload || hashPayload;
+
+    let resolvedGiftData = null;
+    if (shortGiftId) {
+      resolvedGiftData = loadGiftById(shortGiftId);
+    }
+    if (!resolvedGiftData && activeGiftPayload) {
+      try {
+        resolvedGiftData = decodePayload(activeGiftPayload);
+        if (shortGiftId && resolvedGiftData) {
+          storeGiftById(shortGiftId, resolvedGiftData);
+        }
+      } catch (e) {}
+    }
+
+    if (hash === '#admin') {
+      document.getElementById('creator-view').classList.add('hidden');
+      const adminView = document.getElementById('admin-view');
+      adminView.classList.remove('hidden');
+      adminView.classList.add('flex');
+    } else if (shortGiftId || activeGiftPayload) {
+      document.getElementById('creator-view').classList.add('hidden');
+      const giftView = document.getElementById('gift-view');
+      giftView.classList.remove('hidden');
+      giftView.classList.add('flex');
+      const container = document.getElementById('gift-card-container');
+
+      if (!resolvedGiftData) {
+        container.className = 'w-full max-w-sm mx-auto rounded-3xl bg-zinc-900 border border-pink-500/30 p-6 text-center space-y-4';
+        container.innerHTML = `
+          <div class="text-4xl">💜</div>
+          <h2 class="text-lg font-extrabold text-white">Homenagem Código do Amor</h2>
+          <p class="text-xs text-zinc-400">Abra este link no mesmo aparelho em que o projeto foi salvo ou conheça o site para criar a sua homenagem.</p>
+          <a href="/" class="inline-block w-full bg-gradient-to-r from-pink-600 to-violet-600 text-white font-bold text-xs py-3 rounded-xl">Acessar Código do Amor</a>
+        `;
+      } else if (resolvedGiftData.exp && Date.now() > resolvedGiftData.exp) {
+        const expStr = formatDateBR(resolvedGiftData.exp);
+        container.className = 'w-full max-w-sm mx-auto rounded-3xl bg-zinc-900 border border-amber-500/40 p-6 text-center space-y-4';
+        container.innerHTML = `
+          <div class="text-4xl">⏳</div>
+          <h2 class="text-xl font-extrabold text-white">Prazo do plano encerrado</h2>
+          <p class="text-xs text-zinc-300">Este projeto expirou em <strong>${expStr}</strong> conforme o pacote contratado.</p>
+          <div class="bg-amber-500/15 border border-amber-400/40 rounded-2xl p-3.5 text-xs text-amber-200 space-y-1">
+            <div class="font-extrabold text-amber-300">🔥 Renovação com 10% de Desconto no Pacote Vitalício!</div>
+            <div>De <span class="line-through text-zinc-400">R$ 49,90</span> por <strong class="text-emerald-300 text-sm">R$ 44,91</strong> para manter seu projeto ativo para sempre.</div>
+          </div>
+          <a href="/#sec-plano" class="inline-block w-full bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white font-extrabold text-xs py-3 rounded-xl shadow transition">
+            Renovar no Vitalício com 10% OFF (R$ 44,91)
+          </a>
+        `;
+      } else {
+        const photos = getPhotosList(resolvedGiftData);
+        renderCard(container, resolvedGiftData, { isPreview: false, forceIntro: true });
+        const giftFooter = document.getElementById('gift-validity-footer');
+        if (giftFooter) {
+          giftFooter.textContent = formatValidityInfo(resolvedGiftData.pl, resolvedGiftData.exp).detailText;
+        }
+        const btnGiftReplay = document.getElementById('btn-gift-replay-intro');
+        if (btnGiftReplay) {
+          btnGiftReplay.addEventListener('click', () => {
+            startCardIntro(container, resolvedGiftData);
+          });
+        }
+        const btnGiftFs = document.getElementById('btn-gift-fullscreen');
+        if (btnGiftFs) {
+          btnGiftFs.addEventListener('click', () => {
+            openCardFullscreen(resolvedGiftData, { isPreview: false, forceIntro: true }, resolvedGiftData.n || 'Código do Amor', 'gift-card-container');
+          });
+        }
+        setInterval(() => updateClockOnly(container, resolvedGiftData.d), 1000);
+        if (photos.length > 1) {
+          setInterval(() => {
+            activeSlideIndex = (activeSlideIndex + 1) % photos.length;
+            updatePhotoSlideOnly(container, resolvedGiftData);
+          }, 4000);
+        }
+      }
+    } else {
+      restoreDraftAuto();
+      if (document.getElementById('input-youtube').value.trim()) {
+        syncYouTubeUI();
+      }
+      renderSavedGifts();
+      watchPendingPixAutomatically();
+
+      const previewEl = document.getElementById('live-preview');
+      renderCard(previewEl, getFormData(), { isPreview: true });
+      setInterval(() => updateClockOnly(previewEl, getFormData().d), 1000);
+      setInterval(() => {
+        const formData = getFormData();
+        const photos = getPhotosList(formData, true);
+        if (photos.length > 1) {
+          activeSlideIndex = (activeSlideIndex + 1) % photos.length;
+          updatePhotoSlideOnly(previewEl, formData, true);
+        }
+      }, 3500);
+
+      ['input-names', 'input-date', 'input-photo', 'input-message'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+          saveDraftAuto();
+          renderCard(previewEl, getFormData(), { isPreview: true });
+        });
+      });
+    }
+
+    document.getElementById('btn-download-qr-png').addEventListener('click', () => {
+      if (!currentDeliveredData) return;
+      downloadQRCodeImage(currentDeliveredData.finalUrl, currentDeliveredData.data.n, 'qr');
+    });
+
+    document.getElementById('btn-download-qr-card').addEventListener('click', () => {
+      if (!currentDeliveredData) return;
+      downloadQRCodeImage(currentDeliveredData.finalUrl, currentDeliveredData.data.n, 'card');
+    });
+
+    document.getElementById('btn-instagram-share').addEventListener('click', () => {
+      if (!currentDeliveredData) return;
+      openInstagramDirectWithCopy(
+        currentDeliveredData.data.n,
+        currentDeliveredData.finalUrl,
+        document.getElementById('ig-share-feedback')
+      );
+    });
+
+    document.getElementById('btn-saved-dl-png').addEventListener('click', () => {
+      if (!currentModalSavedGift) return;
+      downloadQRCodeImage(currentModalSavedGift.url, currentModalSavedGift.name, 'qr');
+    });
+
+    document.getElementById('btn-saved-dl-card').addEventListener('click', () => {
+      if (!currentModalSavedGift) return;
+      downloadQRCodeImage(currentModalSavedGift.url, currentModalSavedGift.name, 'card');
+    });
+
+    document.getElementById('btn-saved-ig').addEventListener('click', () => {
+      if (!currentModalSavedGift) return;
+      openInstagramDirectWithCopy(
+        currentModalSavedGift.name,
+        currentModalSavedGift.url,
+        document.getElementById('saved-ig-feedback')
+      );
+    });
+
+    document.getElementById('close-saved-qr-modal').addEventListener('click', () => {
+      document.getElementById('saved-qr-modal').classList.add('hidden');
+    });
+
+    document.getElementById('btn-open-saved-drawer').addEventListener('click', () => {
+      document.getElementById('saved-gifts-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-copy-partner-pitch').addEventListener('click', () => {
+      const pitch = `💜 Que tal transformar seu presente em uma experiência inesquecível?\n\nCom o Código do Amor, você cria um cartão digital personalizado com fotos, música do casal e contador de tempo juntos — e recebe um QR Code pronto para imprimir e colocar junto em buquês de flores, cestas de café da manhã, caixas de presente ou canecas!\n\n✨ Crie em 1 minuto no site: https://codigodoamoroficial.vercel.app`;
+      navigator.clipboard.writeText(pitch);
+      const btn = document.getElementById('btn-copy-partner-pitch');
+      btn.textContent = '✓ Texto Copiado!';
+      setTimeout(() => { btn.textContent = '📋 Copiar Texto de Indicação'; }, 2500);
+    });
+
+    document.getElementById('btn-generate-gift-code').addEventListener('click', async () => {
+      const pass = document.getElementById('admin-pass-input').value.trim();
+      const errBox = document.getElementById('admin-error');
+      const resBox = document.getElementById('admin-result');
+      errBox.classList.add('hidden');
+      resBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/brinde', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'generate', adminPassword: pass })
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          errBox.textContent = json.error || 'Erro ao gerar código.';
+          errBox.classList.remove('hidden');
+          return;
+        }
+        document.getElementById('generated-code-output').value = json.code;
+        resBox.classList.remove('hidden');
+      } catch (e) {
+        errBox.textContent = 'Erro de conexão com o servidor.';
+        errBox.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('btn-copy-admin-code').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('generated-code-output').value);
+      document.getElementById('btn-copy-admin-code').textContent = '✓ Código Copiado!';
+    });
+
+    document.getElementById('btn-redeem-code').addEventListener('click', async () => {
+      const codeInput = document.getElementById('input-gift-code').value.trim();
+      const statusEl = document.getElementById('redeem-status');
+      if (!codeInput) {
+        statusEl.textContent = 'Digite o código de brinde primeiro.';
+        statusEl.className = 'text-xs text-red-400';
+        return;
+      }
+
+      statusEl.textContent = 'Validando código...';
+      statusEl.className = 'text-xs text-amber-300';
+
+      try {
+        const res = await fetch('/api/brinde', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'redeem', code: codeInput })
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          statusEl.textContent = json.error || 'Código inválido.';
+          statusEl.className = 'text-xs text-red-400';
+          return;
+        }
+        statusEl.classList.add('hidden');
+        const giftData = getFormData(json.planDays || 15);
+        showDeliveryModal(giftData, true);
+      } catch (e) {
+        statusEl.textContent = 'Erro ao validar código. Tente novamente.';
+        statusEl.className = 'text-xs text-red-400';
+      }
+    });
+
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('ring-2', 'ring-pink-500'));
+        btn.classList.add('ring-2', 'ring-pink-500');
+        currentTheme = btn.dataset.theme;
+        saveDraftAuto();
+        renderSavedGifts();
+        renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+      });
+    });
+
+    document.querySelectorAll('.effect-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.effect-btn').forEach(b => {
+          b.classList.remove('ring-2', 'ring-pink-500', 'bg-pink-600/20');
+          b.classList.add('bg-zinc-900');
+        });
+        btn.classList.remove('bg-zinc-900');
+        btn.classList.add('ring-2', 'ring-pink-500', 'bg-pink-600/20');
+        currentEffect = btn.dataset.effect;
+        saveDraftAuto();
+        renderSavedGifts();
+        renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+      });
+    });
+
+    document.querySelectorAll('input[name="plan"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        document.querySelectorAll('.plan-card').forEach(card => {
+          card.className = 'plan-card cursor-pointer border border-white/10 bg-zinc-950 rounded-xl p-4 flex items-center justify-between';
+        });
+        e.target.closest('.plan-card').className = 'plan-card cursor-pointer border border-pink-500 bg-pink-500/10 rounded-xl p-4 flex items-center justify-between';
+        renderSavedGifts();
+      });
+    });
+
+    document.getElementById('btn-checkout').addEventListener('click', async () => {
+      const data = getFormData();
+      const modal = document.getElementById('pix-modal');
+      modal.classList.remove('hidden');
+      document.getElementById('modal-badge').textContent = 'Mercado Pago • Liberação Automática';
+      document.getElementById('modal-title').textContent = 'Pague o Pix para Liberar';
+      document.getElementById('pix-loading').classList.remove('hidden');
+      document.getElementById('pix-content').classList.add('hidden');
+      document.getElementById('pix-error').classList.add('hidden');
+      document.getElementById('pix-success').classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/criar-pix', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId: data.pl, coupleName: data.n })
+        });
+        const pix = await res.json();
+        document.getElementById('pix-loading').classList.add('hidden');
+        if (!res.ok) {
+          const errBox = document.getElementById('pix-error');
+          errBox.textContent = pix.error || 'Erro ao iniciar pagamento.';
+          errBox.classList.remove('hidden');
+          return;
+        }
+        document.getElementById('pix-qr-img').src = `data:image/png;base64,${pix.qr_code_base64}`;
+        document.getElementById('pix-copy-input').value = pix.qr_code;
+        document.getElementById('pix-content').classList.remove('hidden');
+
+        // Salva o Pix pendente no localStorage para não perder caso o cliente saia para o app do banco no celular
+        savePendingPix(pix.id, data, pix.token);
+        startPixPolling(pix.id, data, pix.token);
+      } catch (err) {
+        document.getElementById('pix-loading').classList.add('hidden');
+        const errBox = document.getElementById('pix-error');
+        errBox.textContent = 'Falha de conexão com o servidor.';
+        errBox.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('close-modal').addEventListener('click', () => {
+      clearInterval(pollInterval);
+      document.getElementById('pix-modal').classList.add('hidden');
+    });
+
+    document.getElementById('btn-copy-pix').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('pix-copy-input').value);
+      document.getElementById('btn-copy-pix').textContent = 'Copiado!';
+    });
+
+    document.getElementById('btn-copy-link').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('final-link-input').value);
+      document.getElementById('btn-copy-link').textContent = 'Link Copiado!';
+    });
+
+    let currentOccasion = 'todos';
+
+    function applyOccasionHighlight(mode) {
+      currentOccasion = mode || 'todos';
+      document.querySelectorAll('.occasion-btn').forEach(btn => {
+        const active = btn.dataset.occasion === currentOccasion;
+        btn.className = active
+          ? 'occasion-btn ring-2 ring-pink-500 bg-pink-600/20 border border-white/10 rounded-xl p-2.5 text-center transition'
+          : 'occasion-btn bg-zinc-950 border border-white/10 rounded-xl p-2.5 text-center hover:bg-zinc-800 transition';
+      });
+
+      const hintEl = document.getElementById('occasion-hint');
+      if (hintEl) {
+        if (currentOccasion === 'aniversario') {
+          hintEl.innerHTML = '🎂 Modo <strong>Aniversário</strong> em destaque: temas com idade e contador <em>Em vida há</em>, músicas nacionais animadas e efeitos de Fogos, Confetes e Luzes destacados (nenhum bloqueio).';
+        } else if (currentOccasion === 'casal') {
+          hintEl.innerHTML = '💜 Modo <strong>Casal</strong> em destaque: temas românticos, séries, times e músicas do casal em destaque (você ainda pode usar qualquer tema, música ou efeito se quiser).';
+        } else {
+          hintEl.innerHTML = 'Mostrando todos os temas, músicas e efeitos. Se quiser, escolha <strong>Casal</strong> ou <strong>Aniversário</strong> para destacar o que combina mais com a sua homenagem.';
+        }
+      }
+
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        const cat = btn.dataset.cat || 'casal';
+        const match = currentOccasion === 'todos' || currentOccasion === cat;
+        btn.style.opacity = match ? '1' : '0.45';
+      });
+
+      document.querySelectorAll('.music-preset-row').forEach(row => {
+        const mcat = row.dataset.mcat || 'casal';
+        const match = currentOccasion === 'todos' || currentOccasion === mcat;
+        row.style.opacity = match ? '1' : '0.45';
+      });
+
+      document.querySelectorAll('.effect-btn').forEach(btn => {
+        const ecat = btn.dataset.ecat || 'casal';
+        const match = currentOccasion === 'todos' || currentOccasion === ecat;
+        btn.style.opacity = match ? '1' : '0.45';
+      });
+    }
+
+    document.querySelectorAll('.occasion-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        applyOccasionHighlight(btn.dataset.occasion);
+      });
+    });
+
+    let selectedTextTone = 'normal';
+    let lastSuggestedText = '';
+
+    function smartPolishPortugueseText(rawText, tone = 'normal') {
+      let t = (rawText || '').replace(/\s+/g, ' ').trim();
+      if (!t) return '';
+
+      // Correções ortográficas e de digitação (usando limites de palavra \b e expressões comuns)
+      const typoMap = [
+        [/\bti\s+amu\b/gi, 'Te amo'],
+        [/\bti\b/gi, 'te'],
+        [/\bamu\b/gi, 'amo'],
+        [/\bvoce\b/gi, 'você'],
+        [/\bvc\b/gi, 'você'],
+        [/\bvcs\b/gi, 'vocês'],
+        [/\bqui\b/gi, 'que'],
+        [/\btbm\b/gi, 'também'],
+        [/\bmt\b/gi, 'muito'],
+        [/\bmto\b/gi, 'muito'],
+        [/\btd\b/gi, 'tudo'],
+        [/\bpq\b/gi, 'porque'],
+        [/\bparabens\b/gi, 'parabéns'],
+        [/\baniversario\b/gi, 'aniversário'],
+        [/\bcoracao\b/gi, 'coração'],
+        [/\bpaixao\b/gi, 'paixão'],
+        [/\bemocao\b/gi, 'emoção'],
+        [/\bsaudade\b/gi, 'saudade'],
+        [/\bfelicidade\b/gi, 'felicidade'],
+        [/\b([a-zà-ú]{2,})\s+e\s+o\s+amor\b/gi, '$1 é o amor'],
+        [/\bvida\s+paixão\b/gi, 'vida, paixão'],
+        [/\bpaixão\s+destemida\s+minha\b/gi, 'paixão destemida, minha'],
+        [/\brazão\s+de\s+viver\b/gi, 'razão de viver']
+      ];
+
+      typoMap.forEach(([rx, rep]) => {
+        t = t.replace(rx, rep);
+      });
+
+      // Ajusta pontuação e vírgulas naturais
+      t = t.replace(/\s+([,.;!?])/g, '$1');
+      t = t.replace(/([a-zà-ú0-9])\s+(feliz aniversário)/gi, '$1. $2');
+      t = t.replace(/(feliz aniversário)\s+([A-ZÀ-Ú][a-zà-ú]+)/g, '$1, $2');
+      t = t.replace(/([a-zà-ú]{3,})\s+(te amo|eu te amo)/gi, '$1, $2');
+
+      // Capitaliza início de frases
+      t = t.charAt(0).toUpperCase() + t.slice(1);
+      t = t.replace(/([.!?]\s+)([a-zà-ú])/g, (_, sep, ch) => sep + ch.toUpperCase());
+
+      if (tone === 'romantico') {
+        t = t.replace(/\bte amo\b/gi, 'te amo');
+        if (!/[.!?]$/.test(t)) t += '!';
+        if (!/❤️|💖|💜|coração/i.test(t)) {
+          t = `${t.replace(/[!.]$/, '')}, com todo o meu coração 💖`;
+        }
+      } else if (tone === 'amigavel') {
+        if (!/[.!?]$/.test(t)) t += '!';
+      } else if (tone === 'profissional') {
+        t = t.replace(/[❤️💖💜🎉🎈🎂!]+/g, '');
+        t = t.replace(/\s+/g, ' ').trim();
+        t = t.replace(/,\s*(te amo|eu te amo).*$/i, '.').replace(/\s+\./g, '.');
+        if (!/[.]$/.test(t)) t += '.';
+      } else {
+        if (!/[.!?]$/.test(t)) t += '!';
+      }
+
+      return t.slice(0, 280);
+    }
+
+    document.querySelectorAll('.tone-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedTextTone = btn.dataset.tone || 'normal';
+        document.querySelectorAll('.tone-btn').forEach(b => {
+          const active = b.dataset.tone === selectedTextTone;
+          b.className = active
+            ? 'tone-btn bg-pink-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full transition'
+            : 'tone-btn bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[10px] font-bold px-2.5 py-1 rounded-full transition';
+        });
+      });
+    });
+
+    const btnImproveMsg = document.getElementById('btn-improve-message-ai');
+    if (btnImproveMsg) {
+      btnImproveMsg.addEventListener('click', async () => {
+        const msgInput = document.getElementById('input-message');
+        const box = document.getElementById('ai-text-suggestion-box');
+        const prev = document.getElementById('ai-text-suggestion-preview');
+        const original = msgInput.value.trim();
+        if (!original) return;
+
+        btnImproveMsg.textContent = '⏳ Revisando...';
+        let polished = '';
+
+        try {
+          const resp = await fetch('/api/melhorar-texto', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: original, tone: selectedTextTone })
+          });
+          if (resp.ok) {
+            const j = await resp.json();
+            if (j && j.text) polished = String(j.text).trim();
+          }
+        } catch (e) {}
+
+        if (!polished) {
+          polished = smartPolishPortugueseText(original, selectedTextTone);
+        }
+
+        lastSuggestedText = polished;
+        prev.textContent = polished;
+        box.classList.remove('hidden');
+        btnImproveMsg.textContent = '✨ Melhorar Texto';
+      });
+    }
+
+    const btnApplyAiText = document.getElementById('btn-apply-ai-text');
+    if (btnApplyAiText) {
+      btnApplyAiText.addEventListener('click', () => {
+        if (!lastSuggestedText) return;
+        const msgInput = document.getElementById('input-message');
+        msgInput.value = lastSuggestedText;
+        document.getElementById('ai-text-suggestion-box').classList.add('hidden');
+        saveDraftAuto();
+        renderSavedGifts();
+        renderCard(document.getElementById('live-preview'), getFormData(), { isPreview: true });
+      });
+    }
+
+    const btnDiscardAiText = document.getElementById('btn-discard-ai-text');
+    if (btnDiscardAiText) {
+      btnDiscardAiText.addEventListener('click', () => {
+        document.getElementById('ai-text-suggestion-box').classList.add('hidden');
+      });
+    }
+
+    const DEFAULT_REVIEWS = [
+      { name: 'Camila & Pedro', theme: 'Tema Netflix', stars: 5, comment: 'Fiz no tema Netflix com 4 fotos nossas e imprimi o QR Code num cartão. Ele chorou na hora!', date: 'Hoje' },
+      { name: 'Mariana S.', theme: 'Tema Spotify', stars: 5, comment: 'Super rápido! Paguei o Pix e o link já liberou na mesma hora com o contador ao vivo.', date: 'Ontem' },
+      { name: 'Gabriel R.', theme: 'Tema São Paulo FC', stars: 5, comment: 'Fiz no tema Tricolor pro aniversário de namoro e coloquei na cesta de café da manhã, ficou perfeito!', date: 'Há 2 dias' }
+    ];
+
+    let selectedStars = 5;
+
+    function loadReviews() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('codigo_do_amor_reviews') || '[]');
+        return [...saved, ...DEFAULT_REVIEWS];
+      } catch (e) {
+        return [...DEFAULT_REVIEWS];
+      }
+    }
+
+    function renderReviews() {
+      const listEl = document.getElementById('reviews-list');
+      const countEl = document.getElementById('reviews-count');
+      if (!listEl) return;
+      const reviews = loadReviews();
+      countEl.textContent = `${125 + reviews.length} avaliações`;
+
+      listEl.innerHTML = reviews.map(r => `
+        <div class="bg-zinc-950/80 border border-white/10 rounded-xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-white">${r.name}</span>
+              <span class="text-[10px] bg-pink-500/15 text-pink-300 px-2 py-0.5 rounded-full font-semibold">${r.theme}</span>
+            </div>
+            <span class="text-xs text-amber-400">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</span>
+          </div>
+          <p class="text-xs text-zinc-300 leading-relaxed">${r.comment}</p>
+          <div class="text-[10px] text-zinc-500">${r.date} • Compra verificada</div>
+        </div>
+      `).join('');
+    }
+
+    function updateStarButtons(rating) {
+      selectedStars = rating;
+      document.querySelectorAll('.star-btn').forEach(btn => {
+        const val = Number(btn.dataset.star);
+        btn.className = `star-btn transition hover:scale-110 ${val <= rating ? 'text-amber-400' : 'text-zinc-600'}`;
+      });
+    }
+
+    document.querySelectorAll('.star-btn').forEach(btn => {
+      btn.addEventListener('click', () => updateStarButtons(Number(btn.dataset.star)));
+    });
+
+    const reviewForm = document.getElementById('review-form');
+    if (reviewForm) {
+      reviewForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('review-name');
+        const commentInput = document.getElementById('review-comment');
+        const themeInput = document.getElementById('review-theme');
+        const feedbackEl = document.getElementById('review-feedback');
+
+        const name = nameInput.value.trim();
+        const comment = commentInput.value.trim();
+
+        if (!name || !comment) {
+          feedbackEl.textContent = 'Preencha seu nome e comentário.';
+          feedbackEl.className = 'text-xs text-red-400';
+          return;
+        }
+
+        const newReview = {
+          name,
+          theme: themeInput.value,
+          stars: selectedStars,
+          comment,
+          date: 'Agora mesmo'
+        };
+
+        try {
+          const saved = JSON.parse(localStorage.getItem('codigo_do_amor_reviews') || '[]');
+          saved.unshift(newReview);
+          localStorage.setItem('codigo_do_amor_reviews', JSON.stringify(saved.slice(0, 20)));
+        } catch (err) {}
+
+        nameInput.value = '';
+        commentInput.value = '';
+        updateStarButtons(5);
+        feedbackEl.textContent = '✓ Obrigado! Sua avaliação foi publicada.';
+        feedbackEl.className = 'text-xs text-emerald-400';
+        renderReviews();
+      });
+
+      renderReviews();
+    }
+  </script>
+</body>
+</html>
